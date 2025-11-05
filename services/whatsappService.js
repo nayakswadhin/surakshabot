@@ -1,6 +1,7 @@
 const axios = require("axios");
 const SessionManager = require("./sessionManager");
 const PinCodeService = require("./pinCodeService");
+const ComplaintService = require("./complaintService");
 require("dotenv").config();
 
 class WhatsAppService {
@@ -10,6 +11,7 @@ class WhatsAppService {
     this.graphApiUrl = process.env.GRAPH_API_URL;
     this.sessionManager = new SessionManager();
     this.pinCodeService = new PinCodeService();
+    this.complaintService = new ComplaintService();
 
     // Clean up old sessions every 10 minutes
     setInterval(() => {
@@ -225,6 +227,16 @@ class WhatsAppService {
 
       case "gender_others":
         return await this.handleRegistrationInput(to, "Others");
+
+      // Complaint flow buttons
+      case "financial_fraud":
+        return await this.handleFinancialFraudSelection(to);
+
+      case "social_media_fraud":
+        return await this.handleSocialMediaFraudSelection(to);
+
+      case "confirm_complaint":
+        return await this.handleComplaintConfirmation(to);
 
       default:
         const responseText =
@@ -703,19 +715,37 @@ class WhatsAppService {
   }
 
   async handleStatusCheck(to) {
-    const message = this.createNavigationMessage(
+    this.sessionManager.updateSession(to, {
+      state: SessionManager.STATES.STATUS_CHECK,
+      step: SessionManager.STATUS_CHECK_STEPS.CASE_ID_INPUT,
+      data: {},
+    });
+
+    const message = this.createTextMessage(
       to,
       "🔍 **Complaint Status Check**\n\n" +
-        "To check your complaint status, please provide your **Aadhar Number** (12 digits):"
+        "To check your complaint status, please provide your:\n\n" +
+        "• Case Registration Number\n" +
+        "• Acknowledgement Number\n\n" +
+        "Please enter your Case ID or Acknowledgement Number:"
     );
     await this.sendMessage(to, message);
   }
 
   async handleAccountUnfreeze(to) {
-    const message = this.createNavigationMessage(
+    this.sessionManager.updateSession(to, {
+      state: SessionManager.STATES.ACCOUNT_UNFREEZE,
+      step: SessionManager.ACCOUNT_UNFREEZE_STEPS.ACCOUNT_INPUT,
+      data: {},
+    });
+
+    const message = this.createTextMessage(
       to,
       "🔓 **Account Unfreeze Support**\n\n" +
-        "For account unfreeze queries, please provide your **Aadhar Number** (12 digits):"
+        "To check your account freeze status, please provide:\n\n" +
+        "• Your Account Number\n" +
+        "• Your Phone Number\n\n" +
+        "Please enter your Account Number or Phone Number:"
     );
     await this.sendMessage(to, message);
   }
@@ -840,17 +870,67 @@ class WhatsAppService {
   }
 
   async handleComplaintDetails(to) {
-    const message = this.createNavigationMessage(
-      to,
-      "Complaint Registration\n\n" +
-        "Please provide a brief description of the cyber crime incident:\n\n" +
-        "Include details such as:\n" +
-        "• What happened?\n" +
-        "• When did it occur?\n" +
-        "• Any financial loss?\n" +
-        "• Evidence available?"
-    );
+    // Set session state for complaint filing
+    this.sessionManager.updateSession(to, {
+      state: SessionManager.STATES.COMPLAINT_FILING,
+      step: "INCIDENT_DESCRIPTION",
+    });
+
+    const message = this.complaintService.createIncidentDescriptionMessage(to);
     await this.sendMessage(to, message);
+  }
+
+  async handleFinancialFraudSelection(to) {
+    this.sessionManager.updateSession(to, {
+      step: "FRAUD_TYPE_SELECTION",
+      data: {
+        ...this.sessionManager.getSession(to).data,
+        category: "financial",
+      },
+    });
+
+    const message = this.complaintService.createFinancialFraudTypesMessage(to);
+    await this.sendMessage(to, message);
+  }
+
+  async handleSocialMediaFraudSelection(to) {
+    this.sessionManager.updateSession(to, {
+      step: "FRAUD_TYPE_SELECTION",
+      data: {
+        ...this.sessionManager.getSession(to).data,
+        category: "social_media",
+      },
+    });
+
+    const message =
+      this.complaintService.createSocialMediaFraudTypesMessage(to);
+    await this.sendMessage(to, message);
+  }
+
+  async handleComplaintConfirmation(to) {
+    const session = this.sessionManager.getSession(to);
+    const complaintData = session.data;
+
+    try {
+      // Here you would save the complaint to database
+      // For now, we'll just show success message
+
+      const message = this.complaintService.createComplaintSubmittedMessage(
+        to,
+        complaintData.caseId
+      );
+      await this.sendMessage(to, message);
+
+      // Clear the session after successful submission
+      this.sessionManager.clearSession(to);
+    } catch (error) {
+      console.error("Error submitting complaint:", error);
+      const errorMessage = this.createTextMessage(
+        to,
+        "Sorry, there was an error submitting your complaint. Please try again."
+      );
+      await this.sendMessage(to, errorMessage);
+    }
   }
 }
 

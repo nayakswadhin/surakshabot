@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const casesSchema = new mongoose.Schema({
+  caseId: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   aadharNumber: {
     type: String,
     required: true,

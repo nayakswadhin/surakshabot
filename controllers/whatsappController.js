@@ -133,6 +133,8 @@ class WhatsAppController {
         await this.handleStatusCheckInput(from, text);
       } else if (session.state === SessionManager.STATES.ACCOUNT_UNFREEZE) {
         await this.handleAccountUnfreezeInput(from, text);
+      } else if (session.state === SessionManager.STATES.COMPLAINT_FILING) {
+        await this.handleComplaintFilingInput(from, text, session);
       } else {
         // Default response for unrecognized state
         const responseText =
@@ -226,91 +228,156 @@ class WhatsAppController {
 
   async handleStatusCheckInput(from, text) {
     try {
-      const aadharPattern = /^[0-9]{12}$/;
-      const cleanText = text.replace(/\D/g, "");
+      const caseId = text.trim();
 
-      if (aadharPattern.test(cleanText)) {
-        const cases = await Cases.find({ aadharNumber: cleanText })
-          .populate("caseDetailsId")
-          .sort({ createdAt: -1 });
+      console.log(`Searching for case with ID: ${caseId}`);
 
-        if (cases.length === 0) {
-          const responseText = "❌ No complaints found for this Aadhar number.";
-          const message = this.whatsappService.createNavigationMessage(
-            from,
-            responseText
-          );
-          await this.whatsappService.sendMessage(from, message);
-        } else {
-          let statusText = "📋 **Your Complaints Status:**\n\n";
-          cases.forEach((case_, index) => {
-            statusText += `${index + 1}. **${case_.typeOfFraud}**\n`;
-            statusText += `   Status: ${
-              case_.status === "pending" ? "🟡 Pending" : "✅ Solved"
-            }\n`;
-            statusText += `   Date: ${case_.createdAt.toLocaleDateString()}\n\n`;
-          });
+      // Search for case by caseId field first
+      let case_ = await Cases.findOne({ caseId: caseId }).populate(
+        "caseDetailsId"
+      );
 
-          const message = this.whatsappService.createNavigationMessage(
-            from,
-            statusText
-          );
-          await this.whatsappService.sendMessage(from, message);
-        }
+      // If not found, try searching by MongoDB _id if it looks like one
+      if (!case_ && caseId.match(/^[0-9a-fA-F]{24}$/)) {
+        case_ = await Cases.findById(caseId).populate("caseDetailsId");
+      }
+
+      if (case_) {
+        const statusText =
+          `📋 **Case Details Found**\n\n` +
+          `🆔 **Case ID:** ${case_.caseId}\n` +
+          `📝 **Fraud Type:** ${case_.typeOfFraud}\n` +
+          `📂 **Category:** ${case_.caseCategory}\n` +
+          `📊 **Status:** ${
+            case_.status === "pending" ? "🟡 Pending" : "✅ Solved"
+          }\n` +
+          `📅 **Registered:** ${case_.createdAt.toLocaleDateString()}\n` +
+          `📅 **Last Updated:** ${case_.updatedAt.toLocaleDateString()}\n\n` +
+          `📋 **Incident Description:**\n${case_.incidentDescription}\n\n` +
+          `📞 **Our caller Agent will call or message you shortly & solve your issue.**`;
+
+        const message = this.whatsappService.createNavigationMessage(
+          from,
+          statusText
+        );
+        await this.whatsappService.sendMessage(from, message);
       } else {
-        const responseText = "❌ Please enter a valid 12-digit Aadhar number.";
+        const responseText =
+          "❌ **Case Not Found**\n\n" +
+          "No case found with the provided Case ID or Acknowledgement Number.\n\n" +
+          "Please check your Case ID and try again.\n\n" +
+          "📞 For assistance, call 1930 or contact our support team.";
+
         const message = this.whatsappService.createNavigationMessage(
           from,
           responseText
         );
         await this.whatsappService.sendMessage(from, message);
       }
+
+      // Clear session after showing results
+      this.whatsappService.sessionManager.clearSession(from);
     } catch (error) {
       console.error("Error handling status check:", error);
+
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "❌ Sorry, there was an error checking the case status. Please try again later."
+      );
+      await this.whatsappService.sendMessage(from, errorMessage);
     }
   }
 
   async handleAccountUnfreezeInput(from, text) {
     try {
-      const aadharPattern = /^[0-9]{12}$/;
-      const cleanText = text.replace(/\D/g, "");
+      const inputText = text.trim();
+      console.log(`Searching for account with: ${inputText}`);
 
-      if (aadharPattern.test(cleanText)) {
-        const user = await Users.findOne({ aadharNumber: cleanText });
+      let user = null;
 
-        if (user) {
-          const responseText =
-            `✅ **Account Unfreeze Request**\n\n` +
-            `Hello ${user.name},\n\n` +
-            "Your account unfreeze request has been initiated.\n\n" +
-            "📞 Please call 1930 for immediate assistance\n" +
-            "📧 Or email: cybercrime.odisha@gov.in\n\n" +
-            "Our team will contact you within 24 hours.";
+      // Check if input looks like a phone number (10 digits)
+      if (inputText.match(/^[6-9]\d{9}$/)) {
+        user = await Users.findOne({ phoneNumber: inputText });
+      }
+      // Check if input looks like account number (could be various formats)
+      // For now, let's also try searching by phone number with different patterns
+      else if (inputText.match(/^\d{10,15}$/)) {
+        // Try both as phone number and as account number
+        user = await Users.findOne({
+          $or: [
+            { phoneNumber: inputText.slice(-10) }, // Last 10 digits as phone
+            { phoneNumber: inputText },
+          ],
+        });
+      }
+      // If still not found, try finding by any numeric field
+      else if (inputText.match(/^\d+$/)) {
+        user = await Users.findOne({
+          $or: [
+            { phoneNumber: inputText },
+            { aadharNumber: inputText.length === 12 ? inputText : null },
+          ].filter(Boolean),
+        });
+      }
 
-          const message = this.whatsappService.createNavigationMessage(
-            from,
-            responseText
-          );
-          await this.whatsappService.sendMessage(from, message);
+      if (user) {
+        const freezeStatus = user.freeze ? "🔒 Frozen" : "🔓 Active";
+        const statusText =
+          `🔓 **Account Status Check**\n\n` +
+          `👤 **Name:** ${user.name}\n` +
+          `📱 **Phone:** ${user.phoneNumber}\n` +
+          `📧 **Email:** ${user.emailid}\n` +
+          `🏠 **Area:** ${user.address.area}, ${user.address.district}\n` +
+          `📊 **Account Status:** ${freezeStatus}\n\n`;
+
+        let finalMessage;
+        if (user.freeze) {
+          finalMessage =
+            statusText +
+            `❄️ **Your account is currently frozen.**\n\n` +
+            `📞 **Our caller Agent will call or message you shortly & solve your issue.**\n\n` +
+            `For immediate assistance:\n` +
+            `• Call: 1930\n` +
+            `• Email: cybercrime.odisha@gov.in`;
         } else {
-          const responseText =
-            "❌ User not found. Please register first or contact 1930.";
-          const message = this.whatsappService.createNavigationMessage(
-            from,
-            responseText
-          );
-          await this.whatsappService.sendMessage(from, message);
+          finalMessage =
+            statusText +
+            `✅ **Your account is active and not frozen.**\n\n` +
+            `📞 **Our caller Agent will call or message you shortly & solve your issue.**\n\n` +
+            `If you're facing any issues:\n` +
+            `• Call: 1930\n` +
+            `• Email: cybercrime.odisha@gov.in`;
         }
+
+        const message = this.whatsappService.createNavigationMessage(
+          from,
+          finalMessage
+        );
+        await this.whatsappService.sendMessage(from, message);
       } else {
-        const responseText = "❌ Please enter a valid 12-digit Aadhar number.";
+        const responseText =
+          "❌ **Account Not Found**\n\n" +
+          "No account found with the provided Account Number or Phone Number.\n\n" +
+          "Please check your details and try again.\n\n" +
+          "📞 For assistance, call 1930 or register first if you're a new user.";
+
         const message = this.whatsappService.createNavigationMessage(
           from,
           responseText
         );
         await this.whatsappService.sendMessage(from, message);
       }
+
+      // Clear session after showing results
+      this.whatsappService.sessionManager.clearSession(from);
     } catch (error) {
       console.error("Error handling account unfreeze:", error);
+
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "❌ Sorry, there was an error checking the account status. Please try again later."
+      );
+      await this.whatsappService.sendMessage(from, errorMessage);
     }
   }
 
@@ -353,7 +420,7 @@ class WhatsAppController {
         fatherSpouseGuardianName: userData.father_spouse_guardian,
         gender: userData.gender,
         emailid: userData.email,
-        dob: userData.dob,
+        dob: new Date(userData.dob), // Ensure date is properly parsed
         phoneNumber: userData.phone,
         caseIds: [], // Empty as requested
         address: {
@@ -373,23 +440,32 @@ class WhatsAppController {
       const successText =
         "Registration Successful!\n\n" +
         `Welcome ${userData.name}!\n\n` +
-        "Your details have been saved securely in our database.\n\n" +
+        "Your details have been saved securely.\n\n" +
         `Registration ID: ${savedUser._id}\n\n` +
-        "You can now proceed with filing your complaint or checking status anytime.";
+        "Now let's proceed with filing your complaint.\n\n" +
+        "Please provide a brief description of the incident:";
 
-      const message = this.whatsappService.createNavigationMessage(
-        from,
-        successText,
-        [{ id: "main_menu", title: "Main Menu" }]
-      );
-
+      // Send success message
+      const message = this.whatsappService.createTextMessage(from, successText);
       await this.whatsappService.sendMessage(from, message);
 
-      // Clear the session after successful registration
-      this.whatsappService.sessionManager.clearSession(from);
-      console.log(`Registration completed and session cleared for ${from}`);
+      // Set session for complaint filing
+      this.whatsappService.sessionManager.updateSession(from, {
+        state: "COMPLAINT_FILING",
+        step: "INCIDENT_DESCRIPTION",
+        data: {
+          userId: savedUser._id,
+          caseId: this.whatsappService.complaintService.generateCaseId(),
+        },
+      });
+
+      console.log(
+        `Registration completed for ${from}, now ready for complaint filing`
+      );
     } catch (error) {
       console.error("Error saving user registration:", error);
+      console.error("Error stack:", error.stack);
+      console.error("Error details:", JSON.stringify(error, null, 2));
 
       // More specific error messages
       let errorText = "Sorry, there was an error saving your registration.";
@@ -402,7 +478,10 @@ class WhatsAppController {
             "This phone number is already registered. Please contact 1930 if you need assistance.";
         }
       } else if (error.name === "ValidationError") {
+        console.error("Validation errors:", error.errors);
         errorText = `Validation error: ${error.message}`;
+      } else if (error.message.includes("Missing required fields")) {
+        errorText = error.message;
       }
 
       const errorMessage = this.whatsappService.createTextMessage(
@@ -450,6 +529,78 @@ class WhatsAppController {
         success: false,
         message: "Error creating case",
       });
+    }
+  }
+
+  async handleComplaintFilingInput(from, text, session) {
+    try {
+      const step = session.step;
+
+      if (step === "INCIDENT_DESCRIPTION") {
+        // Store incident description and move to fraud category selection
+        this.whatsappService.sessionManager.updateSession(from, {
+          step: "FRAUD_CATEGORY_SELECTION",
+          data: { ...session.data, incident: text },
+        });
+
+        const message =
+          this.whatsappService.complaintService.createFraudCategoryMessage(
+            from
+          );
+        await this.whatsappService.sendMessage(from, message);
+      } else if (step === "FRAUD_TYPE_SELECTION") {
+        // Handle fraud type selection by number
+        const category = session.data.category;
+        const fraudType =
+          this.whatsappService.complaintService.validateFraudTypeSelection(
+            category,
+            text.trim()
+          );
+
+        if (fraudType) {
+          // Generate case ID and prepare complaint data
+          const caseId = this.whatsappService.complaintService.generateCaseId();
+          const complaintData = {
+            ...session.data,
+            fraudType: fraudType.description,
+            caseId: caseId,
+          };
+
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: "COMPLAINT_CONFIRMATION",
+            data: complaintData,
+          });
+
+          const message =
+            this.whatsappService.complaintService.createComplaintConfirmationMessage(
+              from,
+              complaintData
+            );
+          await this.whatsappService.sendMessage(from, message);
+        } else {
+          // Invalid selection
+          const categoryText =
+            category === "financial"
+              ? "Financial Fraud (1-23)"
+              : "Social Media Fraud (1-7)";
+          const errorMessage = this.whatsappService.createTextMessage(
+            from,
+            `Invalid selection. Please type a valid number for ${categoryText}.`
+          );
+          await this.whatsappService.sendMessage(from, errorMessage);
+        }
+      } else {
+        // Handle other text inputs during complaint filing
+        const responseText =
+          "Please use the buttons provided to proceed with your complaint.";
+        const textMessage = this.whatsappService.createTextMessage(
+          from,
+          responseText
+        );
+        await this.whatsappService.sendMessage(from, textMessage);
+      }
+    } catch (error) {
+      console.error("Error handling complaint filing input:", error);
     }
   }
 }

@@ -33,6 +33,10 @@ const usersSchema = new mongoose.Schema({
     required: true,
     match: /^[6-9]\d{9}$/,
   },
+  freeze: {
+    type: Boolean,
+    default: false,
+  },
   caseIds: [
     {
       type: mongoose.Schema.Types.ObjectId,

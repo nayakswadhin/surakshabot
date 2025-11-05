@@ -79,6 +79,7 @@ class SessionManager {
     ACCOUNT_UNFREEZE: "ACCOUNT_UNFREEZE",
     OTHER_QUERIES: "OTHER_QUERIES",
     REGISTRATION: "REGISTRATION",
+    COMPLAINT_FILING: "COMPLAINT_FILING",
   };
 
   // Registration steps
@@ -93,6 +94,18 @@ class SessionManager {
     PINCODE: 7,
     AADHAR: 8,
     CONFIRMATION: 9,
+  };
+
+  // Status check steps
+  static STATUS_CHECK_STEPS = {
+    CASE_ID_INPUT: 0,
+    DISPLAY_DETAILS: 1,
+  };
+
+  // Account unfreeze steps
+  static ACCOUNT_UNFREEZE_STEPS = {
+    ACCOUNT_INPUT: 0,
+    DISPLAY_DETAILS: 1,
   };
 }
 
