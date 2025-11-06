@@ -8,17 +8,41 @@ const caseDetailsSchema = new mongoose.Schema({
   },
   photos: [
     {
+      documentType: {
+        type: String,
+      },
       url: {
         type: String,
-        required: true,
       },
       fileName: {
         type: String,
+      },
+      publicId: {
+        type: String, // Cloudinary public ID for deletion
       },
       uploadedAt: {
         type: Date,
         default: Date.now,
       },
+    },
+  ],
+  // Social Media fraud specific fields
+  metaRegistrationDone: {
+    type: Boolean,
+    default: false,
+  },
+  isImpersonationCase: {
+    type: Boolean,
+    default: false,
+  },
+  allegedUrls: [
+    {
+      type: String,
+    },
+  ],
+  originalIdUrls: [
+    {
+      type: String,
     },
   ],
   policeStationId: {

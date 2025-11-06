@@ -80,6 +80,8 @@ class SessionManager {
     OTHER_QUERIES: "OTHER_QUERIES",
     REGISTRATION: "REGISTRATION",
     COMPLAINT_FILING: "COMPLAINT_FILING",
+    DOCUMENT_COLLECTION: "DOCUMENT_COLLECTION",
+    SOCIAL_MEDIA_DOCUMENT_COLLECTION: "SOCIAL_MEDIA_DOCUMENT_COLLECTION",
   };
 
   // Registration steps
@@ -107,6 +109,133 @@ class SessionManager {
     ACCOUNT_INPUT: 0,
     DISPLAY_DETAILS: 1,
   };
+
+  // Document collection steps for financial fraud
+  static DOCUMENT_COLLECTION_STEPS = {
+    AADHAR_PAN: "aadhar_pan",
+    DEBIT_CREDIT_CARD: "debit_credit_card",
+    BANK_FRONT_PAGE: "bank_front_page",
+    BANK_STATEMENT: "bank_statement",
+    DEBIT_MESSAGES: "debit_messages",
+    UPI_SCREENSHOTS: "upi_screenshots",
+    CREDIT_CARD_STATEMENT: "credit_card_statement",
+    BENEFICIARY_DETAILS: "beneficiary_details",
+    COMPLETION: "completion",
+  };
+
+  // Document collection flow order
+  static DOCUMENT_FLOW = [
+    "aadhar_pan",
+    "debit_credit_card",
+    "bank_front_page",
+    "bank_statement",
+    "debit_messages",
+    "upi_screenshots",
+    "credit_card_statement",
+    "beneficiary_details",
+  ];
+
+  // Social Media document collection steps
+  static SOCIAL_MEDIA_COLLECTION_STEPS = {
+    META_LINK: "meta_link",
+    META_CONFIRMATION: "meta_confirmation",
+    REQUEST_LETTER: "request_letter",
+    GOVT_ID: "govt_id",
+    DISPUTED_SCREENSHOTS: "disputed_screenshots",
+    ALLEGED_URL: "alleged_url",
+    IMPERSONATION_CHECK: "impersonation_check",
+    ORIGINAL_ID_SCREENSHOT: "original_id_screenshot",
+    ORIGINAL_ID_URL: "original_id_url",
+    FINAL_CONFIRMATION: "final_confirmation",
+    COMPLETION: "completion",
+  };
+
+  // Social Media document collection flow order (simplified)
+  static SOCIAL_MEDIA_FLOW = [
+    "meta_link",
+    "meta_confirmation",
+    "request_letter",
+    "govt_id",
+    "disputed_screenshots",
+    "alleged_url",
+    "impersonation_check",
+  ];
+
+  /**
+   * Get next document step in the collection flow
+   * @param {string} currentStep - Current document step
+   * @returns {string|null} Next step or null if completed
+   */
+  static getNextDocumentStep(currentStep) {
+    const currentIndex = this.DOCUMENT_FLOW.indexOf(currentStep);
+    if (currentIndex === -1 || currentIndex === this.DOCUMENT_FLOW.length - 1) {
+      return null; // Completed or invalid step
+    }
+    return this.DOCUMENT_FLOW[currentIndex + 1];
+  }
+
+  /**
+   * Get document step display name for user
+   * @param {string} step - Document step
+   * @returns {string} Human readable name
+   */
+  static getDocumentDisplayName(step) {
+    const displayNames = {
+      aadhar_pan: "Aadhar Card / PAN Card",
+      debit_credit_card: "Debit Card / Credit Card Photo",
+      bank_front_page: "Bank Account Front Page",
+      bank_statement: "Bank Statement (highlighting fraudulent transactions)",
+      debit_messages: "Debit Message Screenshots (with transaction reference)",
+      upi_screenshots: "UPI Transaction Screenshots (with UTR number)",
+      credit_card_statement: "Credit Card Statement/Screenshots",
+      beneficiary_details:
+        "Beneficiary Account Details (with transaction reference)",
+    };
+    return displayNames[step] || step;
+  }
+
+  /**
+   * Get next social media document step in the collection flow
+   * @param {string} currentStep - Current document step
+   * @returns {string|null} Next step or null if needs impersonation check
+   */
+  static getNextSocialMediaStep(currentStep) {
+    const currentIndex = this.SOCIAL_MEDIA_FLOW.indexOf(currentStep);
+    if (currentIndex === -1) {
+      return null; // Invalid step
+    }
+
+    // Special handling for impersonation check
+    if (currentStep === "impersonation_check") {
+      return null; // Will be handled by the bot logic
+    }
+
+    if (currentIndex === this.SOCIAL_MEDIA_FLOW.length - 1) {
+      return null; // Completed basic flow
+    }
+
+    return this.SOCIAL_MEDIA_FLOW[currentIndex + 1];
+  }
+
+  /**
+   * Get social media document step display name for user
+   * @param {string} step - Document step
+   * @returns {string} Human readable name
+   */
+  static getSocialMediaDisplayName(step) {
+    const displayNames = {
+      meta_link: "Meta India Registration Link",
+      meta_confirmation: "Meta Registration Confirmation",
+      request_letter: "Request Letter (Acknowledgement Screenshot)",
+      govt_id: "Aadhar Card / Any Govt. Issue ID",
+      disputed_screenshots: "Disputed Screenshots",
+      alleged_url: "Alleged URL (Uniform Resource Locator)",
+      impersonation_check: "Fake/Impersonation ID Check",
+      original_id_screenshot: "Original ID Screenshot",
+      original_id_url: "Original ID URL",
+    };
+    return displayNames[step] || step;
+  }
 }
 
 module.exports = SessionManager;

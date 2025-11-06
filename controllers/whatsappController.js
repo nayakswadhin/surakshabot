@@ -96,6 +96,11 @@ class WhatsAppController {
           const buttonId = interactive.button_reply.id;
           await this.handleButtonClick(from, buttonId);
         }
+      } else if (messageType === "image") {
+        // Handle image messages for document collection
+        await this.handleImageMessage(from, message.image);
+      } else {
+        console.log(`Unhandled message type: ${messageType}`);
       }
     } catch (error) {
       console.error("Error processing message:", error);
@@ -135,6 +140,48 @@ class WhatsAppController {
         await this.handleAccountUnfreezeInput(from, text);
       } else if (session.state === SessionManager.STATES.COMPLAINT_FILING) {
         await this.handleComplaintFilingInput(from, text, session);
+      } else if (session.state === SessionManager.STATES.DOCUMENT_COLLECTION) {
+        // User sent text during document collection - remind them to send images
+        const currentStep = session.step;
+        const documentDisplayName =
+          SessionManager.getDocumentDisplayName(currentStep);
+
+        const reminderMessage = this.whatsappService.createTextMessage(
+          from,
+          `📷 Please send an image\n\n` +
+            `I'm waiting for: ${documentDisplayName}\n\n` +
+            `Text messages are not accepted during document collection.\n\n` +
+            `Please send an image file (JPG, PNG, GIF, WebP) under 10MB.`
+        );
+        await this.whatsappService.sendMessage(from, reminderMessage);
+      } else if (
+        session.state === SessionManager.STATES.SOCIAL_MEDIA_DOCUMENT_COLLECTION
+      ) {
+        // Handle Social Media document collection text input
+        const currentStep = session.step;
+
+        if (
+          currentStep ===
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL ||
+          currentStep ===
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL
+        ) {
+          // Accept URLs as text for alleged content or original ID
+          await this.handleSocialMediaUrlInput(from, text, session);
+        } else {
+          // For other steps, remind to send images
+          const documentDisplayName =
+            SessionManager.getSocialMediaDisplayName(currentStep);
+
+          const reminderMessage = this.whatsappService.createTextMessage(
+            from,
+            `📷 Please send an image\n\n` +
+              `I'm waiting for: ${documentDisplayName}\n\n` +
+              `Text messages are not accepted for this document type.\n\n` +
+              `Please send an image file (JPG, PNG, GIF, WebP) under 10MB.`
+          );
+          await this.whatsappService.sendMessage(from, reminderMessage);
+        }
       } else {
         // Default response for unrecognized state
         const responseText =
@@ -162,6 +209,115 @@ class WhatsAppController {
       await this.whatsappService.handleButtonPress(from, buttonId);
     } catch (error) {
       console.error("Error handling button click:", error);
+    }
+  }
+
+  async handleImageMessage(from, imageMessage) {
+    try {
+      console.log(`Handling image message from ${from}`);
+
+      const session = this.whatsappService.sessionManager.getSession(from);
+      if (!session) {
+        const errorMessage = this.whatsappService.createTextMessage(
+          from,
+          "❌ No active session found. Please start a new complaint by saying 'Hello'."
+        );
+        await this.whatsappService.sendMessage(from, errorMessage);
+        return;
+      }
+
+      if (session.state === SessionManager.STATES.DOCUMENT_COLLECTION) {
+        try {
+          // Process the image upload
+          const uploadResult = await this.whatsappService.handleImageMessage(
+            from,
+            imageMessage
+          );
+
+          if (uploadResult) {
+            // Image uploaded successfully, process next step
+            await this.whatsappService.processDocumentUpload(
+              from,
+              uploadResult
+            );
+          }
+        } catch (error) {
+          console.error("Error processing document image:", error);
+
+          const errorMessage = this.whatsappService.createTextMessage(
+            from,
+            "Sorry, there was an error processing your image. Please try uploading again.\n\nMake sure:\n• Image is under 10MB\n• File format is JPG, PNG, GIF, or WebP\n• Image is clear and readable"
+          );
+          await this.whatsappService.sendMessage(from, errorMessage);
+        }
+      } else if (
+        session.state === SessionManager.STATES.SOCIAL_MEDIA_DOCUMENT_COLLECTION
+      ) {
+        const currentStep = session.step;
+
+        // Check if user is sending image during URL steps
+        if (
+          currentStep ===
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL ||
+          currentStep ===
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL
+        ) {
+          // User sent image when URL was expected
+          const errorMessage = this.whatsappService.createTextMessage(
+            from,
+            "❌ Please send URL as text, not image!\n\n" +
+              `I'm waiting for: ${SessionManager.getSocialMediaDisplayName(
+                currentStep
+              )}\n\n` +
+              "✅ Send the URL as a text message\n" +
+              "❌ Do not send screenshots of URLs\n\n" +
+              "Example: https://facebook.com/fake.profile\n\n" +
+              "Please send the URL as text:"
+          );
+          await this.whatsappService.sendMessage(from, errorMessage);
+          return;
+        }
+
+        try {
+          // Process Social Media document image upload
+          const uploadResult = await this.whatsappService.handleImageMessage(
+            from,
+            imageMessage
+          );
+
+          if (uploadResult) {
+            // Image uploaded successfully, process next step
+            await this.whatsappService.processSocialMediaDocument(
+              from,
+              uploadResult,
+              "image"
+            );
+          }
+        } catch (error) {
+          console.error("Error processing Social Media document image:", error);
+
+          const errorMessage = this.whatsappService.createTextMessage(
+            from,
+            "Sorry, there was an error processing your Social Media document image. Please try uploading again.\n\nMake sure:\n• Image is under 10MB\n• File format is JPG, PNG, GIF, or WebP\n• Image is clear and readable"
+          );
+          await this.whatsappService.sendMessage(from, errorMessage);
+        }
+      } else {
+        // User sent image but not in document collection mode
+        const errorMessage = this.whatsappService.createTextMessage(
+          from,
+          "I can only accept images during document collection for complaints. Please use the menu options or start a new complaint."
+        );
+        await this.whatsappService.sendMessage(from, errorMessage);
+      }
+    } catch (error) {
+      console.error("Error handling image message:", error);
+
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "❌ Sorry, there was an error processing your image. Please try again later."
+      );
+      await this.whatsappService.sendMessage(from, errorMessage);
     }
   }
 
@@ -566,17 +722,53 @@ class WhatsAppController {
             caseId: caseId,
           };
 
-          this.whatsappService.sessionManager.updateSession(from, {
-            step: "COMPLAINT_CONFIRMATION",
-            data: complaintData,
-          });
+          // Check if it's financial fraud - start document collection
+          if (category === "financial") {
+            this.whatsappService.sessionManager.updateSession(from, {
+              data: complaintData,
+            });
 
-          const message =
-            this.whatsappService.complaintService.createComplaintConfirmationMessage(
-              from,
-              complaintData
-            );
-          await this.whatsappService.sendMessage(from, message);
+            // Start document collection directly without confirmation
+            setTimeout(async () => {
+              try {
+                await this.whatsappService.startDocumentCollection(from);
+              } catch (error) {
+                console.error("Error starting document collection:", error);
+              }
+            }, 1000);
+          } else if (category === "social_media") {
+            // For social media fraud, start Social Media document collection
+            this.whatsappService.sessionManager.updateSession(from, {
+              data: complaintData,
+            });
+
+            // Start Social Media document collection
+            setTimeout(async () => {
+              try {
+                await this.whatsappService.startSocialMediaDocumentCollection(
+                  from
+                );
+              } catch (error) {
+                console.error(
+                  "Error starting Social Media document collection:",
+                  error
+                );
+              }
+            }, 1000);
+          } else {
+            // For other fraud types, proceed with old confirmation flow
+            this.whatsappService.sessionManager.updateSession(from, {
+              step: "COMPLAINT_CONFIRMATION",
+              data: complaintData,
+            });
+
+            const message =
+              this.whatsappService.complaintService.createComplaintConfirmationMessage(
+                from,
+                complaintData
+              );
+            await this.whatsappService.sendMessage(from, message);
+          }
         } else {
           // Invalid selection
           const categoryText =
@@ -601,6 +793,44 @@ class WhatsAppController {
       }
     } catch (error) {
       console.error("Error handling complaint filing input:", error);
+    }
+  }
+
+  /**
+   * Handle Social Media URL input during disputed URLs collection
+   * @param {string} from - User phone number
+   * @param {string} text - URL text from user
+   * @param {Object} session - Current session
+   */
+  async handleSocialMediaUrlInput(from, text, session) {
+    try {
+      await this.whatsappService.handleSocialMediaUrlInput(from, text, session);
+    } catch (error) {
+      console.error("Error handling Social Media URL input:", error);
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "❌ Sorry, there was an error processing your URL. Please try again."
+      );
+      await this.whatsappService.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Handle Social Media URL input
+   * @param {string} from - User phone number
+   * @param {string} text - URL text
+   * @param {Object} session - Current session
+   */
+  async handleSocialMediaUrlInput(from, text, session) {
+    try {
+      await this.whatsappService.handleSocialMediaUrlInput(from, text);
+    } catch (error) {
+      console.error("Error handling Social Media URL input:", error);
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "❌ Sorry, there was an error processing your URL. Please try again."
+      );
+      await this.whatsappService.sendMessage(from, errorMessage);
     }
   }
 }

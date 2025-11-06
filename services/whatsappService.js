@@ -2,6 +2,7 @@ const axios = require("axios");
 const SessionManager = require("./sessionManager");
 const PinCodeService = require("./pinCodeService");
 const ComplaintService = require("./complaintService");
+const CloudinaryService = require("./cloudinaryService");
 require("dotenv").config();
 
 class WhatsAppService {
@@ -12,6 +13,7 @@ class WhatsAppService {
     this.sessionManager = new SessionManager();
     this.pinCodeService = new PinCodeService();
     this.complaintService = new ComplaintService();
+    this.cloudinaryService = new CloudinaryService();
 
     // Clean up old sessions every 10 minutes
     setInterval(() => {
@@ -238,6 +240,20 @@ class WhatsAppService {
       case "confirm_complaint":
         return await this.handleComplaintConfirmation(to);
 
+      // Social Media specific buttons
+      case "meta_done":
+        return await this.handleMetaRegistrationDone(to);
+
+      case "impersonation_yes":
+        return await this.handleImpersonationResponse(to, true);
+
+      case "impersonation_no":
+        return await this.handleImpersonationResponse(to, false);
+
+      // Final confirmation button
+      case "yes_everything_correct":
+        return await this.completeSocialMediaComplaint(to);
+
       default:
         const responseText =
           "Sorry, I didn't understand that. Please use the menu options provided.";
@@ -371,6 +387,101 @@ class WhatsAppService {
         });
         await this.checkUserAndProceed(to);
       }
+    } else if (session.state === SessionManager.STATES.DOCUMENT_COLLECTION) {
+      // Handle back step in document collection
+      const currentStep = session.step;
+      const currentIndex = session.data.currentDocumentIndex || 0;
+
+      if (currentIndex > 0) {
+        // Go back to previous document
+        const previousIndex = currentIndex - 1;
+        const previousStep = SessionManager.DOCUMENT_FLOW[previousIndex];
+
+        console.log(
+          `Going back from document ${currentIndex + 1} to ${previousIndex + 1}`
+        );
+
+        // Delete the current document from Cloudinary if it exists
+        if (session.data.documents && session.data.documents[currentStep]) {
+          try {
+            const docToDelete = session.data.documents[currentStep];
+            await this.cloudinaryService.deleteImage(docToDelete.publicId);
+            console.log(
+              `Deleted image from Cloudinary: ${docToDelete.publicId}`
+            );
+
+            // Remove from session data
+            delete session.data.documents[currentStep];
+          } catch (error) {
+            console.error("Error deleting image from Cloudinary:", error);
+          }
+        }
+
+        // Update session to previous document
+        this.sessionManager.updateSession(to, {
+          step: previousStep,
+          data: {
+            ...session.data,
+            currentDocumentIndex: previousIndex,
+          },
+        });
+
+        // Show message and request previous document again
+        const backMessage = this.createTextMessage(
+          to,
+          `⬅️ Going back to previous document.\n\nYou can now re-upload the document.`
+        );
+        await this.sendMessage(to, backMessage);
+
+        setTimeout(async () => {
+          await this.requestNextDocument(to);
+        }, 1000);
+      } else {
+        // At first document, go back to fraud type selection
+        console.log(`At first document, going back to complaint filing`);
+
+        // Delete any uploaded documents from Cloudinary
+        if (session.data.documents) {
+          try {
+            const publicIds = Object.values(session.data.documents)
+              .filter((doc) => doc.publicId)
+              .map((doc) => doc.publicId);
+
+            if (publicIds.length > 0) {
+              await this.cloudinaryService.deleteMultipleImages(publicIds);
+              console.log(`Deleted ${publicIds.length} images from Cloudinary`);
+            }
+          } catch (error) {
+            console.error("Error deleting images from Cloudinary:", error);
+          }
+        }
+
+        this.sessionManager.updateSession(to, {
+          state: SessionManager.STATES.COMPLAINT_FILING,
+          step: "FRAUD_TYPE_SELECTION",
+          data: {
+            ...session.data,
+            documents: undefined, // Clear documents
+          },
+        });
+
+        // Show fraud type selection again
+        const category = session.data.category;
+        if (category === "financial") {
+          const message =
+            this.complaintService.createFinancialFraudTypesMessage(to);
+          await this.sendMessage(to, message);
+        } else {
+          const message =
+            this.complaintService.createSocialMediaFraudTypesMessage(to);
+          await this.sendMessage(to, message);
+        }
+      }
+    } else if (
+      session.state === SessionManager.STATES.SOCIAL_MEDIA_DOCUMENT_COLLECTION
+    ) {
+      // Handle back step in Social Media document collection
+      await this.handleSocialMediaBackStep(to, session);
     } else {
       // For other states, use the original goBack logic
       if (this.sessionManager.goBack(to)) {
@@ -386,6 +497,141 @@ class WhatsAppService {
       } else {
         await this.handleGreeting(to);
       }
+    }
+  }
+
+  /**
+   * Handle back step for Social Media document collection
+   * @param {string} to - User phone number
+   * @param {Object} session - Current session
+   */
+  async handleSocialMediaBackStep(to, session) {
+    const currentStep = session.step;
+    let previousStep = null;
+
+    switch (currentStep) {
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.META_CONFIRMATION:
+        // Go back to Meta link
+        previousStep = SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.META_LINK;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.REQUEST_LETTER:
+        // Go back to Meta confirmation
+        previousStep =
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.META_CONFIRMATION;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.GOVT_ID:
+        // Go back to request letter
+        previousStep =
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.REQUEST_LETTER;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.DISPUTED_SCREENSHOTS:
+        // Go back to govt ID
+        previousStep = SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.GOVT_ID;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL:
+        // Go back to disputed screenshots
+        previousStep =
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.DISPUTED_SCREENSHOTS;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.IMPERSONATION_CHECK:
+        // Go back to alleged URL
+        previousStep = SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_SCREENSHOT:
+        // Go back to impersonation check
+        previousStep =
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.IMPERSONATION_CHECK;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL:
+        // Go back to original ID screenshot
+        previousStep =
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_SCREENSHOT;
+        break;
+      case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.FINAL_CONFIRMATION:
+        // Go back based on whether this is an impersonation case
+        if (session.data.isImpersonationCase) {
+          previousStep =
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL;
+        } else {
+          previousStep =
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.IMPERSONATION_CHECK;
+        }
+        break;
+      default:
+        // Go back to fraud type selection if at first step
+        this.sessionManager.updateSession(to, {
+          state: SessionManager.STATES.COMPLAINT_FILING,
+          step: "FRAUD_TYPE_SELECTION",
+        });
+
+        const message =
+          this.complaintService.createSocialMediaFraudTypesMessage(to);
+        await this.sendMessage(to, message);
+        return;
+    }
+
+    if (previousStep) {
+      // Delete current document if it exists
+      if (
+        session.data.socialMediaDocuments &&
+        session.data.socialMediaDocuments[currentStep]
+      ) {
+        try {
+          const docToDelete = session.data.socialMediaDocuments[currentStep];
+          if (docToDelete.publicId) {
+            await this.cloudinaryService.deleteImage(docToDelete.publicId);
+            console.log(`Deleted Social Media image: ${docToDelete.publicId}`);
+          }
+          delete session.data.socialMediaDocuments[currentStep];
+        } catch (error) {
+          console.error("Error deleting Social Media image:", error);
+        }
+      }
+
+      // Clear URLs if going back from URL steps
+      if (
+        currentStep ===
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL &&
+        session.data.allegedUrls
+      ) {
+        session.data.allegedUrls = [];
+      }
+      if (
+        currentStep ===
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL &&
+        session.data.originalIdUrls
+      ) {
+        session.data.originalIdUrls = [];
+      }
+
+      // Update session to previous step
+      this.sessionManager.updateSession(to, {
+        step: previousStep,
+        data: session.data,
+      });
+
+      const backMessage = this.createTextMessage(
+        to,
+        `⬅️ Going back to previous step.\n\nYou can now provide the required information again.`
+      );
+      await this.sendMessage(to, backMessage);
+
+      // Show the previous step based on type
+      setTimeout(async () => {
+        if (
+          previousStep ===
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.META_LINK
+        ) {
+          await this.sendMetaRegistrationLink(to);
+        } else if (
+          previousStep ===
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.IMPERSONATION_CHECK
+        ) {
+          await this.askImpersonationQuestion(to);
+        } else {
+          await this.requestSocialMediaDocument(to);
+        }
+      }, 1000);
     }
   }
 
@@ -930,6 +1176,1145 @@ class WhatsAppService {
         "Sorry, there was an error submitting your complaint. Please try again."
       );
       await this.sendMessage(to, errorMessage);
+    }
+  }
+
+  /**
+   * Download image from WhatsApp media URL
+   * @param {string} mediaId - WhatsApp media ID
+   * @returns {Promise<Buffer>} Image buffer
+   */
+  async downloadImageFromWhatsApp(mediaId) {
+    try {
+      console.log(`Downloading image from WhatsApp with media ID: ${mediaId}`);
+
+      // Step 1: Get media URL from WhatsApp
+      const mediaResponse = await axios.get(`${this.graphApiUrl}/${mediaId}`, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      });
+
+      const mediaUrl = mediaResponse.data.url;
+      console.log(`Media URL retrieved: ${mediaUrl}`);
+
+      // Step 2: Download the actual image file
+      const imageResponse = await axios.get(mediaUrl, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+        responseType: "arraybuffer", // Important for binary data
+      });
+
+      const imageBuffer = Buffer.from(imageResponse.data);
+      console.log(
+        `Image downloaded successfully, size: ${imageBuffer.length} bytes`
+      );
+
+      return {
+        buffer: imageBuffer,
+        mimeType: imageResponse.headers["content-type"] || "image/jpeg",
+        size: imageBuffer.length,
+      };
+    } catch (error) {
+      console.error("Error downloading image from WhatsApp:", error);
+      throw new Error("Failed to download image from WhatsApp");
+    }
+  }
+
+  /**
+   * Handle image message and upload to Cloudinary
+   * @param {string} from - User phone number
+   * @param {Object} imageMessage - WhatsApp image message object
+   * @returns {Promise<Object>} Upload result
+   */
+  async handleImageMessage(from, imageMessage) {
+    try {
+      console.log(`Processing image message from ${from}`);
+
+      const session = this.sessionManager.getSession(from);
+      if (
+        !session ||
+        (session.state !== SessionManager.STATES.DOCUMENT_COLLECTION &&
+          session.state !==
+            SessionManager.STATES.SOCIAL_MEDIA_DOCUMENT_COLLECTION)
+      ) {
+        throw new Error("Invalid session state for image upload");
+      }
+
+      // Validate image format and size
+      const validation = this.cloudinaryService.validateImage(
+        imageMessage.mime_type,
+        parseInt(imageMessage.file_size || "0")
+      );
+
+      if (!validation.isValid) {
+        const errorMessage = `❌ **Invalid Image**\n\n${Object.values(
+          validation.errors
+        ).join(
+          "\n"
+        )}\n\nPlease send a valid image file (JPG, PNG, GIF, WebP) under 10MB.`;
+        await this.sendMessage(
+          from,
+          this.createTextMessage(from, errorMessage)
+        );
+        return null;
+      }
+
+      // Download image from WhatsApp
+      const { buffer, mimeType } = await this.downloadImageFromWhatsApp(
+        imageMessage.id
+      );
+
+      // Get current document type from session
+      const currentDocumentType = session.step;
+      const fileName = `${currentDocumentType}_${Date.now()}.jpg`;
+      const folderPath =
+        this.cloudinaryService.getFolderPath(currentDocumentType);
+
+      // Upload to Cloudinary
+      const uploadResult = await this.cloudinaryService.uploadImage(
+        buffer,
+        fileName,
+        folderPath
+      );
+
+      console.log(
+        `Image uploaded successfully for ${from}: ${uploadResult.url}`
+      );
+
+      // Store in session data based on document collection type
+      const isFinancialFraud =
+        session.state === SessionManager.STATES.DOCUMENT_COLLECTION;
+      const documentsKey = isFinancialFraud
+        ? "documents"
+        : "socialMediaDocuments";
+
+      if (!session.data[documentsKey]) {
+        session.data[documentsKey] = {};
+      }
+
+      session.data[documentsKey][currentDocumentType] = {
+        url: uploadResult.url,
+        publicId: uploadResult.publicId,
+        fileName: uploadResult.fileName,
+        documentType: currentDocumentType,
+        uploadedAt: uploadResult.uploadedAt,
+      };
+
+      this.sessionManager.updateSession(from, {
+        data: session.data,
+      });
+
+      return uploadResult;
+    } catch (error) {
+      console.error("Error handling image message:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Start document collection flow for financial fraud
+   * @param {string} from - User phone number
+   */
+  async startDocumentCollection(from) {
+    try {
+      console.log(`Starting document collection for ${from}`);
+
+      const session = this.sessionManager.getSession(from);
+      if (!session) {
+        throw new Error("No active session found");
+      }
+
+      // Send initial message about document collection
+      const introMessage = this.createTextMessage(
+        from,
+        `Fraud Type Selected: ${session.data.fraudType}\n\n` +
+          `📋 Document Collection Required\n\n` +
+          `For financial fraud cases, we need you to upload 8 supporting documents.\n\n` +
+          `Let's start with the first document:`
+      );
+      await this.sendMessage(from, introMessage);
+
+      // Update session to document collection state
+      this.sessionManager.updateSession(from, {
+        state: SessionManager.STATES.DOCUMENT_COLLECTION,
+        step: SessionManager.DOCUMENT_COLLECTION_STEPS.AADHAR_PAN,
+        data: {
+          ...session.data,
+          documents: {},
+          currentDocumentIndex: 0,
+        },
+      });
+
+      // Small delay then request first document
+      setTimeout(async () => {
+        await this.requestNextDocument(from);
+      }, 1500);
+    } catch (error) {
+      console.error("Error starting document collection:", error);
+      const errorMessage = this.createTextMessage(
+        from,
+        "Sorry, there was an error starting document collection. Please try again."
+      );
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Request next document from user
+   * @param {string} from - User phone number
+   */
+  async requestNextDocument(from) {
+    try {
+      const session = this.sessionManager.getSession(from);
+      const currentStep = session.step;
+      const documentDisplayName =
+        SessionManager.getDocumentDisplayName(currentStep);
+      const currentIndex = (session.data.currentDocumentIndex || 0) + 1;
+      const totalDocuments = SessionManager.DOCUMENT_FLOW.length;
+
+      const messageText =
+        `📷 Document Upload (${currentIndex}/${totalDocuments})\n\n` +
+        `Please upload: ${documentDisplayName}\n\n` +
+        `📋 Important:\n` +
+        `• Send image only (JPG, PNG, GIF, WebP)\n` +
+        `• Maximum file size: 10MB\n` +
+        `• Ensure document is clear and readable\n` +
+        `• Include all relevant details\n\n` +
+        `Send your image now:`;
+
+      const message = {
+        messaging_product: "whatsapp",
+        to: from,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: messageText },
+          action: {
+            buttons: [
+              { type: "reply", reply: { id: "back_step", title: "Back" } },
+              { type: "reply", reply: { id: "main_menu", title: "Main Menu" } },
+              { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(from, message);
+    } catch (error) {
+      console.error("Error requesting next document:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Process document upload and move to next step
+   * @param {string} from - User phone number
+   * @param {Object} uploadResult - Cloudinary upload result
+   */
+  async processDocumentUpload(from, uploadResult) {
+    try {
+      console.log(`Processing document upload for ${from}`);
+
+      const session = this.sessionManager.getSession(from);
+      const currentStep = session.step;
+      const nextStep = SessionManager.getNextDocumentStep(currentStep);
+
+      // Send confirmation message
+      const confirmationText =
+        `✅ Document Uploaded Successfully!\n\n` +
+        `📄 ${SessionManager.getDocumentDisplayName(
+          currentStep
+        )} has been saved.\n\n`;
+
+      if (nextStep) {
+        // More documents to collect
+        const updatedSession = this.sessionManager.updateSession(from, {
+          step: nextStep,
+          data: {
+            ...session.data,
+            currentDocumentIndex: (session.data.currentDocumentIndex || 0) + 1,
+          },
+        });
+
+        await this.sendMessage(
+          from,
+          this.createTextMessage(
+            from,
+            confirmationText + "Preparing next document request..."
+          )
+        );
+
+        // Small delay before requesting next document
+        setTimeout(async () => {
+          await this.requestNextDocument(from);
+        }, 1000);
+      } else {
+        // All documents collected, complete the complaint
+        await this.sendMessage(
+          from,
+          this.createTextMessage(
+            from,
+            confirmationText +
+              "All documents collected! Creating your complaint..."
+          )
+        );
+
+        setTimeout(async () => {
+          await this.completeComplaint(from);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error processing document upload:", error);
+      const errorMessage = this.createTextMessage(
+        from,
+        "❌ Sorry, there was an error processing your document. Please try uploading again."
+      );
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Complete complaint creation with all documents
+   * @param {string} from - User phone number
+   */
+  async completeComplaint(from) {
+    try {
+      console.log(`Completing complaint for ${from}`);
+
+      const session = this.sessionManager.getSession(from);
+      const complaintData = session.data;
+
+      // Get user information
+      const cleanPhone = from.replace(/^\+?91/, "").replace(/\D/g, "");
+      const phoneNumber =
+        cleanPhone.length === 10 ? cleanPhone : cleanPhone.slice(-10);
+
+      const user = await require("../models").Users.findOne({
+        phoneNumber: phoneNumber,
+      });
+      if (!user) {
+        throw new Error("User not found for complaint creation");
+      }
+
+      // Prepare documents array for CaseDetails
+      const documentsArray = Object.values(complaintData.documents || {}).map(
+        (doc) => ({
+          documentType: doc.documentType,
+          url: doc.url,
+          fileName: doc.fileName,
+          publicId: doc.publicId,
+          uploadedAt: doc.uploadedAt,
+        })
+      );
+
+      console.log(`Creating case with ${documentsArray.length} documents`);
+
+      // Create new Case
+      const newCase = new (require("../models").Cases)({
+        caseId: complaintData.caseId,
+        aadharNumber: user.aadharNumber,
+        incidentDescription:
+          complaintData.incident || "Financial fraud incident",
+        caseCategory:
+          complaintData.category === "financial" ? "Financial" : "Social",
+        typeOfFraud: complaintData.fraudType,
+        status: "pending",
+      });
+
+      const savedCase = await newCase.save();
+      console.log(`Case saved with ID: ${savedCase._id}`);
+
+      // Create CaseDetails with documents
+      const newCaseDetails = new (require("../models").CaseDetails)({
+        caseId: savedCase._id,
+        photos: documentsArray,
+      });
+
+      const savedCaseDetails = await newCaseDetails.save();
+      console.log(`CaseDetails saved with ID: ${savedCaseDetails._id}`);
+
+      // Update Case with CaseDetails reference
+      savedCase.caseDetailsId = savedCaseDetails._id;
+      await savedCase.save();
+
+      // Update User's caseIds array
+      user.caseIds.push(savedCase._id);
+      await user.save();
+
+      console.log(`Complaint completed successfully for ${from}`);
+
+      const successText =
+        `🎉 Complaint Filed Successfully!\n\n` +
+        `📋 Case ID: ${complaintData.caseId}\n\n` +
+        `✅ Summary:\n` +
+        `• Incident: ${
+          complaintData.incident || "Financial fraud incident"
+        }\n` +
+        `• Category: ${
+          complaintData.category === "financial"
+            ? "Financial Fraud"
+            : "Social Media Fraud"
+        }\n` +
+        `• Fraud Type: ${complaintData.fraudType}\n` +
+        `• Documents Uploaded: ${documentsArray.length}/8\n\n` +
+        `📞 Our team will contact you within 24 hours.\n\n` +
+        `Keep your Case ID for future reference.\n\n` +
+        `You can check status anytime using "Status Check" option.`;
+
+      const message = this.createNavigationMessage(from, successText);
+      await this.sendMessage(from, message);
+
+      // Clear session
+      this.sessionManager.clearSession(from);
+    } catch (error) {
+      console.error("Error completing complaint:", error);
+
+      // Send error message to user
+      const errorMessage = this.createTextMessage(
+        from,
+        "❌ Sorry, there was an error completing your complaint. Your documents have been uploaded but there was an issue saving to our system.\n\nPlease contact 1930 for assistance and mention your uploaded documents."
+      );
+      await this.sendMessage(from, errorMessage);
+
+      // Don't clear session in case of error so user can retry
+    }
+  }
+
+  /**
+   * Start Social Media document collection flow
+   * @param {string} from - User phone number
+   */
+  async startSocialMediaDocumentCollection(from) {
+    try {
+      console.log(`Starting Social Media document collection for ${from}`);
+
+      const session = this.sessionManager.getSession(from);
+      if (!session) {
+        throw new Error("No active session found");
+      }
+
+      // Update session to social media document collection state
+      this.sessionManager.updateSession(from, {
+        state: SessionManager.STATES.SOCIAL_MEDIA_DOCUMENT_COLLECTION,
+        step: SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.META_LINK,
+        data: {
+          ...session.data,
+          socialMediaDocuments: {},
+          allegedUrls: [],
+          originalIdUrls: [],
+          isImpersonationCase: false,
+          metaRegistrationDone: false,
+        },
+      });
+
+      // Send Meta registration link immediately
+      await this.sendMetaRegistrationLink(from);
+    } catch (error) {
+      console.error("Error starting Social Media document collection:", error);
+      const errorMessage = this.createTextMessage(
+        from,
+        "Sorry, there was an error starting Social Media document collection. Please try again."
+      );
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Send Meta India registration link
+   * @param {string} from - User phone number
+   */
+  async sendMetaRegistrationLink(from) {
+    try {
+      const messageText =
+        `� Social Media Fraud Process\n\n` +
+        `Register on the link given below:\n\n` +
+        `https://help.meta.com/requests/1371776380779082/\n\n` +
+        `📋 Steps to follow:\n` +
+        `1. Click the link above\n` +
+        `2. Fill out the complaint form\n` +
+        `3. Submit your complaint to Meta\n` +
+        `4. Come back and click "Yes I'm Done"\n\n` +
+        `This registration is mandatory for Social Media fraud cases.`;
+
+      const message = {
+        messaging_product: "whatsapp",
+        to: from,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: messageText },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: { id: "meta_done", title: "Yes I'm Done" },
+              },
+              { type: "reply", reply: { id: "back_step", title: "Back" } },
+              { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(from, message);
+    } catch (error) {
+      console.error("Error sending Meta registration link:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle Meta registration completion
+   * @param {string} from - User phone number
+   */
+  async handleMetaRegistrationDone(from) {
+    try {
+      const session = this.sessionManager.getSession(from);
+
+      // Update session with Meta registration completed
+      this.sessionManager.updateSession(from, {
+        step: SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.REQUEST_LETTER,
+        data: {
+          ...session.data,
+          metaRegistrationDone: true,
+        },
+      });
+
+      const confirmationText =
+        `✅ Meta Registration Completed!\n\n` +
+        `Now let's collect the required documents for your case.\n\n` +
+        `We need these documents:\n` +
+        `1. Request Letter (Acknowledgement Screenshot)\n` +
+        `2. Aadhar Card / Any Govt. Issue ID\n` +
+        `3. Disputed Screenshots\n` +
+        `4. Alleged URL\n\n` +
+        `Let's start with the first document:`;
+
+      await this.sendMessage(
+        from,
+        this.createTextMessage(from, confirmationText)
+      );
+
+      // Small delay before requesting first document
+      setTimeout(async () => {
+        await this.requestSocialMediaDocument(from);
+      }, 1500);
+    } catch (error) {
+      console.error("Error handling Meta registration completion:", error);
+      const errorMessage = this.createTextMessage(
+        from,
+        "❌ Sorry, there was an error. Please try again."
+      );
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Request specific social media document from user
+   * @param {string} from - User phone number
+   */
+  async requestSocialMediaDocument(from) {
+    try {
+      const session = this.sessionManager.getSession(from);
+      const currentStep = session.step;
+      const documentDisplayName =
+        SessionManager.getSocialMediaDisplayName(currentStep);
+
+      if (
+        currentStep === SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL
+      ) {
+        // Special handling for URL input
+        const messageText =
+          `� Document Required\n\n` +
+          `Please provide: ${documentDisplayName}\n\n` +
+          `📝 Instructions:\n` +
+          `• Send the URL as a text message (not image)\n` +
+          `• Copy and paste the full URL\n` +
+          `• Must be a valid web address\n` +
+          `• Example: https://facebook.com/fake.profile\n\n` +
+          `Send the URL now:`;
+
+        const message = {
+          messaging_product: "whatsapp",
+          to: from,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: { text: messageText },
+            action: {
+              buttons: [
+                { type: "reply", reply: { id: "back_step", title: "Back" } },
+                {
+                  type: "reply",
+                  reply: { id: "main_menu", title: "Main Menu" },
+                },
+                { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+              ],
+            },
+          },
+        };
+
+        await this.sendMessage(from, message);
+      } else {
+        // Regular image document request
+        let specificInstructions = "";
+
+        switch (currentStep) {
+          case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.REQUEST_LETTER:
+            specificInstructions = `📋 Instructions:\n• Screenshot of Meta registration acknowledgement\n• Must show submission confirmation\n• Include reference number if available\n\n`;
+            break;
+          case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.GOVT_ID:
+            specificInstructions = `📋 Instructions:\n• Clear photo of Aadhar/PAN/Voter ID/Passport\n• Ensure all details are readable\n• Front side of the document\n\n`;
+            break;
+          case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS
+            .DISPUTED_SCREENSHOTS:
+            specificInstructions = `📋 Instructions:\n• Screenshots of fake/fraudulent posts\n• Include multiple screenshots if needed\n• Show timestamp and platform details\n\n`;
+            break;
+        }
+
+        const messageText =
+          `� Document Upload Required\n\n` +
+          `Please upload: ${documentDisplayName}\n\n` +
+          specificInstructions +
+          `📷 Image Requirements:\n` +
+          `• Send image only (JPG, PNG, GIF, WebP)\n` +
+          `• Maximum file size: 10MB\n` +
+          `• Ensure content is clear and readable\n\n` +
+          `Send your image now:`;
+
+        const message = {
+          messaging_product: "whatsapp",
+          to: from,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: { text: messageText },
+            action: {
+              buttons: [
+                { type: "reply", reply: { id: "back_step", title: "Back" } },
+                {
+                  type: "reply",
+                  reply: { id: "main_menu", title: "Main Menu" },
+                },
+                { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+              ],
+            },
+          },
+        };
+
+        await this.sendMessage(from, message);
+      }
+    } catch (error) {
+      console.error("Error requesting social media document:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Process social media document upload
+   * @param {string} from - User phone number
+   * @param {Object} uploadResult - Cloudinary upload result or URL text
+   * @param {string} inputType - 'image' or 'text'
+   */
+  async processSocialMediaDocument(from, uploadResult, inputType = "image") {
+    try {
+      console.log(
+        `Processing Social Media document for ${from}, type: ${inputType}`
+      );
+
+      const session = this.sessionManager.getSession(from);
+      const currentStep = session.step;
+
+      // Store the document/URL
+      if (inputType === "image") {
+        session.data.socialMediaDocuments[currentStep] = uploadResult;
+      } else if (
+        inputType === "text" &&
+        currentStep === SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL
+      ) {
+        session.data.allegedUrls.push(uploadResult);
+      }
+
+      // Send confirmation
+      const confirmationText =
+        `✅ ${
+          inputType === "image" ? "Document" : "URL"
+        } Received Successfully!\n\n` +
+        `📄 ${SessionManager.getSocialMediaDisplayName(
+          currentStep
+        )} has been saved.\n\n`;
+
+      await this.sendMessage(
+        from,
+        this.createTextMessage(
+          from,
+          confirmationText + "Moving to next step..."
+        )
+      );
+
+      // Move to next step
+      setTimeout(async () => {
+        await this.moveToNextSocialMediaStep(from);
+      }, 1000);
+    } catch (error) {
+      console.error("Error processing social media document:", error);
+      const errorMessage = this.createTextMessage(
+        from,
+        "❌ Sorry, there was an error processing your submission. Please try again."
+      );
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Move to next step in social media flow
+   * @param {string} from - User phone number
+   */
+  async moveToNextSocialMediaStep(from) {
+    try {
+      const session = this.sessionManager.getSession(from);
+      const currentStep = session.step;
+
+      let nextStep = null;
+
+      switch (currentStep) {
+        case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.REQUEST_LETTER:
+          nextStep = SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.GOVT_ID;
+          break;
+        case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.GOVT_ID:
+          nextStep =
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.DISPUTED_SCREENSHOTS;
+          break;
+        case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.DISPUTED_SCREENSHOTS:
+          nextStep = SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL;
+          break;
+        case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL:
+          nextStep =
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.IMPERSONATION_CHECK;
+          break;
+        case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS
+          .ORIGINAL_ID_SCREENSHOT:
+          nextStep =
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL;
+          break;
+        case SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL:
+          // Go to final confirmation
+          nextStep =
+            SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.FINAL_CONFIRMATION;
+          break;
+      }
+
+      if (nextStep) {
+        this.sessionManager.updateSession(from, { step: nextStep });
+
+        if (
+          nextStep ===
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.IMPERSONATION_CHECK
+        ) {
+          await this.askImpersonationQuestion(from);
+        } else if (
+          nextStep ===
+          SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.FINAL_CONFIRMATION
+        ) {
+          await this.askFinalConfirmation(from);
+        } else {
+          await this.requestSocialMediaDocument(from);
+        }
+      }
+    } catch (error) {
+      console.error("Error moving to next social media step:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Ask user if this is an impersonation case
+   * @param {string} from - User phone number
+   */
+  async askImpersonationQuestion(from) {
+    try {
+      const messageText =
+        `❓ Final Question\n\n` +
+        `Is this case about Fake/Impersonation IDs?\n\n` +
+        `This includes:\n` +
+        `• Someone creating fake profiles using your identity\n` +
+        `• Someone pretending to be you\n` +
+        `• Identity theft on social media\n\n` +
+        `Please select:`;
+
+      const message = {
+        messaging_product: "whatsapp",
+        to: from,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: messageText },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: { id: "impersonation_yes", title: "Yes" },
+              },
+              { type: "reply", reply: { id: "impersonation_no", title: "No" } },
+              { type: "reply", reply: { id: "back_step", title: "Back" } },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(from, message);
+    } catch (error) {
+      console.error("Error asking impersonation question:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle impersonation case response
+   * @param {string} from - User phone number
+   * @param {boolean} isImpersonation - Whether this is an impersonation case
+   */
+  async handleImpersonationResponse(from, isImpersonation) {
+    try {
+      const session = this.sessionManager.getSession(from);
+
+      if (isImpersonation) {
+        // Update session for impersonation case
+        this.sessionManager.updateSession(from, {
+          step: SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS
+            .ORIGINAL_ID_SCREENSHOT,
+          data: {
+            ...session.data,
+            isImpersonationCase: true,
+          },
+        });
+
+        const messageText =
+          `✅ Impersonation Case Confirmed\n\n` +
+          `We need 2 additional items:\n\n` +
+          `• Original ID Screenshot (your real profile)\n` +
+          `• Original ID URL (your real profile link)\n\n` +
+          `Let's collect these now:`;
+
+        await this.sendMessage(from, this.createTextMessage(from, messageText));
+
+        setTimeout(async () => {
+          await this.requestSocialMediaDocument(from);
+        }, 1500);
+      } else {
+        // Not an impersonation case, go to final confirmation
+        this.sessionManager.updateSession(from, {
+          step: SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.FINAL_CONFIRMATION,
+          data: {
+            ...session.data,
+            isImpersonationCase: false,
+          },
+        });
+
+        const messageText =
+          `✅ Document Collection Complete!\n\n` +
+          `All required information has been collected.\n\n` +
+          `Please confirm your information before submission...`;
+
+        await this.sendMessage(from, this.createTextMessage(from, messageText));
+
+        setTimeout(async () => {
+          await this.askFinalConfirmation(from);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error handling impersonation response:", error);
+      const errorMessage = this.createTextMessage(
+        from,
+        "❌ Sorry, there was an error. Please try again."
+      );
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Get display name for fraud type
+   * @param {string} fraudType - Fraud type code
+   * @returns {string} Display name
+   */
+  getFraudTypeDisplay(fraudType) {
+    const fraudTypes = {
+      facebook_fraud: "Facebook Fraud",
+      instagram_fraud: "Instagram Fraud",
+      twitter_fraud: "X (Twitter) Fraud",
+      linkedin_fraud: "LinkedIn Fraud",
+      youtube_fraud: "YouTube Fraud",
+      tiktok_fraud: "TikTok Fraud",
+      snapchat_fraud: "Snapchat Fraud",
+      whatsapp_fraud: "WhatsApp Fraud",
+      telegram_fraud: "Telegram Fraud",
+      other_social_media: "Other Social Media Fraud",
+    };
+    return fraudTypes[fraudType] || fraudType || "Social Media Fraud";
+  }
+
+  /**
+   * Ask user for final confirmation before saving to database
+   * @param {string} from - User phone number
+   */
+  async askFinalConfirmation(from) {
+    try {
+      const session = this.sessionManager.getSession(from);
+      const data = session.data;
+
+      // Count documents
+      let docCount = 0;
+      if (data.photos) {
+        docCount = data.photos.length;
+      }
+
+      // Get fraud type details
+      const fraudTypeDisplay = this.getFraudTypeDisplay(data.selectedFraudType);
+
+      // Build summary message
+      const summaryText =
+        `📋 Please Review Your Information\n\n` +
+        `✅ Summary:\n` +
+        `• Incident: ${data.incident || "N/A"}\n` +
+        `• Category: Social Media Fraud\n` +
+        `• Fraud Type: ${fraudTypeDisplay}\n` +
+        `• Meta Registration: ${
+          data.metaRegistrationDone ? "Completed" : "Not Done"
+        }\n` +
+        `• Impersonation Case: ${data.isImpersonationCase ? "Yes" : "No"}\n` +
+        `• Documents Uploaded: ${docCount}\n` +
+        `• URLs Collected: ${
+          data.allegedUrls ? data.allegedUrls.length : 0
+        }\n\n` +
+        `❓ All information provided by you is true as per your knowledge?\n\n` +
+        `Select an option:`;
+
+      const message = {
+        messaging_product: "whatsapp",
+        to: from,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: summaryText },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: { id: "yes_everything_correct", title: "Yes, Confirm" },
+              },
+              { type: "reply", reply: { id: "back_step", title: "Back" } },
+              { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(from, message);
+    } catch (error) {
+      console.error("Error asking final confirmation:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle URL input for Social Media documents
+   * @param {string} from - User phone number
+   * @param {string} url - URL text
+   */
+  async handleSocialMediaUrlInput(from, url) {
+    try {
+      const session = this.sessionManager.getSession(from);
+      const currentStep = session.step;
+
+      // More strict URL validation
+      const urlPattern =
+        /^(https?:\/\/)?(www\.)?(facebook\.com|instagram\.com|twitter\.com|linkedin\.com|youtube\.com|tiktok\.com|snapchat\.com|whatsapp\.com|telegram\.org|[\da-z\.-]+\.[a-z]{2,6})(\/[\w\.-]*)*\/?(\?[\w&=\.-]*)?$/i;
+
+      const trimmedUrl = url.trim();
+
+      // Check if URL is too short or doesn't contain basic URL structure
+      if (trimmedUrl.length < 4 || !trimmedUrl.includes(".")) {
+        const errorMessage = this.createTextMessage(
+          from,
+          "❌ Invalid URL format. Please send a valid web address.\n\n📝 Examples:\n• https://facebook.com/fake.profile\n• https://instagram.com/suspicious.account\n• www.example.com/fake-page\n\n⚠️ Please send URLs only, not images or random text.\n\nTry again:"
+        );
+        await this.sendMessage(from, errorMessage);
+        return;
+      }
+
+      // Validate URL format
+      if (!urlPattern.test(trimmedUrl)) {
+        const errorMessage = this.createTextMessage(
+          from,
+          "❌ Invalid URL format detected.\n\n✅ Valid URL examples:\n• https://facebook.com/fake.profile\n• instagram.com/suspicious.account\n• twitter.com/fake.user\n• linkedin.com/in/fake-profile\n\n❌ Please do not send:\n• Images or screenshots\n• Random text\n• Incomplete URLs\n\nSend a valid URL:"
+        );
+        await this.sendMessage(from, errorMessage);
+        return;
+      }
+
+      // Add protocol if missing
+      let processedUrl = trimmedUrl;
+      if (
+        !processedUrl.startsWith("http://") &&
+        !processedUrl.startsWith("https://")
+      ) {
+        processedUrl = "https://" + processedUrl;
+      }
+
+      // Process the URL
+      if (
+        currentStep === SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL
+      ) {
+        await this.processSocialMediaDocument(from, processedUrl, "text");
+      } else if (
+        currentStep ===
+        SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ORIGINAL_ID_URL
+      ) {
+        // Store original ID URL
+        if (!session.data.originalIdUrls) {
+          session.data.originalIdUrls = [];
+        }
+        session.data.originalIdUrls.push(processedUrl);
+        await this.processSocialMediaDocument(from, processedUrl, "text");
+      }
+    } catch (error) {
+      console.error("Error handling social media URL input:", error);
+      const errorMessage = this.createTextMessage(
+        from,
+        "❌ Sorry, there was an error processing your URL. Please send a valid web address and try again."
+      );
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Complete Social Media complaint creation with all documents
+   * @param {string} from - User phone number
+   */
+  async completeSocialMediaComplaint(from) {
+    try {
+      console.log(`Completing Social Media complaint for ${from}`);
+
+      const session = this.sessionManager.getSession(from);
+      const complaintData = session.data;
+
+      // Get user information
+      const cleanPhone = from.replace(/^\+?91/, "").replace(/\D/g, "");
+      const phoneNumber =
+        cleanPhone.length === 10 ? cleanPhone : cleanPhone.slice(-10);
+
+      const user = await require("../models").Users.findOne({
+        phoneNumber: phoneNumber,
+      });
+      if (!user) {
+        throw new Error("User not found for complaint creation");
+      }
+
+      // Prepare documents array for CaseDetails
+      const documentsArray = Object.values(
+        complaintData.socialMediaDocuments || {}
+      ).map((doc) => ({
+        documentType: doc.documentType,
+        url: doc.url,
+        fileName: doc.fileName,
+        publicId: doc.publicId,
+        uploadedAt: doc.uploadedAt,
+      }));
+
+      console.log(
+        `Creating Social Media case with ${documentsArray.length} documents`
+      );
+
+      // Create new Case
+      const newCase = new (require("../models").Cases)({
+        caseId: complaintData.caseId,
+        aadharNumber: user.aadharNumber,
+        incidentDescription:
+          complaintData.incident || "Social Media fraud incident",
+        caseCategory: "Social",
+        typeOfFraud: complaintData.fraudType,
+        status: "pending",
+      });
+
+      const savedCase = await newCase.save();
+      console.log(`Case saved with ID: ${savedCase._id}`);
+
+      // Create CaseDetails with Social Media specific fields
+      const newCaseDetails = new (require("../models").CaseDetails)({
+        caseId: savedCase._id,
+        photos: documentsArray,
+        metaRegistrationDone: complaintData.metaRegistrationDone || false,
+        isImpersonationCase: complaintData.isImpersonationCase || false,
+        allegedUrls: complaintData.allegedUrls || [],
+        originalIdUrls: complaintData.originalIdUrls || [],
+      });
+
+      const savedCaseDetails = await newCaseDetails.save();
+      console.log(`CaseDetails saved with ID: ${savedCaseDetails._id}`);
+
+      // Update Case with CaseDetails reference
+      savedCase.caseDetailsId = savedCaseDetails._id;
+      await savedCase.save();
+
+      // Update User's caseIds array
+      user.caseIds.push(savedCase._id);
+      await user.save();
+
+      console.log(`Social Media complaint completed successfully for ${from}`);
+
+      const totalDocs = complaintData.isImpersonationCase ? 6 : 4;
+      const successText =
+        `🎉 Social Media Complaint Filed Successfully!\n\n` +
+        `📋 Case ID: ${complaintData.caseId}\n\n` +
+        `✅ Summary:\n` +
+        `• Incident: ${
+          complaintData.incident || "Social Media fraud incident"
+        }\n` +
+        `• Category: Social Media Fraud\n` +
+        `• Fraud Type: ${complaintData.fraudType}\n` +
+        `• Meta Registration: ${
+          complaintData.metaRegistrationDone ? "Completed" : "Pending"
+        }\n` +
+        `• Impersonation Case: ${
+          complaintData.isImpersonationCase ? "Yes" : "No"
+        }\n` +
+        `• Documents Uploaded: ${documentsArray.length}/${totalDocs}\n\n` +
+        `📞 Our team will coordinate with Meta India and contact you within 24-48 hours.\n\n` +
+        `Keep your Case ID for future reference.\n\n` +
+        `You can check status anytime using "Status Check" option.`;
+
+      const message = {
+        messaging_product: "whatsapp",
+        to: from,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: successText },
+          action: {
+            buttons: [
+              { type: "reply", reply: { id: "main_menu", title: "Main Menu" } },
+              { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+            ],
+          },
+        },
+      };
+      await this.sendMessage(from, message);
+
+      // Clear session
+      this.sessionManager.clearSession(from);
+    } catch (error) {
+      console.error("Error completing Social Media complaint:", error);
+
+      // Send error message to user
+      const errorMessage = this.createTextMessage(
+        from,
+        "❌ Sorry, there was an error completing your Social Media complaint. Your documents have been uploaded but there was an issue saving to our system.\n\nPlease contact 1930 for assistance and mention your uploaded documents."
+      );
+      await this.sendMessage(from, errorMessage);
+
+      // Don't clear session in case of error so user can retry
     }
   }
 }
