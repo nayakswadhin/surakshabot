@@ -513,6 +513,82 @@ class WhatsAppController {
     }
   }
 
+  async getAllCases(req, res) {
+    try {
+      const cases = await Cases.find()
+        .populate("caseDetailsId")
+        .sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: cases,
+      });
+    } catch (error) {
+      console.error("Error fetching all cases:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching cases",
+      });
+    }
+  }
+
+  async getCaseById(req, res) {
+    try {
+      const { caseId } = req.params;
+      const complaint = await Cases.findById(caseId).populate("caseDetailsId");
+
+      if (!complaint) {
+        return res.status(404).json({
+          success: false,
+          message: "Case not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: complaint,
+      });
+    } catch (error) {
+      console.error("Error fetching case:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching case",
+      });
+    }
+  }
+
+  async updateCaseStatus(req, res) {
+    try {
+      const { caseId } = req.params;
+      const { status } = req.body;
+
+      const updatedCase = await Cases.findByIdAndUpdate(
+        caseId,
+        { status, updatedAt: Date.now() },
+        { new: true }
+      );
+
+      if (!updatedCase) {
+        return res.status(404).json({
+          success: false,
+          message: "Case not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: updatedCase,
+        message: "Case status updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating case status:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error updating case status",
+      });
+    }
+  }
+
   async createCase(req, res) {
     try {
       const caseData = req.body;
@@ -528,6 +604,48 @@ class WhatsAppController {
       res.status(500).json({
         success: false,
         message: "Error creating case",
+      });
+    }
+  }
+
+  async getAllUsers(req, res) {
+    try {
+      const users = await Users.find().sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: users,
+      });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching users",
+      });
+    }
+  }
+
+  async getUserById(req, res) {
+    try {
+      const { userId } = req.params;
+      const user = await Users.findById(userId).populate("caseIds");
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching user",
       });
     }
   }
