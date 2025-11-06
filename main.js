@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
 require("dotenv").config();
 
 // Import database connection
@@ -14,8 +16,34 @@ const WhatsAppController = require("./controllers/whatsappController");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Create HTTP server and Socket.IO instance
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: ['http://localhost:3001', 'http://localhost:3000'],
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
 // Initialize WhatsApp controller for direct webhook handling
 const whatsappController = new WhatsAppController();
+
+// Make io available globally for other modules
+global.io = io;
+
+// WebSocket connection handling
+io.on('connection', (socket) => {
+  console.log('🔌 Client connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('🔌 Client disconnected:', socket.id);
+  });
+
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+});
 
 // Connect to MongoDB
 connectDB();
@@ -95,11 +123,12 @@ app.use("*", (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("🚀 ================================");
   console.log(`🤖 Suraksha Bot Server Started`);
   console.log(`📱 WhatsApp Bot Service Running`);
   console.log(`🌐 Server: http://localhost:${PORT}`);
+  console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
   console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`🔗 Webhook URL: http://localhost:${PORT}/api/whatsapp/webhook`);
   console.log("🚀 ================================");

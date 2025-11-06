@@ -1,5 +1,6 @@
 const WhatsAppService = require("../services/whatsappService");
 const SessionManager = require("../services/sessionManager");
+const NotificationService = require("../services/notificationService");
 const { Users, Cases, CaseDetails } = require("../models");
 
 class WhatsAppController {
@@ -594,6 +595,9 @@ class WhatsAppController {
       const caseData = req.body;
       const newCase = new Cases(caseData);
       const savedCase = await newCase.save();
+
+      // Emit real-time notification
+      NotificationService.emitNewComplaint(savedCase);
 
       res.status(201).json({
         success: true,

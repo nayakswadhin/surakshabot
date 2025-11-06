@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const [notifyNewComplaint, setNotifyNewComplaint] = useState(true)
   const [notifyStatusChange, setNotifyStatusChange] = useState(true)
   const [testing, setTesting] = useState(false)
+  const [sendingNotification, setSendingNotification] = useState(false)
 
   useEffect(() => {
     checkConnection()
@@ -29,6 +30,34 @@ export default function SettingsPage() {
     setTesting(true)
     await checkConnection()
     setTimeout(() => setTesting(false), 1000)
+  }
+
+  const handleTestNotification = async () => {
+    setSendingNotification(true)
+    try {
+      const response = await fetch('http://localhost:3000/api/test-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: 'Test Notification',
+          message: 'This is a test notification from Settings page',
+          data: { test: true }
+        }),
+      })
+      
+      if (response.ok) {
+        alert('Test notification sent! Check the notification bell.')
+      } else {
+        alert('Failed to send notification')
+      }
+    } catch (error) {
+      console.error('Error sending notification:', error)
+      alert('Error sending notification')
+    } finally {
+      setSendingNotification(false)
+    }
   }
 
   const handleSaveSettings = () => {
@@ -109,6 +138,15 @@ export default function SettingsPage() {
             >
               <FaSync className={testing ? 'animate-spin' : ''} />
               Test Connection
+            </button>
+
+            <button
+              onClick={handleTestNotification}
+              disabled={sendingNotification}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 font-medium"
+            >
+              <FaBell className={sendingNotification ? 'animate-bounce' : ''} />
+              Test Notification
             </button>
           </div>
         </div>

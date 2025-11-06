@@ -3,18 +3,44 @@
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
-import { FaBell, FaUserCircle, FaSignOutAlt, FaCog } from 'react-icons/fa'
+import { FaBell, FaUserCircle, FaSignOutAlt, FaCog, FaCheck, FaTrash } from 'react-icons/fa'
 import { isAuthenticated, clearAuth } from '@/lib/auth'
+import { initSocket, Notification } from '@/lib/socket'
 
 export default function Header() {
   const [auth, setAuth] = useState(false)
   const [open, setOpen] = useState(false)
+  const [notificationOpen, setNotificationOpen] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const router = useRouter()
   const pathname = usePathname()
   const menuRef = useRef<HTMLDivElement | null>(null)
+  const notificationRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setAuth(isAuthenticated())
+
+    // Initialize WebSocket connection
+    if (isAuthenticated()) {
+      const socket = initSocket()
+
+      socket.on('notification', (notification: Notification) => {
+        console.log('📢 Received notification:', notification)
+        setNotifications((prev) => [notification, ...prev])
+        
+        // Play notification sound (optional)
+        if (typeof Audio !== 'undefined') {
+          try {
+            const audio = new Audio('/notification.mp3')
+            audio.play().catch(() => {
+              // Silently fail if autoplay is blocked
+            })
+          } catch (e) {
+            // Ignore audio errors
+          }
+        }
+      })
+    }
   }, [])
 
   useEffect(() => {
@@ -28,12 +54,60 @@ export default function Header() {
     return () => document.removeEventListener('click', onDoc)
   }, [])
 
+  useEffect(() => {
+    function onDocNotification(e: MouseEvent) {
+      if (!notificationRef.current) return
+      if (e.target instanceof Node && !notificationRef.current.contains(e.target)) {
+        setNotificationOpen(false)
+      }
+    }
+    document.addEventListener('click', onDocNotification)
+    return () => document.removeEventListener('click', onDocNotification)
+  }, [])
+
   const handleLogout = () => {
     clearAuth()
     setAuth(false)
     setOpen(false)
     router.push('/login')
   }
+
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((notif) =>
+        notif.id === id ? { ...notif, read: true } : notif
+      )
+    )
+  }
+
+  const markAllAsRead = () => {
+    setNotifications((prev) =>
+      prev.map((notif) => ({ ...notif, read: true }))
+    )
+  }
+
+  const deleteNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((notif) => notif.id !== id))
+  }
+
+  const clearAllNotifications = () => {
+    setNotifications([])
+  }
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'new_complaint':
+        return '🚨'
+      case 'status_update':
+        return '🔄'
+      case 'new_user':
+        return '👤'
+      default:
+        return '📢'
+    }
+  }
+
+  const unreadCount = notifications.filter((n) => !n.read).length
 
   // Don't show header on login page - check at the end after all hooks
   if (pathname === '/login') {
@@ -58,11 +132,114 @@ export default function Header() {
           {/* Right Section */}
           <div className="flex items-center gap-6">
             {/* Notification */}
-            <div className="relative cursor-pointer hover:scale-110 transition-transform">
-              <FaBell className="text-2xl" />
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                0
-              </span>
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={() => setNotificationOpen(!notificationOpen)}
+                className="relative cursor-pointer hover:scale-110 transition-transform"
+              >
+                <FaBell className="text-2xl" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {notificationOpen && (
+                <div className="absolute right-0 mt-4 w-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-50 max-h-[500px] overflow-hidden flex flex-col">
+                  {/* Header */}
+                  <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-primary to-secondary text-white">
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-semibold text-lg">Notifications</h3>
+                      {notifications.length > 0 && (
+                        <div className="flex gap-2">
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={markAllAsRead}
+                              className="text-xs hover:underline flex items-center gap-1"
+                              title="Mark all as read"
+                            >
+                              <FaCheck /> Mark all
+                            </button>
+                          )}
+                          <button
+                            onClick={clearAllNotifications}
+                            className="text-xs hover:underline flex items-center gap-1"
+                            title="Clear all"
+                          >
+                            <FaTrash /> Clear
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Notification List */}
+                  <div className="overflow-y-auto flex-1">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-gray-500">
+                        <FaBell className="text-4xl mx-auto mb-3 opacity-30" />
+                        <p className="text-sm">No notifications yet</p>
+                        <p className="text-xs mt-1">You'll see new updates here</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-gray-100">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 hover:bg-gray-50 transition-colors ${
+                              !notification.read ? 'bg-blue-50' : ''
+                            }`}
+                          >
+                            <div className="flex gap-3">
+                              <div className="text-2xl flex-shrink-0">
+                                {getNotificationIcon(notification.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2">
+                                  <h4 className="font-semibold text-gray-900 text-sm">
+                                    {notification.title}
+                                  </h4>
+                                  {!notification.read && (
+                                    <span className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1"></span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {notification.message}
+                                </p>
+                                <div className="flex justify-between items-center mt-2">
+                                  <span className="text-xs text-gray-400">
+                                    {new Date(notification.timestamp).toLocaleString()}
+                                  </span>
+                                  <div className="flex gap-2">
+                                    {!notification.read && (
+                                      <button
+                                        onClick={() => markAsRead(notification.id)}
+                                        className="text-xs text-blue-600 hover:text-blue-800"
+                                        title="Mark as read"
+                                      >
+                                        <FaCheck />
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => deleteNotification(notification.id)}
+                                      className="text-xs text-red-600 hover:text-red-800"
+                                      title="Delete"
+                                    >
+                                      <FaTrash />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Admin Dropdown */}
