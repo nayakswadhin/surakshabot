@@ -238,6 +238,13 @@ class WhatsAppService {
       case "confirm_complaint":
         return await this.handleComplaintConfirmation(to);
 
+      // Voice/Text input selection buttons
+      case "input_voice":
+        return await this.handleVoiceInputSelected(to);
+
+      case "input_text":
+        return await this.handleTextInputSelected(to);
+
       default:
         const responseText =
           "Sorry, I didn't understand that. Please use the menu options provided.";
@@ -876,8 +883,38 @@ class WhatsAppService {
       step: "INCIDENT_DESCRIPTION",
     });
 
-    const message = this.complaintService.createIncidentDescriptionMessage(to);
-    await this.sendMessage(to, message);
+    // Ask user to choose between voice or text input with clickable buttons
+    const choiceMessage = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: {
+          text: "📝 How would you like to provide the incident description?\n\nChoose your preferred method:",
+        },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: "input_voice",
+                title: "VOICE",
+              },
+            },
+            {
+              type: "reply",
+              reply: {
+                id: "input_text",
+                title: "TEXT",
+              },
+            },
+          ],
+        },
+      },
+    };
+    
+    await this.sendMessage(to, choiceMessage);
   }
 
   async handleFinancialFraudSelection(to) {
@@ -931,6 +968,49 @@ class WhatsAppService {
       );
       await this.sendMessage(to, errorMessage);
     }
+  }
+
+  // Handle VOICE button click
+  async handleVoiceInputSelected(to) {
+    const voiceInstructionMessage = this.createTextMessage(
+      to,
+      "🎤 Voice Input Selected\n\n" +
+      "Please send a voice message describing the incident in English.\n\n" +
+      "Speak clearly and include:\n" +
+      "• What happened\n" +
+      "• When it happened\n" +
+      "• Amount lost (if any)\n" +
+      "• Any other relevant details\n\n" +
+      "⚠️ Important: Speak slowly and clearly in English for accurate transcription."
+    );
+    
+    await this.sendMessage(to, voiceInstructionMessage);
+    
+    // Update session to expect voice input
+    this.sessionManager.updateSession(to, {
+      step: "AWAITING_VOICE_DESCRIPTION",
+    });
+  }
+
+  // Handle TEXT button click
+  async handleTextInputSelected(to) {
+    const textInputMessage = this.createTextMessage(
+      to,
+      "✍️ Text Input Selected\n\n" +
+      "Please type a detailed description of the incident:\n\n" +
+      "Include:\n" +
+      "• What happened\n" +
+      "• When it happened\n" +
+      "• Amount lost (if any)\n" +
+      "• Any other relevant details"
+    );
+    
+    await this.sendMessage(to, textInputMessage);
+    
+    // Update session to expect text description
+    this.sessionManager.updateSession(to, {
+      step: "AWAITING_TEXT_DESCRIPTION",
+    });
   }
 }
 
