@@ -1,28 +1,36 @@
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const speech = require('@google-cloud/speech');
-const { exec } = require('child_process');
-const util = require('util');
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+const speech = require("@google-cloud/speech");
+const { exec } = require("child_process");
+const util = require("util");
 const execPromise = util.promisify(exec);
 
 class VoiceService {
   constructor() {
     // Initialize Google Cloud Speech client
+    const credentialsPath = path.join(
+      __dirname,
+      "..",
+      "google-credentials.json"
+    );
+
     this.speechClient = new speech.SpeechClient({
-      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
+      keyFilename: credentialsPath,
     });
-    
+
     this.whatsappToken = process.env.WHATSAPP_TOKEN;
-    this.tempDir = path.join(__dirname, '..', 'temp');
-    
+    this.tempDir = path.join(__dirname, "..", "temp");
+
     // Create temp directory if it doesn't exist
     if (!fs.existsSync(this.tempDir)) {
       fs.mkdirSync(this.tempDir, { recursive: true });
     }
 
-    console.log('[VoiceService] ✅ Initialized with Google Cloud Speech-to-Text');
-    console.log('[VoiceService] Credentials:', process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    console.log(
+      "[VoiceService] ✅ Initialized with Google Cloud Speech-to-Text"
+    );
+    console.log("[VoiceService] Credentials:", credentialsPath);
   }
 
   /**
@@ -50,7 +58,7 @@ class VoiceService {
         headers: {
           Authorization: `Bearer ${this.whatsappToken}`,
         },
-        responseType: 'arraybuffer',
+        responseType: "arraybuffer",
       });
 
       // Step 3: Save to temp file (WhatsApp sends .ogg)
@@ -61,8 +69,8 @@ class VoiceService {
       console.log(`[VoiceService] Audio saved: ${fileName}`);
       return filePath;
     } catch (error) {
-      console.error('[VoiceService] Error downloading audio:', error.message);
-      throw new Error('Failed to download audio from WhatsApp');
+      console.error("[VoiceService] Error downloading audio:", error.message);
+      throw new Error("Failed to download audio from WhatsApp");
     }
   }
 
@@ -71,20 +79,24 @@ class VoiceService {
    */
   async convertOggToWav(oggFilePath) {
     try {
-      const wavFilePath = oggFilePath.replace('.ogg', '.wav');
+      const wavFilePath = oggFilePath.replace(".ogg", ".wav");
       console.log(`[VoiceService] Converting to WAV format...`);
 
       // Use ffmpeg to convert
       const command = `ffmpeg -i "${oggFilePath}" -ar 16000 -ac 1 "${wavFilePath}" -y`;
-      
+
       await execPromise(command);
-      
+
       console.log(`[VoiceService] ✅ Conversion successful`);
       return wavFilePath;
     } catch (error) {
-      console.warn('[VoiceService] ⚠️ ffmpeg conversion failed, trying without conversion');
-      console.warn('[VoiceService] To install ffmpeg: https://ffmpeg.org/download.html');
-      
+      console.warn(
+        "[VoiceService] ⚠️ ffmpeg conversion failed, trying without conversion"
+      );
+      console.warn(
+        "[VoiceService] To install ffmpeg: https://ffmpeg.org/download.html"
+      );
+
       // Return original file if conversion fails
       return oggFilePath;
     }
@@ -95,23 +107,25 @@ class VoiceService {
    */
   async transcribeAudio(audioFilePath) {
     try {
-      console.log(`[VoiceService] Starting Google Cloud Speech transcription...`);
+      console.log(
+        `[VoiceService] Starting Google Cloud Speech transcription...`
+      );
 
       // Read the audio file
       const audioBytes = fs.readFileSync(audioFilePath);
 
       const audio = {
-        content: audioBytes.toString('base64'),
+        content: audioBytes.toString("base64"),
       };
 
       // Configure for OGG OPUS (WhatsApp format)
       const config = {
-        encoding: 'OGG_OPUS', // WhatsApp sends OGG OPUS format
+        encoding: "OGG_OPUS", // WhatsApp sends OGG OPUS format
         sampleRateHertz: 16000,
-        languageCode: 'en-IN', // English (India)
-        alternativeLanguageCodes: ['en-US'], // Fallback to US English
+        languageCode: "en-IN", // English (India)
+        alternativeLanguageCodes: ["en-US"], // Fallback to US English
         enableAutomaticPunctuation: true,
-        model: 'default',
+        model: "default",
         audioChannelCount: 1, // Mono
       };
 
@@ -120,33 +134,41 @@ class VoiceService {
         config: config,
       };
 
-      console.log('[VoiceService] 🔄 Sending to Google Cloud Speech API...');
-      console.log('[VoiceService] Config:', JSON.stringify(config, null, 2));
+      console.log("[VoiceService] 🔄 Sending to Google Cloud Speech API...");
+      console.log("[VoiceService] Config:", JSON.stringify(config, null, 2));
 
       // Perform the transcription
       const [response] = await this.speechClient.recognize(request);
-      
-      console.log('[VoiceService] Response:', JSON.stringify(response, null, 2));
-      
+
+      console.log(
+        "[VoiceService] Response:",
+        JSON.stringify(response, null, 2)
+      );
+
       if (!response.results || response.results.length === 0) {
-        console.log('[VoiceService] ⚠️ No transcription results');
-        throw new Error('No transcription results from Google API');
+        console.log("[VoiceService] ⚠️ No transcription results");
+        throw new Error("No transcription results from Google API");
       }
 
       const transcription = response.results
-        .map(result => result.alternatives[0].transcript)
-        .join('\n');
+        .map((result) => result.alternatives[0].transcript)
+        .join("\n");
 
       const confidence = response.results[0].alternatives[0].confidence || 0;
 
       console.log(`[VoiceService] ✅ Google Cloud transcription successful!`);
       console.log(`[VoiceService] Transcribed: "${transcription}"`);
-      console.log(`[VoiceService] Confidence: ${(confidence * 100).toFixed(1)}%`);
+      console.log(
+        `[VoiceService] Confidence: ${(confidence * 100).toFixed(1)}%`
+      );
 
       return transcription.trim();
     } catch (error) {
-      console.error('[VoiceService] ❌ Error transcribing audio:', error.message);
-      console.error('[VoiceService] Full error:', error);
+      console.error(
+        "[VoiceService] ❌ Error transcribing audio:",
+        error.message
+      );
+      console.error("[VoiceService] Full error:", error);
       throw error;
     }
   }
@@ -174,8 +196,8 @@ class VoiceService {
         transcription: transcription,
       };
     } catch (error) {
-      console.error('[VoiceService] Error processing voice message:', error);
-      
+      console.error("[VoiceService] Error processing voice message:", error);
+
       // Cleanup on error
       if (audioFilePath) {
         this.cleanupTempFile(audioFilePath);
@@ -197,15 +219,15 @@ class VoiceService {
         fs.unlinkSync(filePath);
         console.log(`[VoiceService] Cleaned up: ${path.basename(filePath)}`);
       }
-      
+
       // Also cleanup WAV file if exists
-      const wavPath = filePath.replace('.ogg', '.wav');
+      const wavPath = filePath.replace(".ogg", ".wav");
       if (wavPath !== filePath && fs.existsSync(wavPath)) {
         fs.unlinkSync(wavPath);
         console.log(`[VoiceService] Cleaned up: ${path.basename(wavPath)}`);
       }
     } catch (error) {
-      console.error('[VoiceService] Error cleaning up:', error.message);
+      console.error("[VoiceService] Error cleaning up:", error.message);
     }
   }
 
@@ -229,7 +251,7 @@ class VoiceService {
         }
       });
     } catch (error) {
-      console.error('[VoiceService] Error cleaning old files:', error.message);
+      console.error("[VoiceService] Error cleaning old files:", error.message);
     }
   }
 }

@@ -70,7 +70,7 @@ class ComplaintService {
     return `CC${timestamp}${random}`;
   }
 
-  // Create incident description message
+  // Create incident description message with voice/text choice
   createIncidentDescriptionMessage(to) {
     return {
       messaging_product: "whatsapp",
@@ -79,22 +79,111 @@ class ComplaintService {
       interactive: {
         type: "button",
         body: {
-          text:
-            "📋 Cyber Crime Complaint Registration\n\n" +
-            "Please provide a detailed description of the cyber crime incident.\n\n" +
-            "Include the following information:\n\n" +
-            "• What exactly happened?\n" +
-            "• When did the incident occur? (Date and Time)\n" +
-            "• Financial loss incurred (if any)\n" +
-            "• Suspect details (if known)\n" +
-            "• Any other relevant information\n\n" +
-            "⚠️ Note: Provide complete details to help us investigate your case effectively.",
+          text: "🎙️ Incident Description\n\nHow would you like to provide the incident details?\n\n*Voice Input:* Send a voice message describing what happened\n*Text Input:* Type out the incident description\n\nChoose your preferred method:",
         },
         action: {
           buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: "voice_input",
+                title: "🎤 Voice Input",
+              },
+            },
+            {
+              type: "reply",
+              reply: {
+                id: "text_input",
+                title: "⌨️ Text Input",
+              },
+            },
             { type: "reply", reply: { id: "back_step", title: "Back" } },
-            { type: "reply", reply: { id: "main_menu", title: "Main Menu" } },
-            { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+          ],
+        },
+      },
+    };
+  }
+
+  // Create voice input instruction message
+  createVoiceInputInstructionMessage(to) {
+    return {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "text",
+      text: {
+        body:
+          "🎙️ *Voice Recording Instructions*\n\n" +
+          "Please send a voice message describing the cyber crime incident.\n\n" +
+          "*Include the following details:*\n" +
+          "• What exactly happened?\n" +
+          "• When did it occur?\n" +
+          "• Any financial loss amount?\n" +
+          "• Suspect details if known\n\n" +
+          "📌 *Tip:* Speak clearly and provide as much detail as possible.\n\n" +
+          "▶️ *Press and hold the microphone button to record your voice message.*",
+      },
+    };
+  }
+
+  // Create text input instruction message
+  createTextInputInstructionMessage(to) {
+    return {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "text",
+      text: {
+        body:
+          "⌨️ *Type Incident Description*\n\n" +
+          "Please type the cyber crime incident details.\n\n" +
+          "*Include:*\n" +
+          "• What exactly happened?\n" +
+          "• When did it occur?\n" +
+          "• Any financial loss amount?\n" +
+          "• Evidence available (screenshots, messages, etc.)?\n" +
+          "• Suspect details if known\n\n" +
+          "Provide as much detail as possible:",
+      },
+    };
+  }
+
+  // Create transcription confirmation message
+  createTranscriptionConfirmationMessage(to, transcribedText) {
+    return {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: {
+          text:
+            "📝 *Voice Transcription*\n\n" +
+            "Here's what I understood from your voice message:\n\n" +
+            `"${transcribedText}"\n\n` +
+            "Is this correct?",
+        },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: "confirm_transcription",
+                title: "✅ Correct",
+              },
+            },
+            {
+              type: "reply",
+              reply: {
+                id: "retry_voice",
+                title: "🔄 Record Again",
+              },
+            },
+            {
+              type: "reply",
+              reply: {
+                id: "switch_to_text",
+                title: "⌨️ Type Instead",
+              },
+            },
           ],
         },
       },
