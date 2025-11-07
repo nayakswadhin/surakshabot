@@ -860,6 +860,25 @@ class WhatsAppController {
     }
   }
 
+  async getAllCases(req, res) {
+    try {
+      const cases = await Cases.find()
+        .populate("caseDetailsId")
+        .sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: cases,
+      });
+    } catch (error) {
+      console.error("Error fetching all cases:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching all cases",
+      });
+    }
+  }
+
   async getCases(req, res) {
     try {
       const { aadharNumber } = req.params;
@@ -877,6 +896,136 @@ class WhatsAppController {
       res.status(500).json({
         success: false,
         message: "Error fetching cases",
+      });
+    }
+  }
+
+  async getCaseById(req, res) {
+    try {
+      const { caseId } = req.params;
+
+      const case_ = await Cases.findOne({ caseId }).populate("caseDetailsId");
+
+      if (!case_) {
+        return res.status(404).json({
+          success: false,
+          message: "Case not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: case_,
+      });
+    } catch (error) {
+      console.error("Error fetching case by ID:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching case",
+      });
+    }
+  }
+
+  async updateCaseStatus(req, res) {
+    try {
+      const { caseId } = req.params;
+      const updateData = req.body;
+
+      const updatedCase = await Cases.findOneAndUpdate(
+        { caseId },
+        updateData,
+        { new: true }
+      ).populate("caseDetailsId");
+
+      if (!updatedCase) {
+        return res.status(404).json({
+          success: false,
+          message: "Case not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: updatedCase,
+      });
+    } catch (error) {
+      console.error("Error updating case status:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error updating case status",
+      });
+    }
+  }
+
+  async getAllUsers(req, res) {
+    try {
+      const users = await Users.find().sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: users,
+      });
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching all users",
+      });
+    }
+  }
+
+  async getUserById(req, res) {
+    try {
+      const { userId } = req.params;
+
+      const user = await Users.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching user",
+      });
+    }
+  }
+
+  async sendAdminMessage(req, res) {
+    try {
+      const { phoneNumber, message } = req.body;
+
+      if (!phoneNumber || !message) {
+        return res.status(400).json({
+          success: false,
+          message: "Phone number and message are required",
+        });
+      }
+
+      const textMessage = this.whatsappService.createTextMessage(
+        phoneNumber,
+        message
+      );
+      await this.whatsappService.sendMessage(phoneNumber, textMessage);
+
+      res.json({
+        success: true,
+        message: "Message sent successfully",
+      });
+    } catch (error) {
+      console.error("Error sending admin message:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error sending message",
       });
     }
   }
