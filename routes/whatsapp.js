@@ -49,4 +49,9 @@ router.get("/users/:userId", (req, res) => {
   whatsappController.getUserById(req, res);
 });
 
+// API endpoint to send admin message to user via WhatsApp
+router.post("/send-message", (req, res) => {
+  whatsappController.sendAdminMessage(req, res);
+});
+
 module.exports = router;

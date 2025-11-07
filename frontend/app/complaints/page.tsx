@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { fetchComplaints, updateComplaintStatus, fetchUsers } from '@/lib/api'
 import { format } from 'date-fns'
 import { FaEye, FaEdit, FaSearch, FaFilter } from 'react-icons/fa'
@@ -18,6 +19,7 @@ interface Complaint {
 }
 
 export default function ComplaintsPage() {
+  const router = useRouter()
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [filteredComplaints, setFilteredComplaints] = useState<Complaint[]>([])
   const [usersMap, setUsersMap] = useState<Record<string, any>>({})
@@ -103,7 +105,7 @@ export default function ComplaintsPage() {
     if (!selectedComplaint) return
 
     try {
-      await updateComplaintStatus(selectedComplaint._id, newStatus)
+      await updateComplaintStatus(selectedComplaint._id, { status: newStatus })
       await loadData()
       setShowModal(false)
       alert('Status updated successfully!')
@@ -209,7 +211,14 @@ export default function ComplaintsPage() {
                   const user = usersMap[complaint.aadharNumber]
                   return (
                     <tr key={complaint._id} className="border-b hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-primary">{complaint.caseId}</td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => router.push(`/complaints/${complaint._id}`)}
+                          className="font-medium text-primary hover:text-primary-dark hover:underline"
+                        >
+                          {complaint.caseId}
+                        </button>
+                      </td>
                       <td className="px-6 py-4">
                         <div className="font-medium">{user?.name || 'N/A'}</div>
                         <div className="text-sm text-gray-500">{user?.phoneNumber || 'N/A'}</div>
@@ -236,7 +245,7 @@ export default function ComplaintsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleViewDetails(complaint)}
+                          onClick={() => router.push(`/complaints/${complaint._id}`)}
                           className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium"
                         >
                           <FaEye /> View

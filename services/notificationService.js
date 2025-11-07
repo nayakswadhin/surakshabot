@@ -38,11 +38,14 @@ class NotificationService {
    */
   static emitStatusUpdate(complaint, oldStatus) {
     if (global.io) {
+      const complaintId = complaint._id?.toString() || complaint._id;
+      const shortId = complaintId?.substring(0, 8) || 'Unknown';
+      
       const notification = {
         id: Date.now().toString(),
         type: 'status_update',
         title: 'Complaint Status Updated',
-        message: `Complaint #${complaint._id?.substring(0, 8)} status changed from ${oldStatus} to ${complaint.status}`,
+        message: `Complaint #${shortId} status changed from ${oldStatus} to ${complaint.status}`,
         data: {
           complaintId: complaint._id,
           oldStatus,

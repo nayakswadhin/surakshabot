@@ -545,9 +545,15 @@ class WhatsAppController {
         });
       }
 
+      // Fetch user details
+      const user = await Users.findOne({ aadharNumber: complaint.aadharNumber });
+
       res.json({
         success: true,
-        data: complaint,
+        data: {
+          complaint,
+          user: user || null,
+        },
       });
     } catch (error) {
       console.error("Error fetching case:", error);
@@ -561,19 +567,55 @@ class WhatsAppController {
   async updateCaseStatus(req, res) {
     try {
       const { caseId } = req.params;
-      const { status } = req.body;
+      const { status, remarks, updatedBy, priority } = req.body;
 
-      const updatedCase = await Cases.findByIdAndUpdate(
-        caseId,
-        { status, updatedAt: Date.now() },
-        { new: true }
-      );
-
-      if (!updatedCase) {
+      // Find the case first to get old status
+      const existingCase = await Cases.findById(caseId);
+      
+      if (!existingCase) {
         return res.status(404).json({
           success: false,
           message: "Case not found",
         });
+      }
+
+      const oldStatus = existingCase.status;
+
+      // Prepare update object
+      const updateData = {
+        status,
+        updatedAt: Date.now(),
+      };
+
+      // Add remarks if provided
+      if (remarks) {
+        updateData.remarks = remarks;
+      }
+
+      // Add priority if provided
+      if (priority) {
+        updateData.priority = priority;
+      }
+
+      // Add to status history
+      const statusHistoryEntry = {
+        status,
+        remarks: remarks || '',
+        updatedBy: updatedBy || 'Admin',
+        updatedAt: new Date(),
+      };
+
+      updateData.$push = { statusHistory: statusHistoryEntry };
+
+      const updatedCase = await Cases.findByIdAndUpdate(
+        caseId,
+        updateData,
+        { new: true }
+      ).populate("caseDetailsId");
+
+      // Emit notification if status changed
+      if (oldStatus !== status) {
+        NotificationService.emitStatusUpdate(updatedCase, oldStatus);
       }
 
       res.json({
@@ -723,6 +765,57 @@ class WhatsAppController {
       }
     } catch (error) {
       console.error("Error handling complaint filing input:", error);
+    }
+  }
+
+  // Send message from admin to user
+  async sendAdminMessage(req, res) {
+    try {
+      const { phoneNumber, message, caseId } = req.body;
+
+      if (!phoneNumber || !message) {
+        return res.status(400).json({
+          success: false,
+          error: "Phone number and message are required",
+        });
+      }
+
+      // Format phone number (remove +91 if present, ensure it's clean)
+      const cleanPhone = phoneNumber.replace(/^\+91/, '').replace(/\D/g, '');
+      const formattedPhone = `91${cleanPhone}`;
+
+      // Create the message with case reference if provided
+      let messageText = message;
+      if (caseId) {
+        messageText = `[Case ID: ${caseId}]\n\n${message}\n\n---\n1930 Cyber Helpline, Odisha`;
+      } else {
+        messageText = `${message}\n\n---\n1930 Cyber Helpline, Odisha`;
+      }
+
+      const whatsappMessage = this.whatsappService.createTextMessage(
+        formattedPhone,
+        messageText
+      );
+
+      const result = await this.whatsappService.sendMessage(
+        formattedPhone,
+        whatsappMessage
+      );
+
+      console.log(`Admin message sent to ${formattedPhone}:`, result);
+
+      res.status(200).json({
+        success: true,
+        message: "Message sent successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error sending admin message:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to send message",
+        details: error.message,
+      });
     }
   }
 }

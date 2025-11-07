@@ -78,7 +78,7 @@ export const fetchComplaints = async (filters?: {
 // Fetch single complaint by ID
 export const fetchComplaintById = async (caseId: string) => {
   try {
-    const response = await apiClient.get(`/whatsapp/cases/${caseId}`)
+    const response = await apiClient.get(`/whatsapp/case/${caseId}`)
     return response.data.data
   } catch (error) {
     console.error('Error fetching complaint:', error)
@@ -87,9 +87,17 @@ export const fetchComplaintById = async (caseId: string) => {
 }
 
 // Update complaint status
-export const updateComplaintStatus = async (caseId: string, status: string) => {
+export const updateComplaintStatus = async (
+  caseId: string,
+  data: {
+    status: string
+    remarks?: string
+    updatedBy?: string
+    priority?: string
+  }
+) => {
   try {
-    const response = await apiClient.patch(`/whatsapp/cases/${caseId}`, { status })
+    const response = await apiClient.patch(`/whatsapp/cases/${caseId}`, data)
     return response.data
   } catch (error) {
     console.error('Error updating complaint status:', error)
@@ -162,6 +170,25 @@ export const testApiConnection = async () => {
     return response.data
   } catch (error) {
     console.error('API connection test failed:', error)
+    throw error
+  }
+}
+
+// Send WhatsApp message to user via chatbot
+export const sendWhatsAppMessage = async (
+  phoneNumber: string,
+  message: string,
+  caseId?: string
+) => {
+  try {
+    const response = await apiClient.post('/whatsapp/send-message', {
+      phoneNumber,
+      message,
+      caseId,
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error sending WhatsApp message:', error)
     throw error
   }
 }

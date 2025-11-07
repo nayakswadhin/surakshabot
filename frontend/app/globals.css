@@ -37,3 +37,141 @@
     @apply bg-danger text-white hover:bg-red-700 focus:ring-danger;
   }
 }
+
+/* Print Styles */
+@media print {
+  /* Hide elements not needed in print */
+  header,
+  nav,
+  .no-print,
+  button:not(.print-only),
+  .fixed,
+  [role="status"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  /* Remove hover and transition effects but keep elements visible */
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Adjust page layout */
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  html, body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  main {
+    padding: 1rem !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Fix infinite height issue */
+  div {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+    background: white !important;
+    height: auto !important;
+  }
+
+  /* Ensure proper page breaks */
+  h1, h2, h3 {
+    page-break-after: avoid;
+    color: black !important;
+  }
+
+  /* Text colors */
+  p, span, div, h1, h2, h3, h4, h5, h6, label {
+    color: black !important;
+  }
+
+  /* Background colors */
+  .bg-gray-50,
+  .bg-blue-50,
+  .bg-yellow-50 {
+    background: white !important;
+  }
+
+  /* Preserve badge colors with borders */
+  [class*="badge"],
+  [class*="status"],
+  [class*="priority"] {
+    border: 1px solid #333 !important;
+    background: white !important;
+  }
+
+  /* Remove cursor pointer styling but keep element visible */
+  .cursor-pointer {
+    cursor: default !important;
+  }
+
+  /* Make images visible and properly sized */
+  img {
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 250px !important;
+    page-break-inside: avoid;
+    border: 1px solid #ddd !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Grid layouts */
+  .grid {
+    display: block !important;
+    height: auto !important;
+  }
+
+  .lg\:grid-cols-3,
+  .lg\:col-span-2,
+  [class*="grid-cols"],
+  [class*="col-span"] {
+    display: block !important;
+    grid-template-columns: none !important;
+    column-count: 1 !important;
+  }
+
+  .space-y-6 > *,
+  .space-y-4 > * {
+    margin-bottom: 1rem !important;
+  }
+
+  /* Fix relative/group positioning */
+  .relative,
+  .group {
+    position: static !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  /* Remove overlay effects */
+  .absolute.inset-0 {
+    display: none !important;
+  }
+}
