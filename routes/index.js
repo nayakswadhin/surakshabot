@@ -1,11 +1,15 @@
 const express = require("express");
 const whatsappRoutes = require("./whatsapp");
+const chatbotRoutes = require("./chatbot");
 const NotificationService = require("../services/notificationService");
 
 const router = express.Router();
 
 // WhatsApp bot routes
 router.use("/whatsapp", whatsappRoutes);
+
+// Chatbot routes
+router.use("/chatbot", chatbotRoutes);
 
 // Health check endpoint
 router.get("/health", (req, res) => {
