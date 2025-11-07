@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  FaHome,
-  FaExclamationTriangle,
-  FaChartBar,
-  FaChartLine,
-  FaUsers,
+    FaChartBar,
+    FaChartLine,
+    FaExclamationTriangle,
+    FaHome,
+    FaRobot,
+    FaUsers,
 } from 'react-icons/fa'
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
   { href: '/reports', label: 'Reports', icon: FaChartBar },
   { href: '/analytics', label: 'Analytics', icon: FaChartLine },
   { href: '/users', label: 'Users', icon: FaUsers },
+  { href: '/assistant', label: 'Assistant', icon: FaRobot },
 ]
 
 export default function Navbar() {

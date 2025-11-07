@@ -1,11 +1,10 @@
+import AuthGuard from '@/components/AuthGuard'
+import Footer from '@/components/Footer'
+import Header from '@/components/Header'
+import Navbar from '@/components/Navbar'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import AuthGuard from '@/components/AuthGuard'
-import Header from '@/components/Header'
-import Navbar from '@/components/Navbar'
-import ChatBot from '@/components/ChatBot'
-import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,7 +28,6 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
-          <ChatBot />
         </AuthGuard>
       </body>
     </html>
