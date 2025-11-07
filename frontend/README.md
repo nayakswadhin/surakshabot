@@ -67,8 +67,7 @@ frontend/
 │   ├── page.tsx           # Dashboard page
 │   ├── globals.css        # Global styles
 │   ├── complaints/        # Complaints page
-│   ├── reports/           # Reports page
-│   ├── analytics/         # Analytics page
+│   ├── analytics/         # Analytics & Reports page (merged)
 │   ├── users/             # Users page
 │   └── settings/          # Settings page
 ├── components/            # Reusable React components
@@ -111,16 +110,15 @@ The frontend connects to the backend API at `http://localhost:3000/api`:
 - View complaint details
 - Update complaint status
 
-### Reports (`/reports`)
-- Statistical charts and graphs
-- Category-wise analysis
-- Monthly trends
-- District-wise breakdown
-
-### Analytics (`/analytics`)
-- Advanced fraud type analysis
-- Date range filtering
-- Custom reports
+### Analytics & Reports (`/analytics`)
+- Comprehensive analytics dashboard with statistical reports
+- Multiple visualization charts (Doughnut, Line, Bar charts)
+- Category-wise and district-wise analysis
+- Monthly trends and fraud type distribution
+- Advanced fraud type analysis (Top 15)
+- Date range filtering for custom reports
+- Export functionality (CSV and PDF)
+- Detailed breakdown tables with percentages
 
 ### Users (`/users`)
 - Registered users list

@@ -1,20 +1,26 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { fetchFraudTypeDistribution, fetchComplaints } from '@/lib/api'
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js'
-import { Bar } from 'react-chartjs-2'
-import { FaCalendarAlt } from 'react-icons/fa'
+import { useEffect, useState, useRef } from 'react'
+import { fetchFraudTypeDistribution, fetchComplaints, fetchUsers } from '@/lib/api'
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, LineElement, PointElement } from 'chart.js'
+import { Bar, Doughnut, Line } from 'react-chartjs-2'
+import { FaCalendarAlt, FaDownload, FaFileCsv, FaFilePdf, FaChevronDown } from 'react-icons/fa'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, LineElement, PointElement)
 
 export default function AnalyticsPage() {
   const [fraudDistribution, setFraudDistribution] = useState<any[]>([])
   const [complaints, setComplaints] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [filteredData, setFilteredData] = useState<any[]>([])
+  const [filteredComplaints, setFilteredComplaints] = useState<any[]>([])
+  const [showExportMenu, setShowExportMenu] = useState(false)
+  const exportMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadData()
@@ -24,16 +30,36 @@ export default function AnalyticsPage() {
     applyDateFilter()
   }, [startDate, endDate, complaints])
 
+  // Handle click outside to close export menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false)
+      }
+    }
+
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showExportMenu])
+
   const loadData = async () => {
     try {
       setLoading(true)
-      const [distribution, complaintsData] = await Promise.all([
+      const [distribution, complaintsData, usersData] = await Promise.all([
         fetchFraudTypeDistribution(),
         fetchComplaints(),
+        fetchUsers(),
       ])
       setFraudDistribution(distribution)
       setComplaints(complaintsData)
+      setUsers(usersData)
       setFilteredData(distribution)
+      setFilteredComplaints(complaintsData)
     } catch (error) {
       console.error('Error loading analytics:', error)
     } finally {
@@ -44,6 +70,7 @@ export default function AnalyticsPage() {
   const applyDateFilter = () => {
     if (!startDate || !endDate) {
       setFilteredData(fraudDistribution)
+      setFilteredComplaints(complaints)
       return
     }
 
@@ -55,6 +82,8 @@ export default function AnalyticsPage() {
       const date = new Date(c.createdAt)
       return date >= start && date <= end
     })
+
+    setFilteredComplaints(filtered)
 
     // Recalculate distribution for filtered data
     const distribution: Record<string, number> = {}
@@ -69,6 +98,221 @@ export default function AnalyticsPage() {
       .slice(0, 15)
 
     setFilteredData(newDistribution)
+  }
+
+  // Category Chart Data
+  const categoryData = {
+    labels: ['Financial Fraud', 'Social Media Fraud'],
+    datasets: [
+      {
+        label: 'Number of Cases',
+        data: [
+          filteredComplaints.filter((c) => c.caseCategory === 'Financial').length,
+          filteredComplaints.filter((c) => c.caseCategory === 'Social').length,
+        ],
+        backgroundColor: ['#1a237e', '#0d47a1'],
+        borderWidth: 2,
+        borderColor: '#fff',
+      },
+    ],
+  }
+
+  // Status Distribution
+  const statusData = {
+    labels: ['Pending', 'Solved', 'Under Review', 'Investigating', 'Rejected'],
+    datasets: [
+      {
+        data: [
+          filteredComplaints.filter((c) => c.status === 'pending').length,
+          filteredComplaints.filter((c) => c.status === 'solved').length,
+          filteredComplaints.filter((c) => c.status === 'under_review').length,
+          filteredComplaints.filter((c) => c.status === 'investigating').length,
+          filteredComplaints.filter((c) => c.status === 'rejected').length,
+        ],
+        backgroundColor: ['#f57c00', '#2e7d32', '#0288d1', '#7b1fa2', '#c62828'],
+        borderWidth: 2,
+        borderColor: '#fff',
+      },
+    ],
+  }
+
+  // Monthly Trend
+  const getMonthlyTrend = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const monthlyCounts = new Array(12).fill(0)
+
+    filteredComplaints.forEach((complaint) => {
+      const month = new Date(complaint.createdAt).getMonth()
+      monthlyCounts[month]++
+    })
+
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: 'Complaints per Month',
+          data: monthlyCounts,
+          borderColor: '#1a237e',
+          backgroundColor: 'rgba(26, 35, 126, 0.1)',
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    }
+  }
+
+  // District-wise Analysis
+  const getDistrictData = () => {
+    const districtCounts: Record<string, number> = {}
+    
+    filteredComplaints.forEach((complaint) => {
+      users.forEach((user) => {
+        if (user.aadharNumber === complaint.aadharNumber) {
+          const district = user.address?.district || 'Unknown'
+          districtCounts[district] = (districtCounts[district] || 0) + 1
+        }
+      })
+    })
+
+    const sortedDistricts = Object.entries(districtCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+
+    return {
+      labels: sortedDistricts.map(([district]) => district),
+      datasets: [
+        {
+          label: 'Cases by District',
+          data: sortedDistricts.map(([, count]) => count),
+          backgroundColor: [
+            '#1a237e', '#0d47a1', '#2e7d32', '#f57c00', '#c62828',
+            '#0288d1', '#7b1fa2', '#455a64', '#00695c', '#5d4037',
+          ],
+        },
+      ],
+    }
+  }
+
+  const exportToCSV = () => {
+    // Prepare CSV data
+    const csvData = []
+    
+    // Add header
+    csvData.push([
+      'Case ID',
+      'Aadhar Number',
+      'Case Category',
+      'Type of Fraud',
+      'Status',
+      'Priority',
+      'Created Date',
+      'Pin Code',
+      'District'
+    ])
+
+    // Add complaint rows
+    filteredComplaints.forEach((complaint) => {
+      const user = users.find(u => u.aadharNumber === complaint.aadharNumber)
+      csvData.push([
+        complaint.caseId || complaint._id || '',
+        complaint.aadharNumber || '',
+        complaint.caseCategory || '',
+        complaint.typeOfFraud || '',
+        complaint.status || '',
+        complaint.priority || '',
+        complaint.createdAt ? new Date(complaint.createdAt).toLocaleDateString() : '',
+        complaint.fraudLocation?.pincode || '',
+        user?.address?.district || ''
+      ])
+    })
+
+    // Convert to CSV string
+    const csvContent = csvData.map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n')
+
+    // Create download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.href = url
+    link.download = `analytics-report-${new Date().toISOString().split('T')[0]}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    setShowExportMenu(false)
+  }
+
+  const exportToPDF = () => {
+    const doc = new jsPDF()
+    
+    // Add title
+    doc.setFontSize(20)
+    doc.setTextColor(26, 35, 126)
+    doc.text('SurakshaBot - Analytics & Reports', 14, 20)
+    
+    // Add generation date
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 28)
+    if (startDate && endDate) {
+      doc.text(`Date Range: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`, 14, 33)
+    }
+    
+    // Add summary statistics
+    doc.setFontSize(12)
+    doc.setTextColor(0)
+    doc.text('Summary Statistics', 14, 43)
+    
+    const stats = [
+      ['Total Complaints', filteredComplaints.length.toString()],
+      ['Solved', filteredComplaints.filter((c) => c.status === 'solved').length.toString()],
+      ['Pending', filteredComplaints.filter((c) => c.status === 'pending').length.toString()],
+      ['Under Review', filteredComplaints.filter((c) => c.status === 'under_review').length.toString()],
+      ['Investigating', filteredComplaints.filter((c) => c.status === 'investigating').length.toString()],
+      ['Financial Fraud', filteredComplaints.filter((c) => c.caseCategory === 'Financial').length.toString()],
+      ['Social Fraud', filteredComplaints.filter((c) => c.caseCategory === 'Social').length.toString()],
+      ['Total Users', users.length.toString()],
+      ['Resolution Rate', filteredComplaints.length > 0 
+        ? `${Math.round((filteredComplaints.filter((c) => c.status === 'solved').length / filteredComplaints.length) * 100)}%` 
+        : '0%']
+    ]
+    
+    autoTable(doc, {
+      startY: 47,
+      head: [['Metric', 'Value']],
+      body: stats,
+      theme: 'grid',
+      headStyles: { fillColor: [26, 35, 126] },
+      margin: { left: 14 }
+    })
+    
+    // Add complaints table
+    doc.setFontSize(12)
+    const finalY = (doc as any).lastAutoTable.finalY || 47
+    doc.text('Detailed Complaints', 14, finalY + 10)
+    
+    const tableData = filteredComplaints.slice(0, 50).map((complaint) => [
+      (complaint.caseId || complaint._id)?.substring(0, 10) || '',
+      complaint.aadharNumber?.substring(0, 8) + '****' || '',
+      complaint.caseCategory || '',
+      (complaint.typeOfFraud || '').substring(0, 25),
+      complaint.status || '',
+      complaint.createdAt ? new Date(complaint.createdAt).toLocaleDateString() : ''
+    ])
+    
+    autoTable(doc, {
+      startY: finalY + 14,
+      head: [['Case ID', 'Aadhar', 'Category', 'Fraud Type', 'Status', 'Date']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [26, 35, 126] },
+      styles: { fontSize: 8 },
+      margin: { left: 14, right: 14 }
+    })
+    
+    // Save PDF
+    doc.save(`analytics-report-${new Date().toISOString().split('T')[0]}.pdf`)
+    setShowExportMenu(false)
   }
 
   const chartData = {
@@ -97,64 +341,208 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-bold text-primary">Advanced Analytics</h1>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <h1 className="text-3xl font-bold text-primary">Analytics & Reports</h1>
         
-        {/* Date Range Picker */}
-        <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md">
-          <FaCalendarAlt className="text-primary text-xl" />
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-          <span className="text-gray-600">to</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-          <button
-            onClick={() => {
-              setStartDate('')
-              setEndDate('')
-            }}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Clear
-          </button>
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          {/* Date Range Picker */}
+          <div className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-md flex-wrap">
+            <FaCalendarAlt className="text-primary text-lg" />
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+            />
+            <span className="text-gray-600">to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+            />
+            <button
+              onClick={() => {
+                setStartDate('')
+                setEndDate('')
+              }}
+              className="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
+            >
+              Clear
+            </button>
+          </div>
+
+          {/* Export Menu */}
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium w-full sm:w-auto justify-center"
+            >
+              <FaDownload /> Export <FaChevronDown className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
+                <button
+                  onClick={exportToCSV}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3 text-gray-700 transition-colors"
+                >
+                  <FaFileCsv className="text-green-600" /> Export as CSV
+                </button>
+                <button
+                  onClick={exportToPDF}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3 text-gray-700 transition-colors"
+                >
+                  <FaFilePdf className="text-red-600" /> Export as PDF
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-          <div className="text-sm opacity-90 mb-2">Total Cases (Filtered)</div>
-          <div className="text-4xl font-bold">
-            {filteredData.reduce((sum, item) => sum + item.count, 0)}
+      {/* Summary Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="card border-l-4 border-blue-500 p-6">
+          <div className="text-sm text-gray-600 mb-1">Total Complaints</div>
+          <div className="text-4xl font-bold text-gray-900">{filteredComplaints.length}</div>
+        </div>
+        <div className="card border-l-4 border-green-500 p-6">
+          <div className="text-sm text-gray-600 mb-1">Solved</div>
+          <div className="text-4xl font-bold text-gray-900">
+            {filteredComplaints.filter((c) => c.status === 'solved').length}
           </div>
         </div>
-
-        <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-          <div className="text-sm opacity-90 mb-2">Most Common Fraud</div>
-          <div className="text-2xl font-bold truncate">
-            {filteredData[0]?.type || 'N/A'}
-          </div>
-          <div className="text-sm opacity-90">
-            ({filteredData[0]?.count || 0} cases)
+        <div className="card border-l-4 border-orange-500 p-6">
+          <div className="text-sm text-gray-600 mb-1">Pending</div>
+          <div className="text-4xl font-bold text-gray-900">
+            {filteredComplaints.filter((c) => c.status === 'pending').length}
           </div>
         </div>
-
-        <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
-          <div className="text-sm opacity-90 mb-2">Fraud Types Detected</div>
-          <div className="text-4xl font-bold">{filteredData.length}</div>
+        <div className="card border-l-4 border-purple-500 p-6">
+          <div className="text-sm text-gray-600 mb-1">Resolution Rate</div>
+          <div className="text-4xl font-bold text-gray-900">
+            {filteredComplaints.length > 0
+              ? Math.round((filteredComplaints.filter((c) => c.status === 'solved').length / filteredComplaints.length) * 100)
+              : 0}
+            %
+          </div>
+        </div>
+        <div className="card border-l-4 border-indigo-500 p-6">
+          <div className="text-sm text-gray-600 mb-1">Fraud Types</div>
+          <div className="text-4xl font-bold text-gray-900">{filteredData.length}</div>
         </div>
       </div>
 
-      {/* Main Chart */}
-      <div className="card">
+      {/* Charts Grid - Overview */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Category Chart */}
+        <div className="card p-6">
+          <h3 className="text-xl font-semibold text-primary mb-6">Complaints by Category</h3>
+          <div className="h-80 flex items-center justify-center">
+            <Doughnut
+              data={categoryData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      padding: 20,
+                      font: {
+                        size: 14
+                      }
+                    }
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Status Distribution */}
+        <div className="card p-6">
+          <h3 className="text-xl font-semibold text-primary mb-6">Status Distribution</h3>
+          <div className="h-80 flex items-center justify-center">
+            <Doughnut
+              data={statusData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      padding: 20,
+                      font: {
+                        size: 12
+                      }
+                    }
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Monthly Trend */}
+        <div className="card xl:col-span-2 p-6">
+          <h3 className="text-xl font-semibold text-primary mb-6">Monthly Trend</h3>
+          <div className="h-80">
+            <Line
+              data={getMonthlyTrend()}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      stepSize: 1,
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+
+        {/* District-wise Analysis */}
+        <div className="card xl:col-span-2 p-6">
+          <h3 className="text-xl font-semibold text-primary mb-6">District-wise Analysis (Top 10)</h3>
+          <div className="h-80">
+            <Bar
+              data={getDistrictData()}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: false,
+                  },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      stepSize: 1,
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Fraud Type Distribution Chart */}
+      <div className="card p-6">
         <h3 className="text-2xl font-semibold text-primary mb-6">
           Fraud Type Distribution (Top 15)
         </h3>
