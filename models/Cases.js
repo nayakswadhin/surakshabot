@@ -87,8 +87,35 @@ const casesSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "solved"],
+    enum: ["pending", "solved", "under_review", "investigating", "rejected"],
     default: "pending",
+  },
+  priority: {
+    type: String,
+    enum: ["low", "medium", "high", "urgent"],
+    default: "medium",
+  },
+  remarks: {
+    type: String,
+  },
+  statusHistory: [
+    {
+      status: {
+        type: String,
+        required: true,
+      },
+      remarks: String,
+      updatedBy: String,
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  assignedTo: {
+    officerId: String,
+    officerName: String,
+    assignedAt: Date,
   },
   caseDetailsId: {
     type: mongoose.Schema.Types.ObjectId,
