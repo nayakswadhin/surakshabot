@@ -320,26 +320,26 @@ export default function ReportsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="card border-l-4 border-blue-500">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="card border-l-4 border-blue-500 p-6">
           <div className="text-sm text-gray-600 mb-1">Total Complaints</div>
-          <div className="text-3xl font-bold text-gray-900">{complaints.length}</div>
+          <div className="text-4xl font-bold text-gray-900">{complaints.length}</div>
         </div>
-        <div className="card border-l-4 border-green-500">
+        <div className="card border-l-4 border-green-500 p-6">
           <div className="text-sm text-gray-600 mb-1">Solved</div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-4xl font-bold text-gray-900">
             {complaints.filter((c) => c.status === 'solved').length}
           </div>
         </div>
-        <div className="card border-l-4 border-orange-500">
+        <div className="card border-l-4 border-orange-500 p-6">
           <div className="text-sm text-gray-600 mb-1">Pending</div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-4xl font-bold text-gray-900">
             {complaints.filter((c) => c.status === 'pending').length}
           </div>
         </div>
-        <div className="card border-l-4 border-purple-500">
+        <div className="card border-l-4 border-purple-500 p-6">
           <div className="text-sm text-gray-600 mb-1">Resolution Rate</div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-4xl font-bold text-gray-900">
             {complaints.length > 0
               ? Math.round((complaints.filter((c) => c.status === 'solved').length / complaints.length) * 100)
               : 0}
@@ -349,11 +349,11 @@ export default function ReportsPage() {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Category Chart */}
-        <div className="card">
+        <div className="card p-6">
           <h3 className="text-xl font-semibold text-primary mb-6">Complaints by Category</h3>
-          <div className="h-80 flex items-center justify-center">
+          <div className="h-96 flex items-center justify-center">
             <Doughnut
               data={categoryData}
               options={{
@@ -362,6 +362,12 @@ export default function ReportsPage() {
                 plugins: {
                   legend: {
                     position: 'bottom',
+                    labels: {
+                      padding: 20,
+                      font: {
+                        size: 14
+                      }
+                    }
                   },
                 },
               }}
@@ -370,9 +376,9 @@ export default function ReportsPage() {
         </div>
 
         {/* Status Distribution */}
-        <div className="card">
+        <div className="card p-6">
           <h3 className="text-xl font-semibold text-primary mb-6">Status Distribution</h3>
-          <div className="h-80 flex items-center justify-center">
+          <div className="h-96 flex items-center justify-center">
             <Doughnut
               data={statusData}
               options={{
@@ -381,6 +387,12 @@ export default function ReportsPage() {
                 plugins: {
                   legend: {
                     position: 'bottom',
+                    labels: {
+                      padding: 20,
+                      font: {
+                        size: 14
+                      }
+                    }
                   },
                 },
               }}
@@ -389,9 +401,9 @@ export default function ReportsPage() {
         </div>
 
         {/* Monthly Trend */}
-        <div className="card lg:col-span-2">
+        <div className="card xl:col-span-2 p-6">
           <h3 className="text-xl font-semibold text-primary mb-6">Monthly Trend</h3>
-          <div className="h-80">
+          <div className="h-96">
             <Line
               data={getMonthlyTrend()}
               options={{
@@ -416,9 +428,9 @@ export default function ReportsPage() {
         </div>
 
         {/* District-wise Analysis */}
-        <div className="card lg:col-span-2">
+        <div className="card xl:col-span-2 p-6">
           <h3 className="text-xl font-semibold text-primary mb-6">District-wise Analysis (Top 10)</h3>
-          <div className="h-80">
+          <div className="h-96">
             <Bar
               data={getDistrictData()}
               options={{

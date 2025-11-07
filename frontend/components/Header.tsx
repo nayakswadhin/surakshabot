@@ -3,19 +3,23 @@
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
-import { FaBell, FaUserCircle, FaSignOutAlt, FaCog, FaCheck, FaTrash } from 'react-icons/fa'
+import { FaBell, FaUserCircle, FaSignOutAlt, FaCog, FaCheck, FaTrash, FaCalendarAlt } from 'react-icons/fa'
 import { isAuthenticated, clearAuth } from '@/lib/auth'
 import { initSocket, Notification } from '@/lib/socket'
+import Image from 'next/image'
+import CalendarWidget from './CalendarWidget'
 
 export default function Header() {
   const [auth, setAuth] = useState(false)
   const [open, setOpen] = useState(false)
   const [notificationOpen, setNotificationOpen] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const router = useRouter()
   const pathname = usePathname()
   const menuRef = useRef<HTMLDivElement | null>(null)
   const notificationRef = useRef<HTMLDivElement | null>(null)
+  const calendarRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setAuth(isAuthenticated())
@@ -63,6 +67,17 @@ export default function Header() {
     }
     document.addEventListener('click', onDocNotification)
     return () => document.removeEventListener('click', onDocNotification)
+  }, [])
+
+  useEffect(() => {
+    function onDocCalendar(e: MouseEvent) {
+      if (!calendarRef.current) return
+      if (e.target instanceof Node && !calendarRef.current.contains(e.target)) {
+        setCalendarOpen(false)
+      }
+    }
+    document.addEventListener('click', onDocCalendar)
+    return () => document.removeEventListener('click', onDocCalendar)
   }, [])
 
   const handleLogout = () => {
@@ -120,8 +135,14 @@ export default function Header() {
         <div className="flex justify-between items-center">
           {/* Logo Section */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-              <span className="text-primary font-bold text-2xl">SB</span>
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center p-3">
+              <Image 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/1200px-Emblem_of_India.svg.png"
+                alt="Emblem of India"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
             </div>
             <div>
               <h1 className="text-2xl font-bold">SurakshaBot</h1>
@@ -131,6 +152,24 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-6">
+            {/* Calendar */}
+            <div className="relative" ref={calendarRef}>
+              <button
+                onClick={() => setCalendarOpen(!calendarOpen)}
+                className="relative cursor-pointer hover:scale-110 transition-transform"
+                title="Calendar"
+              >
+                <FaCalendarAlt className="text-2xl" />
+              </button>
+
+              {/* Calendar Dropdown */}
+              {calendarOpen && (
+                <div className="absolute right-0 mt-4 z-50">
+                  <CalendarWidget />
+                </div>
+              )}
+            </div>
+
             {/* Notification */}
             <div className="relative" ref={notificationRef}>
               <button

@@ -25,7 +25,7 @@ export default function RootLayout({
         <AuthGuard>
           <Header />
           <Navbar />
-          <main className="max-w-[1400px] mx-auto px-4 py-6 flex-grow">
+          <main className="max-w-[95%] 2xl:max-w-[1800px] mx-auto px-6 py-6 flex-grow w-full">
             {children}
           </main>
           <Footer />
