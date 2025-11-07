@@ -15,6 +15,32 @@ const casesSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  fraudLocation: {
+    pincode: {
+      type: String,
+      match: /^[0-9]{6}$/,
+    },
+    area: {
+      type: String,
+    },
+    district: {
+      type: String,
+    },
+    postOffice: {
+      type: String,
+    },
+  },
+  fraudDateTime: {
+    date: {
+      type: String,
+    },
+    time: {
+      type: String,
+    },
+    timestamp: {
+      type: Date,
+    },
+  },
   caseCategory: {
     type: String,
     enum: ["Financial", "Social"],

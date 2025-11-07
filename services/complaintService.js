@@ -79,7 +79,16 @@ class ComplaintService {
       interactive: {
         type: "button",
         body: {
-          text: "Complaint Registration\n\nPlease describe the cyber crime incident in detail:\n\nInclude:\n• What exactly happened?\n• When did it occur?\n• Any financial loss amount?\n• Evidence available (screenshots, messages, etc.)?\n• Suspect details if known\n\nProvide as much detail as possible:",
+          text:
+            "📋 Cyber Crime Complaint Registration\n\n" +
+            "Please provide a detailed description of the cyber crime incident.\n\n" +
+            "Include the following information:\n\n" +
+            "• What exactly happened?\n" +
+            "• When did the incident occur? (Date and Time)\n" +
+            "• Financial loss incurred (if any)\n" +
+            "• Suspect details (if known)\n" +
+            "• Any other relevant information\n\n" +
+            "⚠️ Note: Provide complete details to help us investigate your case effectively.",
         },
         action: {
           buttons: [

@@ -209,26 +209,19 @@ class WhatsAppService {
         const moreOptionsMessage = this.createMoreOptionsMessage(to);
         return await this.sendMessage(to, moreOptionsMessage);
 
-      // Registration flow buttons
+      // Registration flow - DiDiT Integration
       case "start_registration":
-        return await this.startRegistration(to);
-
-      case "skip_registration":
-        return await this.handleExistingUser(to);
+        // Start DiDiT verification flow instead of manual registration
+        const VerificationRegistrationController = require("../controllers/verificationRegistrationController");
+        await VerificationRegistrationController.startVerificationProcess(to);
+        return;
 
       // Complaint flow buttons
       case "proceed_complaint":
         return await this.handleComplaintDetails(to);
 
-      // Gender selection buttons
-      case "gender_male":
-        return await this.handleRegistrationInput(to, "Male");
-
-      case "gender_female":
-        return await this.handleRegistrationInput(to, "Female");
-
-      case "gender_others":
-        return await this.handleRegistrationInput(to, "Others");
+      // Note: Gender selection buttons removed - now using DiDiT verification flow
+      // Gender is auto-extracted from DiDiT Aadhar verification
 
       // Complaint flow buttons
       case "financial_fraud":
@@ -239,6 +232,13 @@ class WhatsAppService {
 
       case "confirm_complaint":
         return await this.handleComplaintConfirmation(to);
+
+      // Location confirmation buttons
+      case "location_yes":
+        return await this.handleLocationConfirmation(to, true);
+
+      case "location_no":
+        return await this.handleLocationConfirmation(to, false);
 
       // Social Media specific buttons
       case "meta_done":
@@ -1153,6 +1153,38 @@ class WhatsAppService {
     await this.sendMessage(to, message);
   }
 
+  async handleLocationConfirmation(to, isConfirmed) {
+    const session = this.sessionManager.getSession(to);
+
+    if (isConfirmed) {
+      // Location confirmed, ask for fraud date
+      this.sessionManager.updateSession(to, {
+        step: "FRAUD_DATE",
+      });
+
+      const message = this.createTextMessage(
+        to,
+        `📅 *Fraud Date*\n\nPlease enter the date when the fraud occurred:\n\n*Format:* DD-MM-YYYY\n*Example:* 07-11-2024\n\n_Enter the date when you first noticed the fraud or when it happened._`
+      );
+      await this.sendMessage(to, message);
+    } else {
+      // Location not confirmed, ask for pincode again
+      this.sessionManager.updateSession(to, {
+        step: "FRAUD_PINCODE",
+        data: {
+          ...session.data,
+          fraudLocation: undefined, // Clear previous location data
+        },
+      });
+
+      const message = this.createTextMessage(
+        to,
+        `📍 *Fraud Location*\n\nPlease enter the correct 6-digit pincode where the fraud occurred:\n\n*Example:* 110001`
+      );
+      await this.sendMessage(to, message);
+    }
+  }
+
   async handleComplaintConfirmation(to) {
     const session = this.sessionManager.getSession(to);
     const complaintData = session.data;
@@ -1416,15 +1448,23 @@ class WhatsAppService {
   async processDocumentUpload(from, uploadResult) {
     try {
       console.log(`Processing document upload for ${from}`);
+      console.log(`Upload result:`, uploadResult);
 
       const session = this.sessionManager.getSession(from);
+      if (!session) {
+        throw new Error("No active session found");
+      }
+
       const currentStep = session.step;
+      console.log(`Current step: ${currentStep}`);
+
       const nextStep = SessionManager.getNextDocumentStep(currentStep);
+      console.log(`Next step: ${nextStep}`);
 
       // Send confirmation message
       const confirmationText =
-        `✅ Document Uploaded Successfully!\n\n` +
-        `📄 ${SessionManager.getDocumentDisplayName(
+        `Document Uploaded Successfully\n\n` +
+        `${SessionManager.getDocumentDisplayName(
           currentStep
         )} has been saved.\n\n`;
 
@@ -1448,7 +1488,11 @@ class WhatsAppService {
 
         // Small delay before requesting next document
         setTimeout(async () => {
-          await this.requestNextDocument(from);
+          try {
+            await this.requestNextDocument(from);
+          } catch (error) {
+            console.error("Error requesting next document:", error);
+          }
         }, 1000);
       } else {
         // All documents collected, complete the complaint
@@ -1457,19 +1501,26 @@ class WhatsAppService {
           this.createTextMessage(
             from,
             confirmationText +
-              "All documents collected! Creating your complaint..."
+              "All documents collected. Creating your complaint..."
           )
         );
 
         setTimeout(async () => {
-          await this.completeComplaint(from);
+          try {
+            await this.completeComplaint(from);
+          } catch (error) {
+            console.error("Error completing complaint:", error);
+          }
         }, 1000);
       }
     } catch (error) {
       console.error("Error processing document upload:", error);
+      console.error("Error details:", error.message);
+      console.error("Error stack:", error.stack);
+
       const errorMessage = this.createTextMessage(
         from,
-        "❌ Sorry, there was an error processing your document. Please try uploading again."
+        "Sorry, there was an error processing your document. Please try uploading again."
       );
       await this.sendMessage(from, errorMessage);
     }
@@ -1511,12 +1562,26 @@ class WhatsAppService {
 
       console.log(`Creating case with ${documentsArray.length} documents`);
 
+      // Combine fraud date and time into timestamp
+      let fraudTimestamp = null;
+      if (complaintData.fraudDateObj && complaintData.fraudTime) {
+        const [hours, minutes] = complaintData.fraudTime.split(":");
+        fraudTimestamp = new Date(complaintData.fraudDateObj);
+        fraudTimestamp.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      }
+
       // Create new Case
       const newCase = new (require("../models").Cases)({
         caseId: complaintData.caseId,
         aadharNumber: user.aadharNumber,
         incidentDescription:
           complaintData.incident || "Financial fraud incident",
+        fraudLocation: complaintData.fraudLocation || {},
+        fraudDateTime: {
+          date: complaintData.fraudDate,
+          time: complaintData.fraudTime,
+          timestamp: fraudTimestamp,
+        },
         caseCategory:
           complaintData.category === "financial" ? "Financial" : "Social",
         typeOfFraud: complaintData.fraudType,
@@ -1552,6 +1617,16 @@ class WhatsAppService {
         `• Incident: ${
           complaintData.incident || "Financial fraud incident"
         }\n` +
+        (complaintData.fraudLocation
+          ? `• Location: ${complaintData.fraudLocation.area || "N/A"}, ${
+              complaintData.fraudLocation.district || "N/A"
+            } (${complaintData.fraudLocation.pincode})\n`
+          : "") +
+        (complaintData.fraudDate
+          ? `• Date & Time: ${complaintData.fraudDate} at ${
+              complaintData.fraudTime || "N/A"
+            }\n`
+          : "") +
         `• Category: ${
           complaintData.category === "financial"
             ? "Financial Fraud"
@@ -1627,14 +1702,43 @@ class WhatsAppService {
    */
   async sendMetaRegistrationLink(from) {
     try {
+      const session = this.sessionManager.getSession(from);
+      const fraudType = session?.data?.fraudType;
+
+      // Get platform-specific link and platform name
+      let registrationLink = "";
+      let platformName = "";
+
+      switch (fraudType) {
+        case "twitter_fraud":
+          registrationLink = "https://help.x.com/en/forms/account-access";
+          platformName = "X (Twitter)";
+          break;
+        case "whatsapp_fraud":
+          registrationLink =
+            "https://www.whatsapp.com/contact/forms/1534459096974129";
+          platformName = "WhatsApp";
+          break;
+        case "telegram_fraud":
+          registrationLink = "https://telegram.org/support";
+          platformName = "Telegram";
+          break;
+        case "facebook_fraud":
+        case "instagram_fraud":
+        default:
+          registrationLink = "https://help.meta.com/requests/1371776380779082/";
+          platformName = "Meta (Facebook/Instagram)";
+          break;
+      }
+
       const messageText =
         `� Social Media Fraud Process\n\n` +
-        `Register on the link given below:\n\n` +
-        `https://help.meta.com/requests/1371776380779082/\n\n` +
+        `Register on the ${platformName} link given below:\n\n` +
+        `${registrationLink}\n\n` +
         `📋 Steps to follow:\n` +
         `1. Click the link above\n` +
         `2. Fill out the complaint form\n` +
-        `3. Submit your complaint to Meta\n` +
+        `3. Submit your complaint to ${platformName}\n` +
         `4. Come back and click "Yes I'm Done"\n\n` +
         `This registration is mandatory for Social Media fraud cases.`;
 
@@ -1823,26 +1927,38 @@ class WhatsAppService {
       console.log(
         `Processing Social Media document for ${from}, type: ${inputType}`
       );
+      console.log(`Upload result:`, uploadResult);
 
       const session = this.sessionManager.getSession(from);
+      if (!session) {
+        throw new Error("No active session found");
+      }
+
       const currentStep = session.step;
+      console.log(`Current step: ${currentStep}`);
 
       // Store the document/URL
       if (inputType === "image") {
+        if (!session.data.socialMediaDocuments) {
+          session.data.socialMediaDocuments = {};
+        }
         session.data.socialMediaDocuments[currentStep] = uploadResult;
       } else if (
         inputType === "text" &&
         currentStep === SessionManager.SOCIAL_MEDIA_COLLECTION_STEPS.ALLEGED_URL
       ) {
+        if (!session.data.allegedUrls) {
+          session.data.allegedUrls = [];
+        }
         session.data.allegedUrls.push(uploadResult);
       }
 
       // Send confirmation
       const confirmationText =
-        `✅ ${
+        `${
           inputType === "image" ? "Document" : "URL"
-        } Received Successfully!\n\n` +
-        `📄 ${SessionManager.getSocialMediaDisplayName(
+        } Received Successfully\n\n` +
+        `${SessionManager.getSocialMediaDisplayName(
           currentStep
         )} has been saved.\n\n`;
 
@@ -1856,13 +1972,20 @@ class WhatsAppService {
 
       // Move to next step
       setTimeout(async () => {
-        await this.moveToNextSocialMediaStep(from);
+        try {
+          await this.moveToNextSocialMediaStep(from);
+        } catch (error) {
+          console.error("Error moving to next step:", error);
+        }
       }, 1000);
     } catch (error) {
       console.error("Error processing social media document:", error);
+      console.error("Error details:", error.message);
+      console.error("Error stack:", error.stack);
+
       const errorMessage = this.createTextMessage(
         from,
-        "❌ Sorry, there was an error processing your submission. Please try again."
+        "Sorry, there was an error processing your submission. Please try again."
       );
       await this.sendMessage(from, errorMessage);
     }
@@ -2227,12 +2350,26 @@ class WhatsAppService {
         `Creating Social Media case with ${documentsArray.length} documents`
       );
 
+      // Combine fraud date and time into timestamp
+      let fraudTimestamp = null;
+      if (complaintData.fraudDateObj && complaintData.fraudTime) {
+        const [hours, minutes] = complaintData.fraudTime.split(":");
+        fraudTimestamp = new Date(complaintData.fraudDateObj);
+        fraudTimestamp.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      }
+
       // Create new Case
       const newCase = new (require("../models").Cases)({
         caseId: complaintData.caseId,
         aadharNumber: user.aadharNumber,
         incidentDescription:
           complaintData.incident || "Social Media fraud incident",
+        fraudLocation: complaintData.fraudLocation || {},
+        fraudDateTime: {
+          date: complaintData.fraudDate,
+          time: complaintData.fraudTime,
+          timestamp: fraudTimestamp,
+        },
         caseCategory: "Social",
         typeOfFraud: complaintData.fraudType,
         status: "pending",
@@ -2272,6 +2409,16 @@ class WhatsAppService {
         `• Incident: ${
           complaintData.incident || "Social Media fraud incident"
         }\n` +
+        (complaintData.fraudLocation
+          ? `• Location: ${complaintData.fraudLocation.area || "N/A"}, ${
+              complaintData.fraudLocation.district || "N/A"
+            } (${complaintData.fraudLocation.pincode})\n`
+          : "") +
+        (complaintData.fraudDate
+          ? `• Date & Time: ${complaintData.fraudDate} at ${
+              complaintData.fraudTime || "N/A"
+            }\n`
+          : "") +
         `• Category: Social Media Fraud\n` +
         `• Fraud Type: ${complaintData.fraudType}\n` +
         `• Meta Registration: ${
@@ -2316,6 +2463,253 @@ class WhatsAppService {
 
       // Don't clear session in case of error so user can retry
     }
+  }
+
+  /**
+   * ========================================
+   * VERIFICATION REGISTRATION METHODS
+   * ========================================
+   */
+
+  /**
+   * Send verification link with button
+   * @param {string} to - User's WhatsApp number
+   * @param {string} verificationUrl - DiDiT verification URL
+   */
+  async sendVerificationLink(to, verificationUrl) {
+    try {
+      const message = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "text",
+        text: {
+          body:
+            `🔐 *Identity Verification Required*\n\n` +
+            `To register with Suraksha Bot, please verify your identity using your Aadhar Card.\n\n` +
+            `*Steps to verify:*\n` +
+            `1. Click the link below\n` +
+            `2. Follow the instructions\n` +
+            `3. Scan your Aadhar Card\n` +
+            `4. Complete face verification\n\n` +
+            `*Verification Link:*\n${verificationUrl}\n\n` +
+            `After completing verification, return here and tap "I'm Done" button.`,
+        },
+      };
+
+      await this.sendMessage(to, message);
+
+      // Send confirmation buttons after a short delay
+      setTimeout(async () => {
+        await this.sendVerificationConfirmation(to);
+      }, 2000);
+    } catch (error) {
+      console.error("Error sending verification link:", error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Send verification confirmation buttons
+   * @param {string} to - User's WhatsApp number
+   */
+  async sendVerificationConfirmation(to) {
+    try {
+      const message = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: {
+            text: "Have you completed the verification process?",
+          },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: {
+                  id: "verify_done",
+                  title: "✅ Yes, I'm Done",
+                },
+              },
+              {
+                type: "reply",
+                reply: {
+                  id: "verify_retry",
+                  title: "� Retry Again",
+                },
+              },
+              {
+                type: "reply",
+                reply: {
+                  id: "exit",
+                  title: "❌ Exit",
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(to, message);
+    } catch (error) {
+      console.error("Error sending verification confirmation:", error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Send verification retry message with button
+   * @param {string} to - User's WhatsApp number
+   * @param {string} errorMessage - Error message to display
+   */
+  async sendVerificationRetry(to, errorMessage) {
+    try {
+      const message = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: {
+            text: `⏳ Verification Status\n\n${errorMessage}\n\n` +
+                  "Please choose an option:",
+          },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: {
+                  id: "verify_check_status",
+                  title: "🔍 Check Status",
+                },
+              },
+              {
+                type: "reply",
+                reply: {
+                  id: "verify_retry",
+                  title: "🔄 Retry Verification",
+                },
+              },
+              {
+                type: "reply",
+                reply: {
+                  id: "exit",
+                  title: "❌ Exit",
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(to, message);
+    } catch (error) {
+      console.error("Error sending verification retry:", error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Send location confirmation buttons
+   * @param {string} to - User's WhatsApp number
+   * @param {string} locationMessage - Formatted location message
+   */
+  async sendLocationConfirmation(to, locationMessage) {
+    try {
+      const message = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: {
+            text: locationMessage,
+          },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: {
+                  id: "location_yes",
+                  title: "Yes, Correct",
+                },
+              },
+              {
+                type: "reply",
+                reply: {
+                  id: "location_no",
+                  title: "No, Retry",
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(to, message);
+    } catch (error) {
+      console.error("Error sending location confirmation:", error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Send registration success message
+   * @param {string} to - User's WhatsApp number
+   * @param {string} summaryMessage - Formatted registration summary
+   */
+  async sendRegistrationSuccess(to, summaryMessage) {
+    try {
+      const textMessage = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "text",
+        text: {
+          body: summaryMessage,
+        },
+      };
+
+      await this.sendMessage(to, textMessage);
+
+      // Send next steps message
+      setTimeout(async () => {
+        const nextStepsMessage = {
+          messaging_product: "whatsapp",
+          to: to,
+          type: "text",
+          text: {
+            body:
+              `You can now proceed to:\n\n` +
+              `• File a new complaint\n` +
+              `• Check complaint status\n` +
+              `• Request account unfreeze\n\n` +
+              `Type "Hi" or "Menu" to see options.`,
+          },
+        };
+        await this.sendMessage(to, nextStepsMessage);
+      }, 2000);
+    } catch (error) {
+      console.error("Error sending registration success:", error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Create text message helper
+   * @param {string} to - User's WhatsApp number
+   * @param {string} text - Message text
+   * @returns {Object} Message object
+   */
+  createTextMessage(to, text) {
+    return {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "text",
+      text: {
+        body: text,
+      },
+    };
   }
 }
 
