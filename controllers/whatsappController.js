@@ -1493,6 +1493,90 @@ class WhatsAppController {
     }
   }
 
+  async getHeatmapData(req, res) {
+    try {
+      console.log("Fetching heatmap data...");
+      
+      // Fetch all cases with their details
+      const cases = await Cases.find()
+        .populate("caseDetailsId")
+        .sort({ createdAt: -1 });
+
+      console.log(`Found ${cases.length} cases`);
+
+      // For each case, get user data and location
+      const heatmapPoints = [];
+
+      for (const caseItem of cases) {
+        try {
+          // Get user details
+          const user = await Users.findOne({ aadharNumber: caseItem.aadharNumber });
+          
+          if (!user) {
+            console.log(`No user found for case ${caseItem.caseId}`);
+            continue;
+          }
+
+          // Get coordinates from pincode or district
+          let coordinates = null;
+          
+          if (user.address && user.address.pincode) {
+            coordinates = await geocodingService.getCoordinatesFromPincode(user.address.pincode);
+          }
+          
+          // If no coordinates from pincode, try district
+          if (!coordinates && user.address && user.address.district) {
+            coordinates = geocodingService.getDistrictCoordinates(user.address.district);
+          }
+
+          // If still no coordinates, skip this case
+          if (!coordinates || !coordinates.lat || !coordinates.lng) {
+            console.log(`No coordinates found for case ${caseItem.caseId}`);
+            continue;
+          }
+
+          // Add random offset to avoid exact overlapping
+          const offsetCoords = geocodingService.addRandomOffset(coordinates, 0.02);
+
+          // Determine weight based on status (pending cases get higher weight)
+          const weight = caseItem.status === "pending" ? 2 : 1;
+
+          // Create heatmap point
+          heatmapPoints.push({
+            lat: offsetCoords.lat,
+            lng: offsetCoords.lng,
+            weight: weight,
+            caseId: caseItem.caseId,
+            fraudType: caseItem.typeOfFraud,
+            category: caseItem.caseCategory,
+            status: caseItem.status,
+            district: user.address ? user.address.district : null,
+            pincode: user.address ? user.address.pincode : null,
+            createdAt: caseItem.createdAt,
+          });
+        } catch (error) {
+          console.error(`Error processing case ${caseItem.caseId}:`, error);
+          // Continue with next case
+        }
+      }
+
+      console.log(`Generated ${heatmapPoints.length} heatmap points`);
+
+      res.json({
+        success: true,
+        count: heatmapPoints.length,
+        data: heatmapPoints,
+      });
+    } catch (error) {
+      console.error("Error fetching heatmap data:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching heatmap data",
+        error: error.message,
+      });
+    }
+  }
+
   async createCase(req, res) {
     try {
       const caseData = req.body;
