@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { GoogleMap, useLoadScript, HeatmapLayer, InfoWindow } from '@react-google-maps/api'
 import { fetchHeatmapData } from '@/lib/api'
+import { useTranslation } from '@/hooks/useTranslation'
 import { FaMapMarkedAlt, FaSpinner } from 'react-icons/fa'
 
 const libraries: ('visualization')[] = ['visualization']
@@ -33,6 +34,7 @@ interface HeatmapPoint {
 }
 
 export default function HeatmapWidget() {
+  const { t } = useTranslation()
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries,
@@ -62,7 +64,7 @@ export default function HeatmapWidget() {
       const data = await fetchHeatmapData()
       
       if (!data || data.length === 0) {
-        setError('No location data available')
+        setError(t('No location data available'))
         setLoading(false)
         return
       }
@@ -91,7 +93,7 @@ export default function HeatmapWidget() {
       setLoading(false)
     } catch (err) {
       console.error('Error loading heatmap data:', err)
-      setError('Failed to load heatmap data')
+      setError(t('Failed to load heatmap data'))
       setLoading(false)
     }
   }
@@ -101,10 +103,10 @@ export default function HeatmapWidget() {
       <div className="card p-6">
         <div className="flex items-center gap-3 mb-4">
           <FaMapMarkedAlt className="text-2xl text-primary" />
-          <h3 className="text-xl font-semibold text-primary">Fraud Heatmap</h3>
+          <h3 className="text-xl font-semibold text-primary">{t('Fraud Heatmap - India')}</h3>
         </div>
         <div className="text-red-600 p-4 bg-red-50 rounded-lg">
-          Error loading Google Maps. Please check your API key.
+          {t('Error loading Google Maps. Please check your API key.')}
         </div>
       </div>
     )
@@ -115,7 +117,7 @@ export default function HeatmapWidget() {
       <div className="card p-6">
         <div className="flex items-center gap-3 mb-4">
           <FaMapMarkedAlt className="text-2xl text-primary" />
-          <h3 className="text-xl font-semibold text-primary">Fraud Heatmap</h3>
+          <h3 className="text-xl font-semibold text-primary">{t('Fraud Heatmap - India')}</h3>
         </div>
         <div className="flex items-center justify-center h-64">
           <FaSpinner className="animate-spin text-4xl text-primary" />
@@ -130,36 +132,36 @@ export default function HeatmapWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <FaMapMarkedAlt className="text-2xl text-primary" />
-          <h3 className="text-xl font-semibold text-primary">Fraud Heatmap - India</h3>
+          <h3 className="text-xl font-semibold text-primary">{t('Fraud Heatmap - India')}</h3>
         </div>
         <button
           onClick={loadHeatmapData}
           className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm"
         >
-          Refresh
+          {t('Refresh')}
         </button>
       </div>
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
         <div className="bg-blue-50 p-3 rounded-lg">
-          <div className="text-xs text-gray-600">Total Cases</div>
+          <div className="text-xs text-gray-600">{t('Total Cases')}</div>
           <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
         </div>
         <div className="bg-purple-50 p-3 rounded-lg">
-          <div className="text-xs text-gray-600">Financial</div>
+          <div className="text-xs text-gray-600">{t('Financial')}</div>
           <div className="text-2xl font-bold text-purple-600">{stats.financial}</div>
         </div>
         <div className="bg-indigo-50 p-3 rounded-lg">
-          <div className="text-xs text-gray-600">Social</div>
+          <div className="text-xs text-gray-600">{t('Social')}</div>
           <div className="text-2xl font-bold text-indigo-600">{stats.social}</div>
         </div>
         <div className="bg-orange-50 p-3 rounded-lg">
-          <div className="text-xs text-gray-600">Pending</div>
+          <div className="text-xs text-gray-600">{t('Pending')}</div>
           <div className="text-2xl font-bold text-orange-600">{stats.pending}</div>
         </div>
         <div className="bg-green-50 p-3 rounded-lg">
-          <div className="text-xs text-gray-600">Solved</div>
+          <div className="text-xs text-gray-600">{t('Solved')}</div>
           <div className="text-2xl font-bold text-green-600">{stats.solved}</div>
         </div>
       </div>
@@ -169,7 +171,7 @@ export default function HeatmapWidget() {
         <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
           <div className="text-center">
             <FaSpinner className="animate-spin text-4xl text-primary mx-auto mb-3" />
-            <p className="text-gray-600">Loading heatmap data...</p>
+            <p className="text-gray-600">{t('Loading heatmap data...')}</p>
           </div>
         </div>
       ) : error ? (
@@ -180,7 +182,7 @@ export default function HeatmapWidget() {
               onClick={loadHeatmapData}
               className="mt-3 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm"
             >
-              Try Again
+              {t('Try Again')}
             </button>
           </div>
         </div>
@@ -227,22 +229,22 @@ export default function HeatmapWidget() {
 
       {/* Legend */}
       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-        <div className="text-sm font-medium text-gray-700 mb-2">Heatmap Legend:</div>
+        <div className="text-sm font-medium text-gray-700 mb-2">{t('Heatmap Legend:')}</div>
         <div className="flex flex-wrap gap-4 text-xs text-gray-600">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-blue-400"></div>
-            <span>Low Density</span>
+            <span>{t('Low Density')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-purple-500"></div>
-            <span>Medium Density</span>
+            <span>{t('Medium Density')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-red-600"></div>
-            <span>High Density</span>
+            <span>{t('High Density')}</span>
           </div>
           <div className="ml-auto text-gray-500">
-            Updated: {new Date().toLocaleString()}
+            {t('Updated:')} {new Date().toLocaleString()}
           </div>
         </div>
       </div>
