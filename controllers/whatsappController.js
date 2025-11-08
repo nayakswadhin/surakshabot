@@ -2,12 +2,14 @@ const WhatsAppService = require("../services/whatsappService");
 const SessionManager = require("../services/sessionManager");
 const NotificationService = require("../services/notificationService");
 const VoiceProcessingService = require("../services/voiceProcessingService");
-const { Users, Cases, CaseDetails, StateContacts } = require("../models");
+const UnfreezeService = require("../services/unfreezeService");
+const { Users, Cases, CaseDetails, StateContacts, AccountFreezeInquiry } = require("../models");
 const geocodingService = require("../services/geocodingService");
 
 class WhatsAppController {
   constructor() {
     this.whatsappService = new WhatsAppService();
+    this.unfreezeService = new UnfreezeService();
   }
 
   async verifyWebhook(req, res) {
@@ -668,94 +670,305 @@ class WhatsAppController {
 
   async handleAccountUnfreezeInput(from, text) {
     try {
+      const session = this.whatsappService.sessionManager.getSession(from);
       const inputText = text.trim();
-      console.log(`Searching for account with: ${inputText}`);
+      const currentStep = session.step;
 
-      let user = null;
+      console.log(`[Unfreeze] Processing step: ${currentStep}, input: ${inputText}`);
 
-      // Check if input looks like a phone number (10 digits)
-      if (inputText.match(/^[6-9]\d{9}$/)) {
-        user = await Users.findOne({ phoneNumber: inputText });
+      switch (currentStep) {
+        case SessionManager.ACCOUNT_UNFREEZE_STEPS.BANK_NAME:
+          // Save bank name and move to account number
+          session.data.bankName = inputText;
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: SessionManager.ACCOUNT_UNFREEZE_STEPS.ACCOUNT_NUMBER,
+            data: session.data,
+          });
+
+          const accountNumberMessage = this.whatsappService.createTextMessage(
+            from,
+            "2️⃣ *Account Number:*\n\n" +
+              "Please enter your *complete bank account number*:\n" +
+              "(Enter full account number, 9-18 digits)"
+          );
+          await this.whatsappService.sendMessage(from, accountNumberMessage);
+          break;
+
+        case SessionManager.ACCOUNT_UNFREEZE_STEPS.ACCOUNT_NUMBER:
+          // Save FULL account number and check if it exists in database
+          if (inputText.length < 9 || inputText.length > 18) {
+            const invalidAccountMessage = this.whatsappService.createTextMessage(
+              from,
+              "❌ Invalid account number.\n\n" +
+                "Account number should be 9-18 digits.\n" +
+                "Please enter your complete account number:"
+            );
+            await this.whatsappService.sendMessage(from, invalidAccountMessage);
+            return;
+          }
+
+          // Look up account in database to find which state police froze it
+          const AccountFreezeInquiry = require('../models/AccountFreezeInquiry');
+          const existingRecord = await AccountFreezeInquiry.findOne({
+            'accountDetails.accountNumber': inputText
+          });
+
+          if (existingRecord) {
+            // Account found! We know which state police froze it
+            const frozenByState = existingRecord.accountDetails.frozenByStatePolice;
+            
+            // Get that state's police contacts
+            const policeContacts = await this.unfreezeService.getStateContacts(frozenByState);
+            
+            if (policeContacts) {
+              // Display information to user
+              const contactMessage = this.whatsappService.createTextMessage(
+                from,
+                `✅ *Account Found in Records*\n\n` +
+                  `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                  `🏦 *Bank:* ${existingRecord.accountDetails.bankName}\n` +
+                  `👤 *Account Holder:* ${existingRecord.accountDetails.accountHolderName}\n` +
+                  `🔢 *Account:* XXXX${inputText.slice(-4)}\n\n` +
+                  `⚠️ *Account Frozen By:*\n` +
+                  `🚨 *${frozenByState.toUpperCase()} POLICE*\n\n` +
+                  `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                  `📞 *Contact These Officers in ${frozenByState.toUpperCase()}:*\n\n` +
+                  `👨‍✈️ *Nodal Cyber Cell Officer:*\n` +
+                  `Name: ${policeContacts.nodalOfficer.name}\n` +
+                  `Rank: ${policeContacts.nodalOfficer.rank}\n` +
+                  `Email: ${policeContacts.nodalOfficer.email}\n\n` +
+                  `👨‍⚖️ *Grievance Officer:*\n` +
+                  `Name: ${policeContacts.grievanceOfficer.name}\n` +
+                  `Rank: ${policeContacts.grievanceOfficer.rank}\n` +
+                  `Contact: ${policeContacts.grievanceOfficer.contact || 'Not Available'}\n` +
+                  `Email: ${policeContacts.grievanceOfficer.email}\n\n` +
+                  `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                  `💡 *Next Steps:*\n` +
+                  `1️⃣ Contact the officers mentioned above\n` +
+                  `2️⃣ Provide your account details\n` +
+                  `3️⃣ Submit proof of innocence\n` +
+                  `4️⃣ Request account unfreeze\n\n` +
+                  `📋 *Reference ID:* ${existingRecord.inquiryId}\n\n` +
+                  `🆘 *Need help? Call 1930*`
+              );
+              
+              await this.whatsappService.sendMessage(from, contactMessage);
+              
+              // Clear session as inquiry is complete
+              this.whatsappService.sessionManager.clearSession(from);
+              return;
+            }
+          }
+
+          // Account not found in database - continue with manual flow
+          session.data.accountNumber = inputText;
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: SessionManager.ACCOUNT_UNFREEZE_STEPS.ACCOUNT_HOLDER_NAME,
+            data: session.data,
+          });
+
+          const holderNameMessage = this.whatsappService.createTextMessage(
+            from,
+            "❌ *Account not found in our records*\n\n" +
+              "Don't worry! Let's collect your details manually.\n\n" +
+              "3️⃣ *Account Holder Name:*\n\n" +
+              "Please enter the account holder's name as per bank records:"
+          );
+          await this.whatsappService.sendMessage(from, holderNameMessage);
+          break;
+
+        case SessionManager.ACCOUNT_UNFREEZE_STEPS.ACCOUNT_HOLDER_NAME:
+          // Save account holder name and move to bank branch state
+          session.data.accountHolderName = inputText;
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: SessionManager.ACCOUNT_UNFREEZE_STEPS.BANK_BRANCH_STATE,
+            data: session.data,
+          });
+
+          const branchStateMessage = this.whatsappService.createTextMessage(
+            from,
+            "4️⃣ *Bank Branch State:*\n\n" +
+              "In which *STATE* is your bank account/branch located?\n\n" +
+              "Examples:\n" +
+              "• Odisha\n" +
+              "• Maharashtra\n" +
+              "• Karnataka\n" +
+              "• Telangana\n" +
+              "• Delhi\n\n" +
+              "Enter your bank branch state name:"
+          );
+          await this.whatsappService.sendMessage(from, branchStateMessage);
+          break;
+
+        case SessionManager.ACCOUNT_UNFREEZE_STEPS.BANK_BRANCH_STATE:
+          // Detect state from input
+          const detectedState = this.unfreezeService.detectState(inputText);
+          
+          if (!detectedState) {
+            const errorMessage = this.whatsappService.createTextMessage(
+              from,
+              "❌ Unable to detect state.\n\n" +
+                "Please enter a valid Indian state name.\n" +
+                "Examples: Odisha, Maharashtra, Karnataka, Telangana, Delhi"
+            );
+            await this.whatsappService.sendMessage(from, errorMessage);
+            return;
+          }
+
+          // Verify state exists in database
+          const stateContact = await this.unfreezeService.getStateContacts(detectedState);
+          if (!stateContact) {
+            const notFoundMessage = this.whatsappService.createTextMessage(
+              from,
+              `❌ State not found in our database.\n\n` +
+                `You entered: ${inputText}\n` +
+                `Detected state: ${detectedState}\n\n` +
+                `Please enter a valid state name or contact 1930 for assistance.`
+            );
+            await this.whatsappService.sendMessage(from, notFoundMessage);
+            return;
+          }
+
+          session.data.bankBranchState = detectedState;
+          session.data.contactState = detectedState; // This state's police will be contacted
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: SessionManager.ACCOUNT_UNFREEZE_STEPS.FREEZE_DATE,
+            data: session.data,
+          });
+
+          const dateMessage = this.whatsappService.createTextMessage(
+            from,
+            "5️⃣ *Freeze Date:*\n\n" +
+              "When was your account frozen?\n" +
+              "Enter date in format: DD-MM-YYYY\n\n" +
+              "Example: 05-11-2025\n\n" +
+              "(If you don't know exact date, enter approximate date)"
+          );
+          await this.whatsappService.sendMessage(from, dateMessage);
+          break;
+
+        case SessionManager.ACCOUNT_UNFREEZE_STEPS.FREEZE_DATE:
+          // Parse and validate date
+          const freezeDate = this.unfreezeService.parseDate(inputText);
+          
+          if (!freezeDate) {
+            const invalidDateMessage = this.whatsappService.createTextMessage(
+              from,
+              "❌ Invalid date format.\n\n" +
+                "Please enter date in format: DD-MM-YYYY\n" +
+                "Example: 05-11-2025"
+            );
+            await this.whatsappService.sendMessage(from, invalidDateMessage);
+            return;
+          }
+
+          session.data.freezeDate = freezeDate;
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: SessionManager.ACCOUNT_UNFREEZE_STEPS.REASON,
+            data: session.data,
+          });
+
+          const reasonMessage = this.whatsappService.createTextMessage(
+            from,
+            "6️⃣ *Reason for Freeze:*\n\n" +
+              "What reason did the bank provide for freezing your account?\n\n" +
+              "(If not known, type 'Not Known')"
+          );
+          await this.whatsappService.sendMessage(from, reasonMessage);
+          break;
+
+        case SessionManager.ACCOUNT_UNFREEZE_STEPS.REASON:
+          // Save reason and move to transaction ID
+          session.data.reasonByBank = inputText;
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: SessionManager.ACCOUNT_UNFREEZE_STEPS.TRANSACTION_ID,
+            data: session.data,
+          });
+
+          const transactionMessage = this.whatsappService.createTextMessage(
+            from,
+            "7️⃣ *Transaction ID (Optional):*\n\n" +
+              "If you have a transaction reference number or case ID related to the freeze, enter it here.\n\n" +
+              "(If not available, type 'Not Available')"
+          );
+          await this.whatsappService.sendMessage(from, transactionMessage);
+          break;
+
+        case SessionManager.ACCOUNT_UNFREEZE_STEPS.TRANSACTION_ID:
+          // Save transaction ID and display contacts
+          session.data.transactionId = inputText;
+          
+          // Get user details
+          const cleanPhone = from.replace(/^\+?91/, "").replace(/\D/g, "");
+          const phoneNumber = cleanPhone.length === 10 ? cleanPhone : cleanPhone.slice(-10);
+          const user = await Users.findOne({ phoneNumber });
+
+          // Get state contacts for the bank branch state
+          const finalStateContact = await this.unfreezeService.getStateContacts(session.data.contactState);
+
+          if (!finalStateContact) {
+            const errorContactMessage = this.whatsappService.createTextMessage(
+              from,
+              "❌ Unable to retrieve state contacts. Please try again or contact 1930."
+            );
+            await this.whatsappService.sendMessage(from, errorContactMessage);
+            this.whatsappService.sessionManager.clearSession(from);
+            return;
+          }
+
+          // Create inquiry record
+          const inquiryData = {
+            userId: user ? user._id : null,
+            userDetails: {
+              name: user ? user.name : "Unknown",
+              phone: phoneNumber,
+              currentState: user ? user.address.state : "Not Provided",
+            },
+            accountDetails: {
+              bankName: session.data.bankName,
+              accountNumber: session.data.accountNumber, // Full account number stored
+              accountHolderName: session.data.accountHolderName,
+              freezeCity: "Unknown", // User doesn't know where it was frozen
+              freezeState: session.data.bankBranchState, // Bank branch state
+              freezeDate: session.data.freezeDate,
+              reasonByBank: session.data.reasonByBank,
+              transactionId: session.data.transactionId,
+            },
+            providedContacts: {
+              state: finalStateContact.stateUT,
+              nodalOfficer: finalStateContact.nodalOfficer,
+              grievanceOfficer: finalStateContact.grievanceOfficer,
+            },
+            status: "inquiry_completed",
+          };
+
+          // Save to database
+          const inquiry = await this.unfreezeService.createFreezeInquiry(inquiryData);
+          inquiryData.inquiryId = inquiry.inquiryId;
+
+          // Format and send contact message
+          const contactMessage = this.unfreezeService.formatContactMessage(finalStateContact, inquiryData);
+          const finalMessage = this.whatsappService.createNavigationMessage(from, contactMessage);
+          await this.whatsappService.sendMessage(from, finalMessage);
+
+          // Clear session
+          this.whatsappService.sessionManager.clearSession(from);
+          
+          console.log(`[Unfreeze] Inquiry completed: ${inquiry.inquiryId}`);
+          break;
+
+        default:
+          throw new Error(`Unknown unfreeze step: ${currentStep}`);
       }
-      // Check if input looks like account number (could be various formats)
-      // For now, let's also try searching by phone number with different patterns
-      else if (inputText.match(/^\d{10,15}$/)) {
-        // Try both as phone number and as account number
-        user = await Users.findOne({
-          $or: [
-            { phoneNumber: inputText.slice(-10) }, // Last 10 digits as phone
-            { phoneNumber: inputText },
-          ],
-        });
-      }
-      // If still not found, try finding by any numeric field
-      else if (inputText.match(/^\d+$/)) {
-        user = await Users.findOne({
-          $or: [
-            { phoneNumber: inputText },
-            { aadharNumber: inputText.length === 12 ? inputText : null },
-          ].filter(Boolean),
-        });
-      }
-
-      if (user) {
-        const freezeStatus = user.freeze ? "🔒 Frozen" : "🔓 Active";
-        const statusText =
-          `🔓 **Account Status Check**\n\n` +
-          `👤 **Name:** ${user.name}\n` +
-          `📱 **Phone:** ${user.phoneNumber}\n` +
-          `📧 **Email:** ${user.emailid}\n` +
-          `🏠 **Area:** ${user.address.area}, ${user.address.district}\n` +
-          `📊 **Account Status:** ${freezeStatus}\n\n`;
-
-        let finalMessage;
-        if (user.freeze) {
-          finalMessage =
-            statusText +
-            `❄️ **Your account is currently frozen.**\n\n` +
-            `📞 **Our caller Agent will call or message you shortly & solve your issue.**\n\n` +
-            `For immediate assistance:\n` +
-            `• Call: 1930\n` +
-            `• Email: cybercrime.odisha@gov.in`;
-        } else {
-          finalMessage =
-            statusText +
-            `✅ **Your account is active and not frozen.**\n\n` +
-            `📞 **Our caller Agent will call or message you shortly & solve your issue.**\n\n` +
-            `If you're facing any issues:\n` +
-            `• Call: 1930\n` +
-            `• Email: cybercrime.odisha@gov.in`;
-        }
-
-        const message = this.whatsappService.createNavigationMessage(
-          from,
-          finalMessage
-        );
-        await this.whatsappService.sendMessage(from, message);
-      } else {
-        const responseText =
-          "❌ **Account Not Found**\n\n" +
-          "No account found with the provided Account Number or Phone Number.\n\n" +
-          "Please check your details and try again.\n\n" +
-          "📞 For assistance, call 1930 or register first if you're a new user.";
-
-        const message = this.whatsappService.createNavigationMessage(
-          from,
-          responseText
-        );
-        await this.whatsappService.sendMessage(from, message);
-      }
-
-      // Clear session after showing results
-      this.whatsappService.sessionManager.clearSession(from);
     } catch (error) {
-      console.error("Error handling account unfreeze:", error);
+      console.error("Error handling account unfreeze input:", error);
 
       const errorMessage = this.whatsappService.createTextMessage(
         from,
-        "❌ Sorry, there was an error checking the account status. Please try again later."
+        "❌ Sorry, there was an error processing your request. Please try again or contact 1930 for assistance."
       );
       await this.whatsappService.sendMessage(from, errorMessage);
+      this.whatsappService.sessionManager.clearSession(from);
     }
   }
 

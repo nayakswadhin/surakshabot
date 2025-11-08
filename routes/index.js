@@ -2,6 +2,7 @@ const express = require("express");
 const whatsappRoutes = require("./whatsapp");
 const chatbotRoutes = require("./chatbot");
 const geminiRoutes = require("./gemini");
+const unfreezeRoutes = require("./unfreeze");
 const NotificationService = require("../services/notificationService");
 
 const router = express.Router();
@@ -14,6 +15,9 @@ router.use("/chatbot", chatbotRoutes);
 
 // Gemini AI routes
 router.use("/gemini", geminiRoutes);
+
+// Account Unfreeze routes
+router.use("/unfreeze", unfreezeRoutes);
 
 // Health check endpoint
 router.get("/health", (req, res) => {
