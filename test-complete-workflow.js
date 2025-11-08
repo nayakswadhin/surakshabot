@@ -38,7 +38,10 @@ async function runWorkflowTest() {
   // Step 1: User sends Hello - Create session
   const session1 = sessionManager.createSession(testPhone);
   test("Session created with MENU state", session1.state === "MENU");
-  test("Session has empty data object", Object.keys(session1.data).length === 0);
+  test(
+    "Session has empty data object",
+    Object.keys(session1.data).length === 0
+  );
   console.log();
 
   console.log("=".repeat(70));
@@ -98,10 +101,7 @@ async function runWorkflowTest() {
     });
 
     const session4 = sessionManager.getSession(testPhone);
-    test(
-      "Didit session ID stored in session",
-      !!session4.data.diditSessionId
-    );
+    test("Didit session ID stored in session", !!session4.data.diditSessionId);
     test(
       "Verification URL stored in session",
       !!session4.data.diditVerificationUrl
@@ -167,7 +167,10 @@ async function runWorkflowTest() {
       data: {
         ...session4.data,
         ...extractedData,
-        phone: testPhone.replace(/^\+?91/, "").replace(/\D/g, "").slice(-10), // Extract 10-digit phone
+        phone: testPhone
+          .replace(/^\+?91/, "")
+          .replace(/\D/g, "")
+          .slice(-10), // Extract 10-digit phone
       },
     });
 
@@ -216,7 +219,10 @@ async function runWorkflowTest() {
     const session7 = sessionManager.getSession(testPhone);
     test("Pincode stored", session7.data.pincode === "751001");
     test("District stored", session7.data.district === "Khordha");
-    test("Step changed to ASK_VILLAGE", session7.step === SessionManager.DIDIT_STEPS.ASK_VILLAGE);
+    test(
+      "Step changed to ASK_VILLAGE",
+      session7.step === SessionManager.DIDIT_STEPS.ASK_VILLAGE
+    );
     console.log();
 
     // Step 10: User enters village
@@ -250,7 +256,10 @@ async function runWorkflowTest() {
       "Father/Spouse/Guardian name stored",
       session9.data.fatherSpouseGuardianName === "Robert Doe"
     );
-    test("Step changed to ASK_EMAIL", session9.step === SessionManager.DIDIT_STEPS.ASK_EMAIL);
+    test(
+      "Step changed to ASK_EMAIL",
+      session9.step === SessionManager.DIDIT_STEPS.ASK_EMAIL
+    );
     console.log();
 
     // Step 12: User enters email
@@ -282,7 +291,10 @@ async function runWorkflowTest() {
     test("Gender present", !!finalData.gender);
     test("DOB present", !!finalData.dob);
     test("Phone present", finalData.phone === "9876543210");
-    test("Father/Spouse/Guardian present", !!finalData.fatherSpouseGuardianName);
+    test(
+      "Father/Spouse/Guardian present",
+      !!finalData.fatherSpouseGuardianName
+    );
     test("Email present", !!finalData.emailid);
     test("Village present", !!finalData.village);
     test("District present", !!finalData.district);

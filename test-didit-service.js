@@ -138,7 +138,9 @@ async function testDiditService() {
       logError("Failed to create verification session");
       logError(`Error: ${sessionResult.error}`);
       if (sessionResult.errorDetails) {
-        logError(`Details: ${JSON.stringify(sessionResult.errorDetails, null, 2)}`);
+        logError(
+          `Details: ${JSON.stringify(sessionResult.errorDetails, null, 2)}`
+        );
       }
       return false;
     }

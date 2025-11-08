@@ -7,6 +7,7 @@ This document describes the integration of Didit identity verification service i
 ## What Changed?
 
 ### Before (Manual Registration)
+
 - User had to manually enter all details:
   - Name
   - Father/Spouse/Guardian Name
@@ -19,6 +20,7 @@ This document describes the integration of Didit identity verification service i
   - Aadhar Number
 
 ### After (Didit Verification)
+
 - User verifies identity using Government ID via Didit
 - System automatically extracts:
   - Name
@@ -35,6 +37,7 @@ This document describes the integration of Didit identity verification service i
 ## Complete Flow
 
 ### 1. User Sends Greeting
+
 - User sends: `Hello`, `Hi`, `Help`, `Start`, `Menu`, etc.
 - Bot displays Main Menu with options:
   - New Complaint
@@ -42,17 +45,21 @@ This document describes the integration of Didit identity verification service i
   - More Options
 
 ### 2. User Clicks "New Complaint"
+
 - Bot checks if user exists in MongoDB (by phone number)
 
 ### 3A. Existing User Path
+
 - Bot displays user details
 - Provides "Next" button to proceed to complaint filing
 
 ### 3B. New User Path
+
 - Bot shows "New User Detected" message
 - Provides "Start Verification" button
 
 ### 4. Start Didit Verification
+
 - Bot creates Didit verification session via API
 - Sends verification link to user
 - Buttons:
@@ -61,15 +68,18 @@ This document describes the integration of Didit identity verification service i
   - "Exit" - Cancel process
 
 ### 5. User Completes Verification
+
 - User clicks verification link
 - Completes identity verification (2-3 minutes)
 - Uploads Government ID
 - Takes selfie for liveness check
 
 ### 6. User Clicks "Yes I'm Done"
+
 - Bot checks verification status via Didit API
 
 ### 7A. Verification Status: Pending/In Review
+
 - Bot shows current status message
 - Buttons:
   - "Check Status" - Re-check verification
@@ -77,6 +87,7 @@ This document describes the integration of Didit identity verification service i
   - "Exit" - Cancel
 
 ### 7B. Verification Status: Approved ✅
+
 - Bot extracts user data from verification
 - Shows extracted data for confirmation:
   - Name
@@ -92,20 +103,25 @@ This document describes the integration of Didit identity verification service i
 ### 8. Collect Additional Information
 
 #### Step 1: Pincode
+
 - User enters 6-digit pincode
 - Bot validates and fetches location (district, state)
 
 #### Step 2: Village
+
 - User enters village/town name
 
 #### Step 3: Father/Spouse/Guardian Name
+
 - User enters parent/guardian name
 
 #### Step 4: Email
+
 - User enters email address
 - Bot validates email format
 
 ### 9. Final Confirmation
+
 - Bot shows all collected data
 - User confirms or edits
 - Buttons:
@@ -114,6 +130,7 @@ This document describes the integration of Didit identity verification service i
   - "Cancel" - Cancel registration
 
 ### 10. Save to Database
+
 - Bot saves user to MongoDB
 - Shows success message
 - Automatically proceeds to complaint filing
@@ -123,7 +140,9 @@ This document describes the integration of Didit identity verification service i
 ### New Files Created
 
 #### 1. `services/diditService.js`
+
 Handles all Didit API interactions:
+
 - `createVerificationSession()` - Create new verification
 - `getSessionDecision()` - Check verification status
 - `extractUserData()` - Extract verified user data
@@ -131,14 +150,18 @@ Handles all Didit API interactions:
 - Helper methods for status checks
 
 #### 2. `test-didit-service.js`
+
 Tests Didit service functionality:
+
 - Environment variable checks
 - API connection tests
 - Session creation tests
 - Data extraction tests
 
 #### 3. `test-integration.js`
+
 Comprehensive integration tests:
+
 - Session manager tests
 - Didit service tests
 - Data validation tests
@@ -147,7 +170,9 @@ Comprehensive integration tests:
 ### Modified Files
 
 #### 1. `services/sessionManager.js`
+
 Added new states and steps:
+
 ```javascript
 STATES: {
   DIDIT_VERIFICATION: "DIDIT_VERIFICATION",
@@ -168,7 +193,9 @@ DIDIT_STEPS: {
 ```
 
 #### 2. `services/whatsappService.js`
+
 Added methods:
+
 - `startDiditVerification()` - Initiate verification
 - `retryDiditVerification()` - Retry verification
 - `checkVerificationStatus()` - Check status
@@ -185,11 +212,14 @@ Added methods:
 - `saveFinalRegistration()` - Save to database
 
 Updated methods:
+
 - `checkUserAndProceed()` - Triggers Didit instead of manual registration
 - `handleButtonPress()` - Added Didit button handlers
 
 #### 3. `controllers/whatsappController.js`
+
 Added handler for Didit text inputs:
+
 ```javascript
 else if (session.state === SessionManager.STATES.DIDIT_ADDITIONAL_INFO) {
   await this.whatsappService.handleDiditAdditionalInfo(from, text);
@@ -197,7 +227,9 @@ else if (session.state === SessionManager.STATES.DIDIT_ADDITIONAL_INFO) {
 ```
 
 #### 4. `models/Users.js`
+
 Added fields:
+
 ```javascript
 verifiedVia: {
   type: String,
@@ -213,6 +245,7 @@ diditSessionId: {
 ### Environment Variables
 
 Add to `.env`:
+
 ```bash
 DIDIT_API_KEY=your_didit_api_key_here
 DIDIT_WORKFLOW_ID=your_didit_workflow_id_here
@@ -221,6 +254,7 @@ DIDIT_WORKFLOW_ID=your_didit_workflow_id_here
 ## Button IDs Reference
 
 ### Didit Verification Buttons
+
 - `start_verification` - Start Didit verification
 - `verification_done` - Check verification status
 - `retry_verification` - Retry verification
@@ -229,6 +263,7 @@ DIDIT_WORKFLOW_ID=your_didit_workflow_id_here
 - `confirm_final_registration` - Final save confirmation
 
 ### Existing Buttons (Still Used)
+
 - `new_complaint` - Start new complaint
 - `proceed_complaint` - Proceed to complaint filing
 - `main_menu` - Return to main menu
@@ -238,11 +273,13 @@ DIDIT_WORKFLOW_ID=your_didit_workflow_id_here
 ## Testing
 
 ### 1. Test Didit Service
+
 ```bash
 node test-didit-service.js
 ```
 
 This tests:
+
 - Environment variables
 - Didit API connectivity
 - Session creation
@@ -250,11 +287,13 @@ This tests:
 - Data extraction
 
 ### 2. Test Integration
+
 ```bash
 node test-integration.js
 ```
 
 This tests:
+
 - All environment variables
 - Session manager functionality
 - Didit service methods
@@ -264,6 +303,7 @@ This tests:
 ### 3. Manual Testing Checklist
 
 #### New User Registration
+
 - [ ] Send "Hello" to bot
 - [ ] Click "New Complaint"
 - [ ] Verify "New User Detected" message appears
@@ -284,6 +324,7 @@ This tests:
 - [ ] Verify redirection to complaint filing
 
 #### Existing User
+
 - [ ] Send "Hello" to bot
 - [ ] Click "New Complaint"
 - [ ] Verify existing user details displayed
@@ -291,6 +332,7 @@ This tests:
 - [ ] Verify complaint filing starts
 
 #### Error Handling
+
 - [ ] Test with invalid pincode
 - [ ] Test with invalid email
 - [ ] Test clicking "Yes I'm Done" before verification
@@ -302,6 +344,7 @@ This tests:
 ### Didit API Endpoints
 
 #### 1. Create Session
+
 ```bash
 POST https://verification.didit.me/v2/session/
 Headers:
@@ -326,6 +369,7 @@ Response:
 ```
 
 #### 2. Get Session Decision
+
 ```bash
 GET https://verification.didit.me/v2/session/{sessionId}/decision/
 Headers:
@@ -350,6 +394,7 @@ Response:
 ```
 
 ### Status Values
+
 - `Not Started` - User hasn't opened link
 - `In Progress` - User is completing verification
 - `In Review` - Verification under review
@@ -359,31 +404,34 @@ Response:
 
 ## Data Mapping
 
-| Didit Field | Bot Field | Transformation |
-|-------------|-----------|----------------|
-| first_name + last_name | name | Concatenate |
-| document_number | aadharNumber | Direct |
-| gender ("M"/"F") | gender | "M" → "Male", "F" → "Female" |
-| date_of_birth | dob | Direct |
-| WhatsApp number | phoneNumber | Extract 10 digits |
-| User input | pincode | Validate 6 digits |
-| User input | village | Direct |
-| User input | fatherSpouseGuardianName | Direct |
-| User input | emailid | Validate format |
+| Didit Field            | Bot Field                | Transformation               |
+| ---------------------- | ------------------------ | ---------------------------- |
+| first_name + last_name | name                     | Concatenate                  |
+| document_number        | aadharNumber             | Direct                       |
+| gender ("M"/"F")       | gender                   | "M" → "Male", "F" → "Female" |
+| date_of_birth          | dob                      | Direct                       |
+| WhatsApp number        | phoneNumber              | Extract 10 digits            |
+| User input             | pincode                  | Validate 6 digits            |
+| User input             | village                  | Direct                       |
+| User input             | fatherSpouseGuardianName | Direct                       |
+| User input             | emailid                  | Validate format              |
 
 ## Error Handling
 
 ### 1. Didit API Errors
+
 - Connection failures → Retry or fallback message
 - Invalid credentials → Log error, show user-friendly message
 - Session not found → Clear session, start over
 
 ### 2. Validation Errors
+
 - Invalid pincode → Ask again with error message
 - Invalid email → Ask again with validation message
 - Missing data → Request data again
 
 ### 3. Database Errors
+
 - Duplicate Aadhar → Inform user already registered
 - Connection error → Show retry message
 - Save failure → Log error, allow retry
@@ -399,6 +447,7 @@ Response:
 ## Monitoring and Logging
 
 ### Log Events
+
 - Verification session created
 - Verification status checked
 - Data extracted successfully
@@ -406,6 +455,7 @@ Response:
 - Errors at each step
 
 ### Log Format
+
 ```javascript
 console.log(`✅ Verification approved for ${phoneNumber}`);
 console.log(`📝 User saved: ${userId}`);
@@ -415,18 +465,23 @@ console.error(`❌ Didit API error: ${error.message}`);
 ## Troubleshooting
 
 ### Issue: Verification link not received
+
 **Solution**: Check DIDIT_API_KEY and DIDIT_WORKFLOW_ID in .env
 
 ### Issue: "Yes I'm Done" shows pending status
+
 **Solution**: User needs to complete verification in Didit portal
 
 ### Issue: Data extraction returns null
+
 **Solution**: Verify verification status is "Approved"
 
 ### Issue: Database save fails
+
 **Solution**: Check MongoDB connection and Aadhar uniqueness
 
 ### Issue: Pincode not validating
+
 **Solution**: Check pincode service API availability
 
 ## Future Enhancements
@@ -442,6 +497,7 @@ console.error(`❌ Didit API error: ${error.message}`);
 ## Support
 
 For issues or questions:
+
 - Check logs in console
 - Run test scripts
 - Review Didit API documentation

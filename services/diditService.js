@@ -31,7 +31,9 @@ class DiditService {
    */
   async createVerificationSession(vendorData = "Government ID") {
     try {
-      console.log(`Creating Didit verification session with vendor data: ${vendorData}`);
+      console.log(
+        `Creating Didit verification session with vendor data: ${vendorData}`
+      );
 
       const response = await axios.post(
         `${this.baseUrl}/session/`,
@@ -148,7 +150,9 @@ class DiditService {
     try {
       if (!sessionDecision.success || sessionDecision.status !== "Approved") {
         console.log(
-          `⚠️ Cannot extract user data. Status: ${sessionDecision.status || "Unknown"}`
+          `⚠️ Cannot extract user data. Status: ${
+            sessionDecision.status || "Unknown"
+          }`
         );
         return null;
       }
@@ -157,7 +161,9 @@ class DiditService {
 
       if (!idVerification || idVerification.status !== "Approved") {
         console.log(
-          `⚠️ ID verification not approved. Status: ${idVerification?.status || "Unknown"}`
+          `⚠️ ID verification not approved. Status: ${
+            idVerification?.status || "Unknown"
+          }`
         );
         return null;
       }
@@ -165,7 +171,8 @@ class DiditService {
       // Extract and format data
       const firstName = idVerification.first_name || "";
       const lastName = idVerification.last_name || "";
-      const fullName = idVerification.full_name || `${firstName} ${lastName}`.trim();
+      const fullName =
+        idVerification.full_name || `${firstName} ${lastName}`.trim();
 
       // Convert gender format: F -> Female, M -> Male
       let gender = "Others";
@@ -179,7 +186,8 @@ class DiditService {
         name: fullName,
         firstName: firstName,
         lastName: lastName,
-        aadharNumber: idVerification.document_number || idVerification.personal_number,
+        aadharNumber:
+          idVerification.document_number || idVerification.personal_number,
         gender: gender,
         dob: idVerification.date_of_birth,
         age: idVerification.age,
@@ -215,15 +223,23 @@ class DiditService {
    */
   getStatusMessage(status) {
     const statusMessages = {
-      "Not Started": "Your verification hasn't been started yet. Please complete the verification process.",
-      "In Progress": "Your verification is currently in progress. Please complete all the required steps.",
-      "In Review": "Your verification is under review by our team. This usually takes a few minutes.",
-      "Approved": "Your verification has been approved successfully!",
-      "Declined": "Your verification was declined. Please retry with correct information.",
-      "Expired": "Your verification session has expired. Please start a new verification.",
+      "Not Started":
+        "Your verification hasn't been started yet. Please complete the verification process.",
+      "In Progress":
+        "Your verification is currently in progress. Please complete all the required steps.",
+      "In Review":
+        "Your verification is under review by our team. This usually takes a few minutes.",
+      Approved: "Your verification has been approved successfully!",
+      Declined:
+        "Your verification was declined. Please retry with correct information.",
+      Expired:
+        "Your verification session has expired. Please start a new verification.",
     };
 
-    return statusMessages[status] || "Verification status is unknown. Please contact support.";
+    return (
+      statusMessages[status] ||
+      "Verification status is unknown. Please contact support."
+    );
   }
 
   /**
@@ -251,6 +267,153 @@ class DiditService {
    */
   async createSession(vendorData = "Government ID") {
     return this.createVerificationSession(vendorData);
+  }
+
+  /**
+   * Fetch complete user verification data from Didit using stored session ID
+   * This is useful for retrieving verification details after user registration
+   * @param {string} sessionId - Didit session ID stored in database
+   * @returns {Promise<Object>} Complete verification data or error
+   */
+  async fetchUserVerificationData(sessionId) {
+    try {
+      console.log(
+        `Fetching complete verification data for session: ${sessionId}`
+      );
+
+      const decision = await this.getSessionDecision(sessionId);
+
+      if (!decision.success) {
+        return {
+          success: false,
+          error: "Failed to fetch verification data",
+          details: decision.error,
+        };
+      }
+
+      // Return complete verification data
+      return {
+        success: true,
+        sessionId: decision.sessionId,
+        status: decision.status,
+        workflowId: decision.workflowId,
+        createdAt: decision.createdAt,
+
+        // ID Verification data
+        idVerification: decision.idVerification
+          ? {
+              status: decision.idVerification.status,
+              documentType: decision.idVerification.document_type,
+              documentNumber: decision.idVerification.document_number,
+              personalNumber: decision.idVerification.personal_number,
+              firstName: decision.idVerification.first_name,
+              lastName: decision.idVerification.last_name,
+              fullName: decision.idVerification.full_name,
+              dateOfBirth: decision.idVerification.date_of_birth,
+              age: decision.idVerification.age,
+              gender: decision.idVerification.gender,
+              expirationDate: decision.idVerification.expiration_date,
+              dateOfIssue: decision.idVerification.date_of_issue,
+              issuingState: decision.idVerification.issuing_state,
+              issuingStateName: decision.idVerification.issuing_state_name,
+              nationality: decision.idVerification.nationality,
+              address: decision.idVerification.address,
+              formattedAddress: decision.idVerification.formatted_address,
+              placeOfBirth: decision.idVerification.place_of_birth,
+              portraitImage: decision.idVerification.portrait_image,
+              frontImage: decision.idVerification.front_image,
+              backImage: decision.idVerification.back_image,
+              warnings: decision.idVerification.warnings || [],
+            }
+          : null,
+
+        // Phone verification data
+        phone: decision.phone
+          ? {
+              status: decision.phone.status,
+              phoneNumber: decision.phone.phone_number,
+              fullNumber: decision.phone.full_number,
+              countryCode: decision.phone.country_code,
+              verifiedAt: decision.phone.verified_at,
+            }
+          : null,
+
+        // Email verification data
+        email: decision.email
+          ? {
+              status: decision.email.status,
+              email: decision.email.email,
+              verifiedAt: decision.email.verified_at,
+            }
+          : null,
+
+        // Liveness check data
+        liveness: decision.liveness
+          ? {
+              status: decision.liveness.status,
+              score: decision.liveness.score,
+              method: decision.liveness.method,
+            }
+          : null,
+
+        // Face match data
+        faceMatch: decision.faceMatch
+          ? {
+              status: decision.faceMatch.status,
+              score: decision.faceMatch.score,
+            }
+          : null,
+
+        // Reviews (if any)
+        reviews: decision.reviews || [],
+      };
+    } catch (error) {
+      console.error("Error fetching user verification data:", error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Get simplified user info from stored session ID
+   * @param {string} sessionId - Didit session ID
+   * @returns {Promise<Object>} Simplified user data
+   */
+  async getUserInfoFromSession(sessionId) {
+    try {
+      const verificationData = await this.fetchUserVerificationData(sessionId);
+
+      if (!verificationData.success) {
+        return {
+          success: false,
+          error: verificationData.error,
+        };
+      }
+
+      // Extract only essential user info
+      const idVerif = verificationData.idVerification;
+
+      return {
+        success: true,
+        name: idVerif?.fullName || `${idVerif?.firstName} ${idVerif?.lastName}`,
+        documentNumber: idVerif?.documentNumber || idVerif?.personalNumber,
+        documentType: idVerif?.documentType,
+        dateOfBirth: idVerif?.dateOfBirth,
+        gender: idVerif?.gender,
+        nationality: idVerif?.nationality,
+        address: idVerif?.address,
+        verificationStatus: verificationData.status,
+        verifiedAt: verificationData.createdAt,
+      };
+    } catch (error) {
+      console.error("Error getting user info from session:", error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
   }
 }
 

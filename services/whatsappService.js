@@ -1171,7 +1171,10 @@ class WhatsAppService {
           diditSessionId: sessionResult.sessionId,
           diditSessionToken: sessionResult.sessionToken,
           diditVerificationUrl: sessionResult.url,
-          phone: to.replace(/^\+?91/, "").replace(/\D/g, "").slice(-10),
+          phone: to
+            .replace(/^\+?91/, "")
+            .replace(/\D/g, "")
+            .slice(-10),
         },
       });
 
@@ -1470,7 +1473,10 @@ class WhatsAppService {
   async handleDiditAdditionalInfo(to, text) {
     const session = this.sessionManager.getSession(to);
 
-    if (!session || session.state !== SessionManager.STATES.DIDIT_ADDITIONAL_INFO) {
+    if (
+      !session ||
+      session.state !== SessionManager.STATES.DIDIT_ADDITIONAL_INFO
+    ) {
       console.log("Invalid session state for Didit additional info");
       return;
     }
@@ -1725,6 +1731,9 @@ class WhatsAppService {
 
     try {
       console.log(`Saving registration to database for ${to}`);
+      console.log(
+        `✅ Didit Session ID: ${data.diditSessionId || "Not provided"}`
+      );
 
       const { Users } = require("../models");
 
@@ -1745,13 +1754,17 @@ class WhatsAppService {
           postOffice: data.locationData?.postOffice || "TBD",
           policeStation: data.locationData?.policeStation || "TBD",
         },
-        verifiedVia: "didit",
-        diditSessionId: data.diditSessionId,
+        verifiedVia: data.diditSessionId ? "didit" : "manual",
+        diditSessionId: data.diditSessionId || null,
       });
 
       await newUser.save();
 
-      console.log(`User saved successfully: ${newUser._id}`);
+      console.log(`✅ User saved successfully: ${newUser._id}`);
+      console.log(`✅ Verified via: ${newUser.verifiedVia}`);
+      console.log(
+        `✅ Didit Session ID stored: ${newUser.diditSessionId || "None"}`
+      );
 
       // Send success message
       const successMessage = this.createTextMessage(

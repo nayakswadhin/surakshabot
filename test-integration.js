@@ -110,7 +110,10 @@ async function testSessionManager() {
   logStep(2, "Testing session retrieval");
   const retrievedSession = sessionManager.getSession(testPhone);
   assert(retrievedSession !== null, "Session retrieved");
-  assert(retrievedSession.phoneNumber === testPhone, "Retrieved correct session");
+  assert(
+    retrievedSession.phoneNumber === testPhone,
+    "Retrieved correct session"
+  );
 
   logStep(3, "Testing session update");
   sessionManager.updateSession(testPhone, {
@@ -181,16 +184,10 @@ async function testDiditService() {
 
   logStep(2, "Testing status message generation");
   const approvedMsg = diditService.getStatusMessage("Approved");
-  assert(
-    approvedMsg.includes("approved"),
-    "Approved status message correct"
-  );
+  assert(approvedMsg.includes("approved"), "Approved status message correct");
 
   const pendingMsg = diditService.getStatusMessage("In Progress");
-  assert(
-    pendingMsg.includes("progress"),
-    "In Progress status message correct"
-  );
+  assert(pendingMsg.includes("progress"), "In Progress status message correct");
 
   logStep(3, "Testing verification status checks");
   assert(
@@ -272,10 +269,7 @@ async function testDiditService() {
     status: "In Progress",
   };
   const nullData = diditService.extractUserData(mockPendingDecision);
-  assert(
-    nullData === null,
-    "Correctly returns null for non-approved status"
-  );
+  assert(nullData === null, "Correctly returns null for non-approved status");
 
   return true;
 }
@@ -295,10 +289,7 @@ async function testDataValidation() {
     emailPattern.test("user@example.com"),
     "Valid email passes validation"
   );
-  assert(
-    !emailPattern.test("invalid-email"),
-    "Invalid email fails validation"
-  );
+  assert(!emailPattern.test("invalid-email"), "Invalid email fails validation");
 
   logStep(3, "Testing phone number validation");
   const phonePattern = /^[6-9]\d{9}$/;
@@ -423,7 +414,9 @@ async function runAllTests() {
       logSection("🎉 ALL TESTS PASSED! 🎉");
       logSuccess("The Didit verification flow is properly integrated!");
       logInfo("\nNext steps:");
-      logInfo("1. Update your .env file with DIDIT_API_KEY and DIDIT_WORKFLOW_ID");
+      logInfo(
+        "1. Update your .env file with DIDIT_API_KEY and DIDIT_WORKFLOW_ID"
+      );
       logInfo("2. Test with a real WhatsApp user");
       logInfo("3. Complete a real verification");
       logInfo("4. Verify data is saved to MongoDB");

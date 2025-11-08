@@ -15,12 +15,14 @@ The backend server is still running the **OLD CODE** from before the Didit integ
 ### Step 1: Stop the Old Server
 
 **Option A: Using Task Manager**
+
 1. Press `Ctrl + Shift + Esc` to open Task Manager
 2. Find all `node.exe` processes
 3. Right-click each one → End Task
 4. Close Task Manager
 
 **Option B: Using PowerShell (Recommended)**
+
 ```powershell
 # Kill all node processes
 Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -40,6 +42,7 @@ npm start
 ```
 
 **Expected Output:**
+
 ```
 Server running on port 3000
 MongoDB connected successfully
@@ -52,6 +55,7 @@ WhatsApp webhook ready
 Send "Hello" to your WhatsApp bot, then click "New Complaint"
 
 **✅ Correct Behavior (New Code):**
+
 ```
 New User Detected
 
@@ -61,11 +65,12 @@ To proceed with your complaint, we need to verify your identity using Government
 
 Buttons:
 - Start Verification
-- Main Menu  
+- Main Menu
 - Exit
 ```
 
 **❌ Old Behavior (Old Code - if this happens, server not restarted):**
+
 ```
 New User Detected
 
@@ -124,6 +129,7 @@ After restart, verify:
 Once the server is restarted with new code:
 
 1. **Test the flow:**
+
    - Send "Hello"
    - Click "New Complaint"
    - Should see "Start Verification" button
@@ -133,6 +139,7 @@ Once the server is restarted with new code:
    - System should extract data automatically
 
 2. **Monitor console logs:**
+
    ```
    Creating Didit verification session...
    ✅ Didit session created successfully
@@ -160,4 +167,3 @@ If you still see manual registration after restart:
 ---
 
 **Status:** 🔴 **ACTION REQUIRED - RESTART BACKEND SERVER**
-
