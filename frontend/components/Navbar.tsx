@@ -14,8 +14,7 @@ import {
 const navItems = [
   { href: '/', label: 'Dashboard', icon: FaHome },
   { href: '/complaints', label: 'Complaints', icon: FaExclamationTriangle },
-  { href: '/reports', label: 'Reports', icon: FaChartBar },
-  { href: '/analytics', label: 'Analytics', icon: FaChartLine },
+  { href: '/analytics', label: 'Analytics & Reports', icon: FaChartLine },
   { href: '/users', label: 'Users', icon: FaUsers },
   { href: '/assistant', label: 'Assistant', icon: FaRobot },
 ]
