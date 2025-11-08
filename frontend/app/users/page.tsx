@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import { fetchUsers, fetchComplaints } from '@/lib/api'
 import { format } from 'date-fns'
 import { FaSearch, FaEye, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function UsersPage() {
+  const { t, currentLanguage } = useTranslation()
   const [users, setUsers] = useState<any[]>([])
   const [filteredUsers, setFilteredUsers] = useState<any[]>([])
   const [casesMap, setCasesMap] = useState<Record<string, number>>({})
@@ -16,9 +18,42 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 15
 
+  // Translations
+  const [translations, setTranslations] = useState({
+    registeredUsers: 'Registered Users',
+    total: 'Total',
+    users: 'users',
+    searchPlaceholder: 'Search by name, phone, email, Aadhar, or district...',
+    name: 'Name',
+    phone: 'Phone',
+    email: 'Email',
+    district: 'District',
+    totalCases: 'Total Cases',
+    registeredOn: 'Registered On',
+    actions: 'Actions',
+    view: 'View',
+  })
+
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    setTranslations({
+      registeredUsers: t('Registered Users'),
+      total: t('Total'),
+      users: t('users'),
+      searchPlaceholder: t('Search by name, phone, email, Aadhar, or district...'),
+      name: t('Name'),
+      phone: t('Phone'),
+      email: t('Email'),
+      district: t('District'),
+      totalCases: t('Total Cases'),
+      registeredOn: t('Registered On'),
+      actions: t('Actions'),
+      view: t('View'),
+    })
+  }, [currentLanguage, t])
 
   useEffect(() => {
     applySearch()
@@ -91,9 +126,9 @@ export default function UsersPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-primary">Registered Users</h1>
+        <h1 className="text-3xl font-bold text-primary">{translations.registeredUsers}</h1>
         <div className="text-sm text-gray-600">
-          Total: {filteredUsers.length} users
+          {translations.total}: {filteredUsers.length} {translations.users}
         </div>
       </div>
 
@@ -103,7 +138,7 @@ export default function UsersPage() {
           <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
           <input
             type="text"
-            placeholder="Search by name, phone, email, Aadhar, or district..."
+            placeholder={translations.searchPlaceholder}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
@@ -117,13 +152,13 @@ export default function UsersPage() {
           <table className="w-full">
             <thead className="bg-primary text-white">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Phone</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">District</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Total Cases</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Registered On</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.name}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.phone}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.email}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.district}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.totalCases}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.registeredOn}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.actions}</th>
               </tr>
             </thead>
             <tbody>
@@ -134,12 +169,15 @@ export default function UsersPage() {
                   </td>
                 </tr>
               ) : (
-                currentUsers.map((user) => (
+                currentUsers.map((user) => {
+                  // Translate user name
+                  const translatedName = t(user.name)
+                  return (
                   <tr key={user._id} className="border-b hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-medium">{user.name}</td>
+                    <td className="px-6 py-4 font-medium">{translatedName}</td>
                     <td className="px-6 py-4">{user.phoneNumber}</td>
                     <td className="px-6 py-4 text-sm">{user.emailid}</td>
-                    <td className="px-6 py-4">{user.address?.district || 'N/A'}</td>
+                    <td className="px-6 py-4">{user.address?.district || t('N/A')}</td>
                     <td className="px-6 py-4 text-center">
                       <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold">
                         {casesMap[user.aadharNumber] || 0}
@@ -153,11 +191,12 @@ export default function UsersPage() {
                         onClick={() => handleViewUser(user)}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium"
                       >
-                        <FaEye /> View
+                        <FaEye /> {translations.view}
                       </button>
                     </td>
                   </tr>
-                ))
+                  )
+                })
               )}
             </tbody>
           </table>
@@ -235,11 +274,11 @@ export default function UsersPage() {
                 <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                   <div>
                     <div className="text-sm text-gray-600">Full Name</div>
-                    <div className="font-medium">{selectedUser.name}</div>
+                    <div className="font-medium">{t(selectedUser.name)}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-600">Father/Spouse/Guardian</div>
-                    <div className="font-medium">{selectedUser.fatherSpouseGuardianName}</div>
+                    <div className="font-medium">{selectedUser.fatherSpouseGuardianName ? t(selectedUser.fatherSpouseGuardianName) : t('N/A')}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-600">Gender</div>

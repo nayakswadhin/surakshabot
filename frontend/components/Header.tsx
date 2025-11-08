@@ -8,8 +8,10 @@ import { isAuthenticated, clearAuth } from '@/lib/auth'
 import { initSocket, Notification } from '@/lib/socket'
 import Image from 'next/image'
 import CalendarWidget from './CalendarWidget'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function Header() {
+  const { t } = useTranslation()
   const [auth, setAuth] = useState(false)
   const [open, setOpen] = useState(false)
   const [notificationOpen, setNotificationOpen] = useState(false)
@@ -135,18 +137,37 @@ export default function Header() {
         <div className="flex justify-between items-center">
           {/* Logo Section */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center p-3">
-              <Image 
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/1200px-Emblem_of_India.svg.png"
-                alt="Emblem of India"
-                width={40}
-                height={40}
-                className="object-contain"
-              />
-            </div>
+            {/* Indian Emblem */}
+            <div className='flex justify-center items-center gap-x-4'>
+  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center p-2 shadow-sm overflow-hidden">
+    <Image 
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/1200px-Emblem_of_India.svg.png"
+      alt="Emblem of India"
+      width={28}
+      height={28}
+      className="object-contain"
+    />
+  </div>
+  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center p-2 shadow-sm overflow-hidden">
+    <Image 
+      src="https://toppng.com/uploads/preview/irb-police-logo-4-by-edward-odisha-police-logo-11563030413c69vdpup3f.png"
+      alt="Odisha Police Logo"
+      width={30}
+      height={30}
+      className="object-contain"
+    />
+  </div>
+</div>
+
+
+            
+            
+            
+          
+            
             <div>
-              <h1 className="text-2xl font-bold">SurakshaBot</h1>
-              <p className="text-sm opacity-90">1930 Cyber Helpline, India</p>
+              <h1 className="text-2xl font-bold">{t('SurakshaBot')}</h1>
+              <p className="text-sm opacity-90">{t('1930 Cyber Helpline, India')}</p>
             </div>
           </div>
 
@@ -190,24 +211,24 @@ export default function Header() {
                   {/* Header */}
                   <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-primary to-secondary text-white">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-semibold text-lg">Notifications</h3>
+                      <h3 className="font-semibold text-lg">{t('Notifications')}</h3>
                       {notifications.length > 0 && (
                         <div className="flex gap-2">
                           {unreadCount > 0 && (
                             <button
                               onClick={markAllAsRead}
                               className="text-xs hover:underline flex items-center gap-1"
-                              title="Mark all as read"
+                              title={t('Mark as read')}
                             >
-                              <FaCheck /> Mark all
+                              <FaCheck /> {t('Mark all')}
                             </button>
                           )}
                           <button
                             onClick={clearAllNotifications}
                             className="text-xs hover:underline flex items-center gap-1"
-                            title="Clear all"
+                            title={t('Clear')}
                           >
-                            <FaTrash /> Clear
+                            <FaTrash /> {t('Clear')}
                           </button>
                         </div>
                       )}
@@ -219,8 +240,8 @@ export default function Header() {
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center text-gray-500">
                         <FaBell className="text-4xl mx-auto mb-3 opacity-30" />
-                        <p className="text-sm">No notifications yet</p>
-                        <p className="text-xs mt-1">You'll see new updates here</p>
+                        <p className="text-sm">{t('No notifications yet')}</p>
+                        <p className="text-xs mt-1">{t("You'll see new updates here")}</p>
                       </div>
                     ) : (
                       <div className="divide-y divide-gray-100">
@@ -256,7 +277,7 @@ export default function Header() {
                                       <button
                                         onClick={() => markAsRead(notification.id)}
                                         className="text-xs text-blue-600 hover:text-blue-800"
-                                        title="Mark as read"
+                                        title={t('Mark as read')}
                                       >
                                         <FaCheck />
                                       </button>
@@ -264,7 +285,7 @@ export default function Header() {
                                     <button
                                       onClick={() => deleteNotification(notification.id)}
                                       className="text-xs text-red-600 hover:text-red-800"
-                                      title="Delete"
+                                      title={t('Delete')}
                                     >
                                       <FaTrash />
                                     </button>
@@ -289,7 +310,7 @@ export default function Header() {
                   className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10 transition-all"
                 >
                   <FaUserCircle className="text-3xl" />
-                  <span className="font-medium">Admin</span>
+                  <span className="font-medium">{t('Admin')}</span>
                 </button>
 
                 {open && (
@@ -300,14 +321,14 @@ export default function Header() {
                       className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-3 border-b border-gray-200"
                     >
                       <FaCog className="text-lg" />
-                      <span>Settings</span>
+                      <span>{t('Settings')}</span>
                     </Link>
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-3 text-red-600"
                     >
                       <FaSignOutAlt className="text-lg" />
-                      <span>Logout</span>
+                      <span>{t('Logout')}</span>
                     </button>
                   </div>
                 )}

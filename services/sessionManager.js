@@ -10,6 +10,7 @@ class SessionManager {
       step: 0,
       data: {},
       history: [],
+      language: "en", // Default language: English
       createdAt: new Date(),
       lastActivity: new Date(),
     };
@@ -257,6 +258,31 @@ class SessionManager {
       original_id_url: "Original ID URL",
     };
     return displayNames[step] || step;
+  }
+
+  // Language Management Methods
+  getUserLanguage(phoneNumber) {
+    const session = this.sessions.get(phoneNumber);
+    return session?.language || "en";
+  }
+
+  setUserLanguage(phoneNumber, langCode) {
+    const session = this.sessions.get(phoneNumber);
+    if (session) {
+      session.language = langCode;
+      session.lastActivity = new Date();
+      this.sessions.set(phoneNumber, session);
+      return true;
+    }
+    return false;
+  }
+
+  getAllUserLanguages() {
+    const languages = {};
+    for (const [phoneNumber, session] of this.sessions.entries()) {
+      languages[phoneNumber] = session.language || "en";
+    }
+    return languages;
   }
 }
 

@@ -8,8 +8,10 @@ import RecentActivity from '@/components/RecentActivity'
 import HeatmapWidget from '@/components/HeatmapWidget'
 import { fetchDashboardStats } from '@/lib/api'
 import { FaFileAlt, FaCheckCircle, FaClock, FaUserShield } from 'react-icons/fa'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function Home() {
+  const { t, currentLanguage } = useTranslation()
   const [stats, setStats] = useState({
     totalComplaints: 0,
     totalSolved: 0,
@@ -18,10 +20,66 @@ export default function Home() {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [translations, setTranslations] = useState({
+    dashboardOverview: 'Dashboard Overview',
+    totalComplaints: 'Total Complaints',
+    totalSolved: 'Total Solved',
+    totalPending: 'Total Pending',
+    registeredUsers: 'Registered Users',
+    allTimeTotal: 'All time total complaints',
+    allTimeSolved: 'All time total solved',
+    allTimePending: 'All time total pending',
+    allTimeUsers: 'All time registered users',
+    connectionError: 'Connection Error',
+    makeServerRunning: 'Make sure the backend server is running on port 3000',
+    tryAgain: 'Try Again',
+    runDiagnostic: 'Run Diagnostic',
+  })
 
   useEffect(() => {
     loadDashboardData()
   }, [])
+
+  useEffect(() => {
+    // Translate all text when language changes
+    const translateTexts = async () => {
+      const texts = [
+        'Dashboard Overview',
+        'Total Complaints',
+        'Total Solved',
+        'Total Pending',
+        'Registered Users',
+        'All time total complaints',
+        'All time total solved',
+        'All time total pending',
+        'All time registered users',
+        'Connection Error',
+        'Make sure the backend server is running on port 3000',
+        'Try Again',
+        'Run Diagnostic',
+      ]
+      
+      const translated = await Promise.all(texts.map(text => t(text)))
+      
+      setTranslations({
+        dashboardOverview: translated[0],
+        totalComplaints: translated[1],
+        totalSolved: translated[2],
+        totalPending: translated[3],
+        registeredUsers: translated[4],
+        allTimeTotal: translated[5],
+        allTimeSolved: translated[6],
+        allTimePending: translated[7],
+        allTimeUsers: translated[8],
+        connectionError: translated[9],
+        makeServerRunning: translated[10],
+        tryAgain: translated[11],
+        runDiagnostic: translated[12],
+      })
+    }
+    
+    translateTexts()
+  }, [currentLanguage, t])
 
   const loadDashboardData = async () => {
     try {
@@ -43,7 +101,7 @@ export default function Home() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-primary">Dashboard Overview</h1>
+        <h1 className="text-3xl font-bold text-primary">{translations.dashboardOverview}</h1>
         <div className="text-sm text-gray-600">
           {new Date().toLocaleDateString('en-IN', {
             weekday: 'long',
@@ -65,23 +123,23 @@ export default function Home() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-red-700">
-                <strong>Connection Error:</strong> {error}
+                <strong>{translations.connectionError}:</strong> {error}
               </p>
               <p className="text-xs text-red-600 mt-1">
-                Make sure the backend server is running on port 3000
+                {translations.makeServerRunning}
               </p>
               <button 
                 onClick={loadDashboardData}
                 className="mt-2 text-sm text-red-700 underline hover:text-red-900"
               >
-                Try Again
+                {translations.tryAgain}
               </button>
               {' | '}
               <a 
                 href="/diagnostic"
                 className="text-sm text-red-700 underline hover:text-red-900"
               >
-                Run Diagnostic
+                {translations.runDiagnostic}
               </a>
             </div>
           </div>
@@ -91,32 +149,36 @@ export default function Home() {
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
-          title="Total Complaints"
+          title={translations.totalComplaints}
           value={stats.totalComplaints}
           icon={<FaFileAlt />}
           color="blue"
           loading={loading}
+          subtitle={translations.allTimeTotal}
         />
         <StatsCard
-          title="Total Solved"
+          title={translations.totalSolved}
           value={stats.totalSolved}
           icon={<FaCheckCircle />}
           color="green"
           loading={loading}
+          subtitle={translations.allTimeSolved}
         />
         <StatsCard
-          title="Total Pending"
+          title={translations.totalPending}
           value={stats.totalPending}
           icon={<FaClock />}
           color="orange"
           loading={loading}
+          subtitle={translations.allTimePending}
         />
         <StatsCard
-          title="Registered Users"
+          title={translations.registeredUsers}
           value={stats.totalUsers}
           icon={<FaUserShield />}
           color="purple"
           loading={loading}
+          subtitle={translations.allTimeUsers}
         />
       </div>
 

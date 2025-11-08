@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { fetchComplaints, updateComplaintStatus, fetchUsers } from '@/lib/api'
 import { format } from 'date-fns'
 import { FaEye, FaEdit, FaSearch, FaFilter } from 'react-icons/fa'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface Complaint {
   _id: string
@@ -20,6 +21,7 @@ interface Complaint {
 
 export default function ComplaintsPage() {
   const router = useRouter()
+  const { t, currentLanguage } = useTranslation()
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [filteredComplaints, setFilteredComplaints] = useState<Complaint[]>([])
   const [usersMap, setUsersMap] = useState<Record<string, any>>({})
@@ -36,9 +38,46 @@ export default function ComplaintsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
+  // Translations
+  const [translations, setTranslations] = useState({
+    allComplaints: 'All Complaints',
+    total: 'Total',
+    complaints: 'complaints',
+    searchPlaceholder: 'Search by Case ID, Name, Phone...',
+    allStatus: 'All Status',
+    allCategories: 'All Categories',
+    caseId: 'Case ID',
+    userDetails: 'User Details',
+    fraudType: 'Fraud Type',
+    category: 'Category',
+    status: 'Status',
+    date: 'Date',
+    actions: 'Actions',
+    view: 'View',
+  })
+
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    setTranslations({
+      allComplaints: t('All Complaints'),
+      total: t('Total'),
+      complaints: t('complaints'),
+      searchPlaceholder: t('Search by Case ID, Name, Phone...'),
+      allStatus: t('All Status'),
+      allCategories: t('All Categories'),
+      caseId: t('Case ID'),
+      userDetails: t('User Details'),
+      fraudType: t('Fraud Type'),
+      category: t('Category'),
+      status: t('Status'),
+      date: t('Date'),
+      actions: t('Actions'),
+      view: t('View'),
+    })
+  }, [currentLanguage, t])
 
   useEffect(() => {
     applyFilters()
@@ -133,9 +172,9 @@ export default function ComplaintsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-primary">All Complaints</h1>
+        <h1 className="text-3xl font-bold text-primary">{translations.allComplaints}</h1>
         <div className="text-sm text-gray-600">
-          Total: {filteredComplaints.length} complaints
+          {translations.total}: {filteredComplaints.length} {translations.complaints}
         </div>
       </div>
 
@@ -147,7 +186,7 @@ export default function ComplaintsPage() {
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by Case ID, Name, Phone..."
+              placeholder={translations.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -162,9 +201,9 @@ export default function ComplaintsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none bg-white"
             >
-              <option value="">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="solved">Solved</option>
+              <option value="">{translations.allStatus}</option>
+              <option value="pending">{t('pending')}</option>
+              <option value="solved">{t('solved')}</option>
             </select>
           </div>
 
@@ -176,9 +215,9 @@ export default function ComplaintsPage() {
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none bg-white"
             >
-              <option value="">All Categories</option>
-              <option value="Financial">Financial</option>
-              <option value="Social">Social Media</option>
+              <option value="">{translations.allCategories}</option>
+              <option value="Financial">{t('Financial')}</option>
+              <option value="Social">{t('Social')}</option>
             </select>
           </div>
         </div>
@@ -190,13 +229,13 @@ export default function ComplaintsPage() {
           <table className="w-full">
             <thead className="bg-primary text-white">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Case ID</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">User Details</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Fraud Type</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.caseId}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.userDetails}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.fraudType}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.category}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.status}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.date}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.actions}</th>
               </tr>
             </thead>
             <tbody>
@@ -209,6 +248,12 @@ export default function ComplaintsPage() {
               ) : (
                 currentComplaints.map((complaint) => {
                   const user = usersMap[complaint.aadharNumber]
+                  // Translate fraud type, category, and status
+                  const translatedFraudType = t(complaint.typeOfFraud)
+                  const translatedCategory = t(complaint.caseCategory)
+                  const translatedStatus = t(complaint.status.toUpperCase())
+                  // Translate user name
+                  const translatedUserName = user?.name ? t(user.name) : t('N/A')
                   return (
                     <tr key={complaint._id} className="border-b hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
@@ -220,13 +265,13 @@ export default function ComplaintsPage() {
                         </button>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-medium">{user?.name || 'N/A'}</div>
-                        <div className="text-sm text-gray-500">{user?.phoneNumber || 'N/A'}</div>
+                        <div className="font-medium">{translatedUserName}</div>
+                        <div className="text-sm text-gray-500">{user?.phoneNumber || t('N/A')}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm">{complaint.typeOfFraud}</td>
+                      <td className="px-6 py-4 text-sm">{translatedFraudType}</td>
                       <td className="px-6 py-4">
                         <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                          {complaint.caseCategory}
+                          {translatedCategory}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -237,7 +282,7 @@ export default function ComplaintsPage() {
                               : 'bg-orange-100 text-orange-800'
                           }`}
                         >
-                          {complaint.status.toUpperCase()}
+                          {translatedStatus}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
@@ -248,7 +293,7 @@ export default function ComplaintsPage() {
                           onClick={() => router.push(`/complaints/${complaint.caseId}`)}
                           className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium"
                         >
-                          <FaEye /> View
+                          <FaEye /> {translations.view}
                         </button>
                       </td>
                     </tr>
