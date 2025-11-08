@@ -419,13 +419,25 @@ class WhatsAppController {
         classificationData.primary_category
       );
 
+      // Map subcategory string to numeric ID
+      const fraudTypeId =
+        this.whatsappService.complaintService.getFraudTypeIdByDescription(
+          internalCategory,
+          classificationData.subcategory
+        );
+
+      console.log(
+        `Classification: category=${internalCategory}, subcategory="${classificationData.subcategory}", mapped ID=${fraudTypeId}`
+      );
+
       this.whatsappService.sessionManager.updateSession(from, {
         step: "CLASSIFICATION_CONFIRMATION",
         data: {
           ...session.data,
           classificationResult: classificationData,
           category: internalCategory,
-          fraudType: classificationData.subcategory,
+          fraudType: fraudTypeId || classificationData.subcategory, // Use ID if found, fallback to string
+          fraudTypeDescription: classificationData.subcategory,
         },
       });
 
@@ -1496,7 +1508,7 @@ class WhatsAppController {
   async getHeatmapData(req, res) {
     try {
       console.log("Fetching heatmap data...");
-      
+
       // Fetch all cases with their details
       const cases = await Cases.find()
         .populate("caseDetailsId")
@@ -1510,8 +1522,10 @@ class WhatsAppController {
       for (const caseItem of cases) {
         try {
           // Get user details
-          const user = await Users.findOne({ aadharNumber: caseItem.aadharNumber });
-          
+          const user = await Users.findOne({
+            aadharNumber: caseItem.aadharNumber,
+          });
+
           if (!user) {
             console.log(`No user found for case ${caseItem.caseId}`);
             continue;
@@ -1519,14 +1533,18 @@ class WhatsAppController {
 
           // Get coordinates from pincode or district
           let coordinates = null;
-          
+
           if (user.address && user.address.pincode) {
-            coordinates = await geocodingService.getCoordinatesFromPincode(user.address.pincode);
+            coordinates = await geocodingService.getCoordinatesFromPincode(
+              user.address.pincode
+            );
           }
-          
+
           // If no coordinates from pincode, try district
           if (!coordinates && user.address && user.address.district) {
-            coordinates = geocodingService.getDistrictCoordinates(user.address.district);
+            coordinates = geocodingService.getDistrictCoordinates(
+              user.address.district
+            );
           }
 
           // If still no coordinates, skip this case
@@ -1536,7 +1554,10 @@ class WhatsAppController {
           }
 
           // Add random offset to avoid exact overlapping
-          const offsetCoords = geocodingService.addRandomOffset(coordinates, 0.02);
+          const offsetCoords = geocodingService.addRandomOffset(
+            coordinates,
+            0.02
+          );
 
           // Determine weight based on status (pending cases get higher weight)
           const weight = caseItem.status === "pending" ? 2 : 1;
@@ -1634,7 +1655,8 @@ class WhatsAppController {
           const caseId = this.whatsappService.complaintService.generateCaseId();
           const complaintData = {
             ...session.data,
-            fraudType: fraudType.description,
+            fraudType: fraudType.id, // Store numeric ID instead of description
+            fraudTypeDescription: fraudType.description,
             caseId: caseId,
           };
 

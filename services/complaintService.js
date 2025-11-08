@@ -1,4 +1,4 @@
-const { StateContacts } = require('../models');
+const { StateContacts } = require("../models");
 
 class ComplaintService {
   constructor() {
@@ -306,6 +306,35 @@ class ComplaintService {
     return null;
   }
 
+  // Map fraud type description/title to numeric ID
+  getFraudTypeIdByDescription(category, description) {
+    if (!description) return null;
+
+    const normalizedDesc = description.toLowerCase().trim();
+
+    if (category === "financial") {
+      const fraudType = this.financialFraudTypes.find(
+        (type) =>
+          type.description.toLowerCase().includes(normalizedDesc) ||
+          normalizedDesc.includes(type.description.toLowerCase()) ||
+          type.title.toLowerCase().includes(normalizedDesc) ||
+          normalizedDesc.includes(type.title.toLowerCase())
+      );
+      return fraudType ? fraudType.id : null;
+    } else if (category === "social_media") {
+      const fraudType = this.socialMediaFraudTypes.find(
+        (type) =>
+          type.description.toLowerCase().includes(normalizedDesc) ||
+          normalizedDesc.includes(type.description.toLowerCase()) ||
+          type.title.toLowerCase().includes(normalizedDesc) ||
+          normalizedDesc.includes(type.title.toLowerCase())
+      );
+      return fraudType ? fraudType.id : null;
+    }
+
+    return null;
+  }
+
   // Get fraud type details by ID and category
   getFraudTypeDetails(category, typeId) {
     if (category === "financial") {
@@ -362,12 +391,12 @@ class ComplaintService {
   // Create complaint submitted success message
   async createComplaintSubmittedMessage(to, caseId, userState = null) {
     // Get state contact information
-    let contactInfo = '';
+    let contactInfo = "";
     try {
       if (userState) {
         const stateContact = await StateContacts.findByState(userState);
         if (stateContact) {
-          contactInfo = 
+          contactInfo =
             `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
             `📞 GRIEVANCE CONTACTS\n` +
             `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -385,7 +414,7 @@ class ComplaintService {
         }
       }
     } catch (error) {
-      console.error('Error fetching state contact:', error);
+      console.error("Error fetching state contact:", error);
     }
 
     return {

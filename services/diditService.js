@@ -415,6 +415,57 @@ class DiditService {
       };
     }
   }
+
+  /**
+   * Extract Aadhaar images from decision data
+   * @param {string} sessionId - Didit session ID
+   * @returns {Promise<Object>} Aadhaar front and back image URLs
+   */
+  async getAadhaarImages(sessionId) {
+    try {
+      console.log(`Extracting Aadhaar images from session: ${sessionId}`);
+
+      const decision = await this.getSessionDecision(sessionId);
+
+      if (!decision.success) {
+        throw new Error(decision.error || "Failed to fetch session decision");
+      }
+
+      const idVerification = decision.idVerification;
+
+      if (!idVerification) {
+        throw new Error("No ID verification data found in session");
+      }
+
+      if (!idVerification.front_image || !idVerification.back_image) {
+        throw new Error("Aadhaar images not available in verification data");
+      }
+
+      console.log(
+        `✅ Aadhaar images extracted successfully for ${idVerification.full_name}`
+      );
+
+      return {
+        success: true,
+        frontImage: idVerification.front_image,
+        backImage: idVerification.back_image,
+        portraitImage: idVerification.portrait_image,
+        fullFrontImage: idVerification.full_front_image,
+        fullBackImage: idVerification.full_back_image,
+        documentNumber: idVerification.document_number,
+        fullName: idVerification.full_name,
+        documentType: idVerification.document_type,
+        dateOfBirth: idVerification.date_of_birth,
+        address: idVerification.address,
+      };
+    } catch (error) {
+      console.error("❌ Error extracting Aadhaar images:", error.message);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
 }
 
 module.exports = DiditService;

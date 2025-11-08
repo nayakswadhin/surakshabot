@@ -112,6 +112,8 @@ class SessionManager {
     ASK_VILLAGE: "ASK_VILLAGE",
     ASK_FATHER_SPOUSE_GUARDIAN: "ASK_FATHER_SPOUSE_GUARDIAN",
     ASK_EMAIL: "ASK_EMAIL",
+    EMAIL_OTP_SENT: "EMAIL_OTP_SENT",
+    EMAIL_OTP_VERIFICATION: "EMAIL_OTP_VERIFICATION",
     FINAL_CONFIRMATION: "FINAL_CONFIRMATION",
   };
 
@@ -157,6 +159,132 @@ class SessionManager {
     "credit_card_statement",
     "beneficiary_details",
   ];
+
+  // Document requirements mapping for financial fraud types
+  // Maps fraud type to required documents
+  static FINANCIAL_FRAUD_DOCUMENT_REQUIREMENTS = {
+    investment_fraud: [
+      "aadhar_pan",
+      "bank_front_page",
+      "bank_statement",
+      "beneficiary_details",
+    ],
+    customer_care_fraud: [
+      "aadhar_pan",
+      "bank_front_page",
+      "bank_statement",
+      "upi_screenshots",
+    ],
+    upi_fraud: [
+      "aadhar_pan",
+      "bank_front_page",
+      "upi_screenshots",
+      "beneficiary_details",
+    ],
+    apk_fraud: [
+      "aadhar_pan",
+      "bank_front_page",
+      "bank_statement",
+      "upi_screenshots",
+    ],
+    franchisee_fraud: ["aadhar_pan", "bank_statement", "beneficiary_details"],
+    job_fraud: ["aadhar_pan", "bank_statement", "beneficiary_details"],
+    debit_card_fraud: [
+      "aadhar_pan",
+      "debit_credit_card",
+      "bank_front_page",
+      "bank_statement",
+    ],
+    credit_card_fraud: [
+      "aadhar_pan",
+      "debit_credit_card",
+      "credit_card_statement",
+    ],
+    ecommerce_fraud: ["aadhar_pan", "bank_statement"],
+    loan_app_fraud: ["aadhar_pan", "bank_statement", "beneficiary_details"],
+    sextortion_fraud: ["aadhar_pan"], // Can add bank_statement if payment occurred
+    olx_fraud: [
+      "aadhar_pan",
+      "bank_statement",
+      "upi_screenshots",
+      "beneficiary_details",
+    ],
+    lottery_fraud: ["aadhar_pan", "bank_statement", "beneficiary_details"],
+    hotel_booking_fraud: ["aadhar_pan", "bank_statement"],
+    gaming_app_fraud: ["aadhar_pan", "bank_statement", "upi_screenshots"],
+    aeps_fraud: ["aadhar_pan", "bank_front_page", "bank_statement"],
+    tower_installation_fraud: [
+      "aadhar_pan",
+      "bank_statement",
+      "beneficiary_details",
+    ],
+    ewallet_fraud: ["aadhar_pan", "upi_screenshots", "beneficiary_details"],
+    digital_arrest_fraud: ["aadhar_pan", "bank_statement", "upi_screenshots"],
+    fake_website_fraud: ["aadhar_pan", "bank_statement", "beneficiary_details"],
+    ticket_booking_fraud: ["aadhar_pan", "bank_statement"],
+    insurance_fraud: ["aadhar_pan", "bank_statement", "beneficiary_details"],
+    other_financial_fraud: ["aadhar_pan", "bank_statement"],
+  };
+
+  // Mapping from fraud type ID to key (for document requirements)
+  static FRAUD_TYPE_ID_TO_KEY = {
+    1: "investment_fraud", // Investment/Trading/IPO
+    2: "customer_care_fraud", // Customer Care
+    3: "upi_fraud", // UPI Fraud
+    4: "apk_fraud", // APK Fraud
+    5: "franchisee_fraud", // Fake Franchisee/Dealership
+    6: "job_fraud", // Online Job
+    7: "debit_card_fraud", // Debit Card
+    8: "credit_card_fraud", // Credit Card
+    9: "ecommerce_fraud", // E-Commerce
+    10: "loan_app_fraud", // Loan App
+    11: "sextortion_fraud", // Sextortion
+    12: "olx_fraud", // OLX Fraud
+    13: "lottery_fraud", // Lottery
+    14: "hotel_booking_fraud", // Hotel Booking
+    15: "gaming_app_fraud", // Gaming App
+    16: "aeps_fraud", // AEPS Fraud
+    17: "tower_installation_fraud", // Tower Installation
+    18: "ewallet_fraud", // E-Wallet
+    19: "digital_arrest_fraud", // Digital Arrest
+    20: "fake_website_fraud", // Fake Website
+    21: "ticket_booking_fraud", // Ticket Booking
+    22: "insurance_fraud", // Insurance Maturity
+    23: "other_financial_fraud", // Others
+  };
+
+  /**
+   * Get required documents based on fraud type
+   * @param {string|number} fraudType - Fraud type code or ID
+   * @returns {Array<string>} Array of required document steps
+   */
+  static getRequiredDocumentsForFraudType(fraudType) {
+    console.log(
+      `Getting required documents for fraud type: ${fraudType} (type: ${typeof fraudType})`
+    );
+
+    // Convert ID to key if needed
+    let fraudTypeKey = fraudType;
+    if (typeof fraudType === "number" || !isNaN(parseInt(fraudType))) {
+      const id =
+        typeof fraudType === "number" ? fraudType : parseInt(fraudType);
+      fraudTypeKey = this.FRAUD_TYPE_ID_TO_KEY[id];
+      console.log(`Converted ID ${id} to key: ${fraudTypeKey}`);
+    }
+
+    const requirements =
+      this.FINANCIAL_FRAUD_DOCUMENT_REQUIREMENTS[fraudTypeKey];
+
+    if (!requirements) {
+      console.log(
+        `No specific requirements found for ${fraudTypeKey}, using default documents`
+      );
+      return ["aadhar_pan", "bank_statement"];
+    }
+
+    console.log(`Document requirements for ${fraudTypeKey}:`, requirements);
+    return requirements;
+  }
 
   // Social Media document collection steps
   static SOCIAL_MEDIA_COLLECTION_STEPS = {
@@ -204,15 +332,21 @@ class SessionManager {
    */
   static getDocumentDisplayName(step) {
     const displayNames = {
-      aadhar_pan: "Aadhar Card / PAN Card",
-      debit_credit_card: "Debit Card / Credit Card Photo",
-      bank_front_page: "Bank Account Front Page",
-      bank_statement: "Bank Statement (highlighting fraudulent transactions)",
-      debit_messages: "Debit Message Screenshots (with transaction reference)",
-      upi_screenshots: "UPI Transaction Screenshots (with UTR number)",
-      credit_card_statement: "Credit Card Statement/Screenshots",
+      aadhar_pan: "Aadhaar Card / PAN Card (Identity proof)",
+      debit_credit_card:
+        "Debit Card / Credit Card Photo (Front side only, hide CVV)",
+      bank_front_page:
+        "Bank Account Front Page (showing name and account number)",
+      bank_statement:
+        "Bank Statement (highlighting fraudulent transaction with transaction reference number)",
+      debit_messages:
+        "Debit Message Screenshots (showing transaction reference number with date and time)",
+      upi_screenshots:
+        "UPI Transaction Screenshot (showing UTR number, date and time)",
+      credit_card_statement:
+        "Credit Card Statement or Screenshot (spent message reference number with date and time)",
       beneficiary_details:
-        "Beneficiary Account Details (with transaction reference)",
+        "Beneficiary Account Details (account number, name, transaction reference number, date, and amount)",
     };
     return displayNames[step] || step;
   }

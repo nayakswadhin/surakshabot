@@ -5,6 +5,7 @@ const ComplaintService = require("./complaintService");
 const CloudinaryService = require("./cloudinaryService");
 const VoiceService = require("./voiceService");
 const DiditService = require("./diditService");
+const EmailService = require("./emailService");
 require("dotenv").config();
 
 class WhatsAppService {
@@ -18,6 +19,7 @@ class WhatsAppService {
     this.cloudinaryService = new CloudinaryService();
     this.voiceService = new VoiceService();
     this.diditService = new DiditService();
+    this.emailService = new EmailService();
 
     // Clean up old sessions every 10 minutes
     setInterval(() => {
@@ -238,6 +240,13 @@ class WhatsAppService {
       case "skip_registration":
         return await this.handleExistingUser(to);
 
+      // Email OTP verification buttons
+      case "resend_otp":
+        return await this.handleResendOtp(to);
+
+      case "reenter_email":
+        return await this.handleReenterEmail(to);
+
       // Complaint flow buttons
       case "proceed_complaint":
         return await this.handleComplaintDetails(to);
@@ -279,6 +288,35 @@ class WhatsAppService {
       // Query flow buttons
       case "ask_more":
         return await this.handleOtherQueries(to);
+
+      // Aadhaar fetch fallback buttons
+      case "upload_manually":
+        const manualUploadSession = this.sessionManager.getSession(to);
+        if (manualUploadSession && manualUploadSession.step === "aadhar_pan") {
+          const currentIndex =
+            manualUploadSession.data.currentDocumentIndex || 0;
+          const totalDocuments =
+            manualUploadSession.data.totalRequiredDocuments ||
+            manualUploadSession.data.requiredDocuments?.length ||
+            8;
+          const displayIndex = currentIndex + 1;
+
+          const messageText =
+            `📷 Manual Document Upload (${displayIndex}/${totalDocuments})\n\n` +
+            `Please upload: Aadhaar Card / PAN Card (Identity proof)\n\n` +
+            `📋 Important:\n` +
+            `• Send image only (JPG, PNG, GIF, WebP)\n` +
+            `• Maximum file size: 10MB\n` +
+            `• Ensure document is clear and readable\n` +
+            `• Upload both front and back sides if needed\n\n` +
+            `Send your image now:`;
+
+          await this.sendMessage(to, this.createTextMessage(to, messageText));
+        }
+        return;
+
+      case "retry_fetch":
+        return await this.autoFetchAadhaarFromDidit(to);
 
       default:
         const responseText =
@@ -508,6 +546,121 @@ class WhatsAppService {
     ) {
       // Handle back step in Social Media document collection
       await this.handleSocialMediaBackStep(to, session);
+    } else if (session.state === SessionManager.STATES.DIDIT_ADDITIONAL_INFO) {
+      // Handle back step in DIDIT additional info collection
+      const currentStep = session.step;
+
+      console.log(
+        `DIDIT Additional Info - Going back from step: ${currentStep}`
+      );
+
+      // Determine previous step based on current step
+      let previousStep = null;
+
+      switch (currentStep) {
+        case SessionManager.DIDIT_STEPS.EMAIL_OTP_VERIFICATION:
+          // Go back to email input
+          previousStep = SessionManager.DIDIT_STEPS.ASK_EMAIL;
+          // Clear OTP data
+          this.emailService.clearOtp(to);
+          break;
+
+        case SessionManager.DIDIT_STEPS.ASK_EMAIL:
+          // Go back to father/spouse/guardian
+          previousStep = SessionManager.DIDIT_STEPS.ASK_FATHER_SPOUSE_GUARDIAN;
+          break;
+
+        case SessionManager.DIDIT_STEPS.ASK_FATHER_SPOUSE_GUARDIAN:
+          // Go back to village
+          previousStep = SessionManager.DIDIT_STEPS.ASK_VILLAGE;
+          break;
+
+        case SessionManager.DIDIT_STEPS.ASK_VILLAGE:
+          // Go back to pincode
+          previousStep = SessionManager.DIDIT_STEPS.ASK_PINCODE;
+          break;
+
+        case SessionManager.DIDIT_STEPS.ASK_PINCODE:
+          // Go back to DIDIT data confirmation
+          this.sessionManager.updateSession(to, {
+            state: SessionManager.STATES.DIDIT_DATA_CONFIRMATION,
+            step: SessionManager.DIDIT_STEPS.DATA_CONFIRMATION,
+          });
+          await this.handleDiditDataConfirmation(to);
+          return;
+
+        case SessionManager.DIDIT_STEPS.FINAL_CONFIRMATION:
+          // Go back to email OTP verification or email input
+          if (session.data.emailid) {
+            // Email was verified, go back to email input to re-verify
+            previousStep = SessionManager.DIDIT_STEPS.ASK_EMAIL;
+          } else {
+            previousStep = SessionManager.DIDIT_STEPS.ASK_EMAIL;
+          }
+          break;
+
+        default:
+          // If unknown step, go to main menu
+          await this.handleGreeting(to);
+          return;
+      }
+
+      if (previousStep) {
+        // Clear data for current step
+        const fieldMap = {
+          [SessionManager.DIDIT_STEPS.EMAIL_OTP_VERIFICATION]: "tempEmail",
+          [SessionManager.DIDIT_STEPS.ASK_EMAIL]: "emailid",
+          [SessionManager.DIDIT_STEPS.ASK_FATHER_SPOUSE_GUARDIAN]:
+            "fatherSpouseGuardianName",
+          [SessionManager.DIDIT_STEPS.ASK_VILLAGE]: "village",
+          [SessionManager.DIDIT_STEPS.ASK_PINCODE]: [
+            "pincode",
+            "locationData",
+            "district",
+            "state",
+          ],
+        };
+
+        const fieldToClear = fieldMap[currentStep];
+        if (fieldToClear) {
+          if (Array.isArray(fieldToClear)) {
+            fieldToClear.forEach((field) => {
+              if (session.data[field]) {
+                delete session.data[field];
+              }
+            });
+          } else if (session.data[fieldToClear]) {
+            delete session.data[fieldToClear];
+          }
+        }
+
+        // Update session to previous step
+        this.sessionManager.updateSession(to, {
+          step: previousStep,
+          data: session.data,
+        });
+
+        // Request the previous input
+        const prompts = {
+          [SessionManager.DIDIT_STEPS.ASK_PINCODE]:
+            "Address Details\n\nPlease enter your Pin Code (6 digits):",
+          [SessionManager.DIDIT_STEPS
+            .ASK_VILLAGE]: `Address Details\n\nDistrict: ${
+            session.data.district || "N/A"
+          }\nState: ${session.data.state || "N/A"}\nPincode: ${
+            session.data.pincode || "N/A"
+          }\n\nPlease enter your Village/Town name:`,
+          [SessionManager.DIDIT_STEPS.ASK_FATHER_SPOUSE_GUARDIAN]:
+            "Family Details\n\nPlease enter your Father's/Spouse's/Guardian's name:",
+          [SessionManager.DIDIT_STEPS.ASK_EMAIL]:
+            "Contact Details\n\nPlease enter your Email ID:",
+        };
+
+        const promptText =
+          prompts[previousStep] || "Please provide the required information:";
+        const message = this.createNavigationMessage(to, promptText);
+        await this.sendMessage(to, message);
+      }
     } else {
       // For other states, use the original goBack logic
       if (this.sessionManager.goBack(to)) {
@@ -1514,6 +1667,10 @@ class WhatsAppService {
           await this.handleEmailInput(to, text);
           break;
 
+        case SessionManager.DIDIT_STEPS.EMAIL_OTP_VERIFICATION:
+          await this.handleEmailOtpInput(to, text);
+          break;
+
         default:
           console.log(`Unknown Didit step: ${step}`);
       }
@@ -1669,17 +1826,296 @@ class WhatsAppService {
       return;
     }
 
-    // Store email and move to final confirmation
+    // Store email temporarily (not confirmed yet)
     this.sessionManager.updateSession(to, {
-      step: SessionManager.DIDIT_STEPS.FINAL_CONFIRMATION,
       data: {
         ...session.data,
-        emailid: trimmedEmail,
+        tempEmail: trimmedEmail,
       },
     });
 
-    // Show final confirmation
-    await this.showFinalConfirmation(to);
+    // Send "Sending OTP..." message
+    const sendingMessage = this.createTextMessage(
+      to,
+      "Sending OTP to your email...\n\nPlease wait."
+    );
+    await this.sendMessage(to, sendingMessage);
+
+    // Send OTP to email
+    const otpResult = await this.emailService.sendOtp(trimmedEmail, to);
+
+    if (!otpResult.success) {
+      // Failed to send OTP
+      const errorMessage = this.createNavigationMessage(
+        to,
+        `Failed to send OTP: ${otpResult.message}\n\nPlease check your email address and try again or re-enter your email:`
+      );
+      await this.sendMessage(to, errorMessage);
+      return;
+    }
+
+    // OTP sent successfully, update session
+    this.sessionManager.updateSession(to, {
+      step: SessionManager.DIDIT_STEPS.EMAIL_OTP_VERIFICATION,
+      data: {
+        ...session.data,
+        tempEmail: trimmedEmail,
+      },
+    });
+
+    // Ask user to enter OTP with retry buttons
+    const otpMessage = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: {
+          text:
+            `Email Verification\n\n` +
+            `A 6-digit OTP has been sent to:\n${trimmedEmail}\n\n` +
+            `The OTP is valid for 10 minutes.\n\n` +
+            `Please enter the OTP to verify your email:`,
+        },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: "reenter_email",
+                title: "Re-enter Email",
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    await this.sendMessage(to, otpMessage);
+  }
+
+  /**
+   * Handle Email OTP verification input
+   */
+  async handleEmailOtpInput(to, otpInput) {
+    const session = this.sessionManager.getSession(to);
+    const trimmedOtp = otpInput.trim();
+
+    // Validate OTP format (6 digits)
+    if (!/^\d{6}$/.test(trimmedOtp)) {
+      const message = this.createNavigationMessage(
+        to,
+        "Invalid OTP format. Please enter a 6-digit OTP:"
+      );
+      await this.sendMessage(to, message);
+      return;
+    }
+
+    // Verify OTP
+    const verificationResult = this.emailService.verifyOtp(to, trimmedOtp);
+
+    if (verificationResult.success) {
+      // OTP verified successfully
+      const successMessage = this.createTextMessage(
+        to,
+        "Email verified successfully!\n\nProceeding with registration..."
+      );
+      await this.sendMessage(to, successMessage);
+
+      // Store verified email
+      this.sessionManager.updateSession(to, {
+        step: SessionManager.DIDIT_STEPS.FINAL_CONFIRMATION,
+        data: {
+          ...session.data,
+          emailid: session.data.tempEmail,
+          tempEmail: null, // Clear temp email
+        },
+      });
+
+      // Show final confirmation
+      await this.showFinalConfirmation(to);
+    } else {
+      // OTP verification failed
+      if (verificationResult.code === "OTP_EXPIRED") {
+        // OTP expired - offer to resend
+        const expiredMessage = {
+          messaging_product: "whatsapp",
+          to: to,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: {
+              text:
+                `OTP Verification Failed\n\n` +
+                `${verificationResult.message}\n\n` +
+                `Please choose an option:`,
+            },
+            action: {
+              buttons: [
+                {
+                  type: "reply",
+                  reply: {
+                    id: "resend_otp",
+                    title: "Resend OTP",
+                  },
+                },
+                {
+                  type: "reply",
+                  reply: {
+                    id: "reenter_email",
+                    title: "Re-enter Email",
+                  },
+                },
+              ],
+            },
+          },
+        };
+        await this.sendMessage(to, expiredMessage);
+      } else if (
+        verificationResult.code === "OTP_NOT_FOUND" ||
+        verificationResult.code === "MAX_ATTEMPTS_EXCEEDED"
+      ) {
+        // OTP not found or max attempts exceeded - must re-enter email
+        const resetMessage = {
+          messaging_product: "whatsapp",
+          to: to,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: {
+              text:
+                `OTP Verification Failed\n\n` +
+                `${verificationResult.message}\n\n` +
+                `Please re-enter your email address:`,
+            },
+            action: {
+              buttons: [
+                {
+                  type: "reply",
+                  reply: {
+                    id: "reenter_email",
+                    title: "Re-enter Email",
+                  },
+                },
+              ],
+            },
+          },
+        };
+        await this.sendMessage(to, resetMessage);
+      } else if (verificationResult.code === "INCORRECT_OTP") {
+        // Incorrect OTP - offer retry with remaining attempts
+        const retryMessage = {
+          messaging_product: "whatsapp",
+          to: to,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: {
+              text:
+                `OTP Verification Failed\n\n` +
+                `${verificationResult.message}\n\n` +
+                `Please enter the correct OTP or choose an option:`,
+            },
+            action: {
+              buttons: [
+                {
+                  type: "reply",
+                  reply: {
+                    id: "resend_otp",
+                    title: "Resend OTP",
+                  },
+                },
+                {
+                  type: "reply",
+                  reply: {
+                    id: "reenter_email",
+                    title: "Re-enter Email",
+                  },
+                },
+              ],
+            },
+          },
+        };
+        await this.sendMessage(to, retryMessage);
+      }
+    }
+  }
+
+  /**
+   * Handle resend OTP request
+   */
+  async handleResendOtp(to) {
+    const session = this.sessionManager.getSession(to);
+    const email = session.data.tempEmail;
+
+    if (!email) {
+      const message = this.createNavigationMessage(
+        to,
+        "Email not found. Please enter your Email ID:"
+      );
+      await this.sendMessage(to, message);
+
+      // Reset to email input step
+      this.sessionManager.updateSession(to, {
+        step: SessionManager.DIDIT_STEPS.ASK_EMAIL,
+      });
+      return;
+    }
+
+    // Send "Sending OTP..." message
+    const sendingMessage = this.createTextMessage(
+      to,
+      "Resending OTP to your email...\n\nPlease wait."
+    );
+    await this.sendMessage(to, sendingMessage);
+
+    // Clear previous OTP
+    this.emailService.clearOtp(to);
+
+    // Send new OTP
+    const otpResult = await this.emailService.sendOtp(email, to);
+
+    if (!otpResult.success) {
+      const errorMessage = this.createNavigationMessage(
+        to,
+        `Failed to send OTP: ${otpResult.message}\n\nPlease check your email address and try again or re-enter your email:`
+      );
+      await this.sendMessage(to, errorMessage);
+      return;
+    }
+
+    // OTP sent successfully
+    const successMessage = this.createNavigationMessage(
+      to,
+      `New OTP sent to ${email}\n\nPlease enter the 6-digit OTP:`
+    );
+    await this.sendMessage(to, successMessage);
+  }
+
+  /**
+   * Handle re-enter email request
+   */
+  async handleReenterEmail(to) {
+    const session = this.sessionManager.getSession(to);
+
+    // Clear OTP and temp email
+    this.emailService.clearOtp(to);
+
+    // Reset to email input step
+    this.sessionManager.updateSession(to, {
+      step: SessionManager.DIDIT_STEPS.ASK_EMAIL,
+      data: {
+        ...session.data,
+        tempEmail: null,
+      },
+    });
+
+    // Ask for email again
+    const message = this.createNavigationMessage(
+      to,
+      "Contact Details\n\nPlease enter your Email ID:"
+    );
+    await this.sendMessage(to, message);
   }
 
   /**
@@ -2038,24 +2474,49 @@ class WhatsAppService {
         throw new Error("No active session found");
       }
 
-      // Send initial message about document collection
+      // Get the confirmed fraud type from session
+      // It could be from classifier (selectedFraudType) or manual selection (fraudType)
+      const fraudType =
+        session.data.selectedFraudType || session.data.fraudType;
+
+      if (!fraudType) {
+        console.error("No fraud type found in session data");
+        throw new Error("Fraud type not identified. Please start again.");
+      }
+
+      console.log(`Fraud type identified: ${fraudType}`);
+
+      // Get required documents based on fraud type
+      const requiredDocs =
+        SessionManager.getRequiredDocumentsForFraudType(fraudType);
+
+      console.log(`Required documents for ${fraudType}:`, requiredDocs);
+
+      // Get fraud type display name
+      const fraudTypeDisplay = this.getFraudTypeDisplayName(fraudType);
+
+      // Send initial message with document count
       const introMessage = this.createTextMessage(
         from,
-        `Fraud Type Selected: ${session.data.fraudType}\n\n` +
-          `📋 Document Collection Required\n\n` +
-          `For financial fraud cases, we need you to upload 8 supporting documents.\n\n` +
+        `📋 Document Collection\n\n` +
+          `Fraud Type: ${fraudTypeDisplay}\n\n` +
+          `Based on your fraud type, we need ${requiredDocs.length} document${
+            requiredDocs.length > 1 ? "s" : ""
+          } from you.\n\n` +
           `Let's start with the first document:`
       );
       await this.sendMessage(from, introMessage);
 
-      // Update session to document collection state
+      // Update session with custom document flow
       this.sessionManager.updateSession(from, {
         state: SessionManager.STATES.DOCUMENT_COLLECTION,
-        step: SessionManager.DOCUMENT_COLLECTION_STEPS.AADHAR_PAN,
+        step: requiredDocs[0], // Start with first required document
         data: {
           ...session.data,
           documents: {},
           currentDocumentIndex: 0,
+          requiredDocuments: requiredDocs, // Store required docs list
+          totalRequiredDocuments: requiredDocs.length,
         },
       });
 
@@ -2081,14 +2542,27 @@ class WhatsAppService {
     try {
       const session = this.sessionManager.getSession(from);
       const currentStep = session.step;
+      const currentIndex = session.data.currentDocumentIndex || 0;
+
+      // Use dynamic total documents from session
+      const totalDocuments =
+        session.data.totalRequiredDocuments ||
+        session.data.requiredDocuments?.length ||
+        8; // Fallback to 8
+
+      // ✨ NEW: Auto-fetch Aadhaar from Didit if it's aadhar_pan step
+      if (currentStep === "aadhar_pan") {
+        await this.autoFetchAadhaarFromDidit(from);
+        return; // Exit here, autoFetchAadhaarFromDidit handles next steps
+      }
+
       const documentDisplayName =
         SessionManager.getDocumentDisplayName(currentStep);
-      const currentIndex = (session.data.currentDocumentIndex || 0) + 1;
-      const totalDocuments = SessionManager.DOCUMENT_FLOW.length;
+      const displayIndex = currentIndex + 1;
 
       const messageText =
-        `📷 Document Upload (${currentIndex}/${totalDocuments})\n\n` +
-        `Please upload: ${documentDisplayName}\n\n` +
+        `📷 Document Upload (${displayIndex}/${totalDocuments})\n\n` +
+        `Please upload:\n${documentDisplayName}\n\n` +
         `📋 Important:\n` +
         `• Send image only (JPG, PNG, GIF, WebP)\n` +
         `• Maximum file size: 10MB\n` +
@@ -2121,6 +2595,217 @@ class WhatsAppService {
   }
 
   /**
+   * Auto-fetch Aadhaar images from Didit session
+   * @param {string} from - User phone number
+   */
+  async autoFetchAadhaarFromDidit(from) {
+    try {
+      console.log(`🔄 Auto-fetching Aadhaar from Didit for ${from}`);
+
+      const session = this.sessionManager.getSession(from);
+
+      // Get session ID from session data or MongoDB
+      let sessionId = session.data.diditSessionId;
+
+      // If not in session, fetch from MongoDB
+      if (!sessionId) {
+        console.log(
+          "Session ID not found in session, fetching from database..."
+        );
+
+        const User = require("../models/Users");
+
+        // Remove country code (91) from phone number if present
+        let phoneNumber = from;
+        if (from.startsWith("91") && from.length > 10) {
+          phoneNumber = from.substring(2); // Remove "91" prefix
+        }
+
+        console.log(`Looking up user with phone number: ${phoneNumber}`);
+
+        // Try to find user with either format
+        let user = await User.findOne({ phoneNumber: phoneNumber });
+
+        // If not found, try with the original format
+        if (!user) {
+          console.log(
+            `User not found with ${phoneNumber}, trying with original: ${from}`
+          );
+          user = await User.findOne({ phoneNumber: from });
+        }
+
+        if (!user) {
+          console.error("User not found in database");
+          throw new Error(
+            "User account not found. Please complete registration first."
+          );
+        }
+
+        if (!user.diditSessionId) {
+          console.error("User found but diditSessionId is missing");
+          throw new Error(
+            "Didit verification not completed. Please complete your registration with identity verification."
+          );
+        }
+
+        sessionId = user.diditSessionId;
+        console.log(`✅ Retrieved session ID from database: ${sessionId}`);
+
+        // Update session with diditSessionId for future use
+        this.sessionManager.updateSession(from, {
+          data: {
+            ...session.data,
+            diditSessionId: sessionId,
+          },
+        });
+      } else {
+        console.log(`Using session ID from session data: ${sessionId}`);
+      }
+
+      // Send loading message
+      await this.sendMessage(
+        from,
+        this.createTextMessage(
+          from,
+          "🔄 Fetching your Aadhaar details from verification...\n\nPlease wait..."
+        )
+      );
+
+      // Fetch Aadhaar images from Didit
+      const aadhaarData = await this.diditService.getAadhaarImages(sessionId);
+
+      if (!aadhaarData.success) {
+        throw new Error(
+          aadhaarData.error || "Failed to fetch Aadhaar images from Didit"
+        );
+      }
+
+      console.log("✅ Aadhaar images fetched successfully:", {
+        frontImage: aadhaarData.frontImage ? "Available" : "Missing",
+        backImage: aadhaarData.backImage ? "Available" : "Missing",
+        fullName: aadhaarData.fullName,
+        documentNumber: aadhaarData.documentNumber,
+      });
+
+      // Store Aadhaar images in session documents
+      const updatedDocuments = {
+        ...session.data.documents,
+        aadhar_pan: {
+          frontImage: aadhaarData.frontImage,
+          backImage: aadhaarData.backImage,
+          portraitImage: aadhaarData.portraitImage,
+          fullFrontImage: aadhaarData.fullFrontImage,
+          fullBackImage: aadhaarData.fullBackImage,
+          documentNumber: aadhaarData.documentNumber,
+          fullName: aadhaarData.fullName,
+          documentType: aadhaarData.documentType,
+          dateOfBirth: aadhaarData.dateOfBirth,
+          address: aadhaarData.address,
+          source: "didit",
+          verified: true,
+          uploadedAt: new Date().toISOString(),
+        },
+      };
+
+      // Send success message
+      await this.sendMessage(
+        from,
+        this.createTextMessage(
+          from,
+          `✅ Aadhaar Details Retrieved Successfully!\n\n` +
+            `📄 Name: ${aadhaarData.fullName}\n` +
+            `🔢 Number: ${aadhaarData.documentNumber}\n` +
+            `📅 DOB: ${aadhaarData.dateOfBirth}\n\n` +
+            `Your verified Aadhaar has been added to your complaint.`
+        )
+      );
+
+      // Get next document step
+      const currentIndex = session.data.currentDocumentIndex || 0;
+      const requiredDocs =
+        session.data.requiredDocuments || SessionManager.DOCUMENT_FLOW;
+      const nextIndex = currentIndex + 1;
+      const nextStep =
+        nextIndex < requiredDocs.length ? requiredDocs[nextIndex] : null;
+
+      if (nextStep) {
+        // More documents to collect
+        this.sessionManager.updateSession(from, {
+          step: nextStep,
+          data: {
+            ...session.data,
+            documents: updatedDocuments,
+            currentDocumentIndex: nextIndex,
+          },
+        });
+
+        await this.sendMessage(
+          from,
+          this.createTextMessage(from, "Preparing next document request...")
+        );
+
+        // Small delay before requesting next document
+        setTimeout(async () => {
+          await this.requestNextDocument(from);
+        }, 1500);
+      } else {
+        // All required documents collected
+        this.sessionManager.updateSession(from, {
+          data: {
+            ...session.data,
+            documents: updatedDocuments,
+          },
+        });
+
+        await this.sendMessage(
+          from,
+          this.createTextMessage(
+            from,
+            "✅ All required documents collected! Creating your complaint..."
+          )
+        );
+
+        setTimeout(async () => {
+          await this.completeComplaint(from);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("❌ Error auto-fetching Aadhaar from Didit:", error);
+
+      // Send error message with fallback option
+      const errorMessage = {
+        messaging_product: "whatsapp",
+        to: from,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: {
+            text:
+              `❌ Unable to fetch Aadhaar automatically\n\n` +
+              `Error: ${error.message}\n\n` +
+              `Would you like to upload Aadhaar manually or retry?`,
+          },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: { id: "upload_manually", title: "Upload Manually" },
+              },
+              { type: "reply", reply: { id: "retry_fetch", title: "Retry" } },
+              {
+                type: "reply",
+                reply: { id: "main_menu", title: "Main Menu" },
+              },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
    * Process document upload and move to next step
    * @param {string} from - User phone number
    * @param {Object} uploadResult - Cloudinary upload result
@@ -2131,7 +2816,16 @@ class WhatsAppService {
 
       const session = this.sessionManager.getSession(from);
       const currentStep = session.step;
-      const nextStep = SessionManager.getNextDocumentStep(currentStep);
+      const currentIndex = session.data.currentDocumentIndex || 0;
+
+      // Get required documents list from session
+      const requiredDocs =
+        session.data.requiredDocuments || SessionManager.DOCUMENT_FLOW;
+
+      // Get next document from required list
+      const nextIndex = currentIndex + 1;
+      const nextStep =
+        nextIndex < requiredDocs.length ? requiredDocs[nextIndex] : null;
 
       // Send confirmation message
       const confirmationText =
@@ -2142,11 +2836,11 @@ class WhatsAppService {
 
       if (nextStep) {
         // More documents to collect
-        const updatedSession = this.sessionManager.updateSession(from, {
+        this.sessionManager.updateSession(from, {
           step: nextStep,
           data: {
             ...session.data,
-            currentDocumentIndex: (session.data.currentDocumentIndex || 0) + 1,
+            currentDocumentIndex: nextIndex,
           },
         });
 
@@ -2163,13 +2857,13 @@ class WhatsAppService {
           await this.requestNextDocument(from);
         }, 1000);
       } else {
-        // All documents collected, complete the complaint
+        // All required documents collected, complete the complaint
         await this.sendMessage(
           from,
           this.createTextMessage(
             from,
             confirmationText +
-              "All documents collected! Creating your complaint..."
+              "All required documents collected! Creating your complaint..."
           )
         );
 
@@ -2782,6 +3476,32 @@ class WhatsAppService {
    */
   getFraudTypeDisplay(fraudType) {
     const fraudTypes = {
+      // Financial Fraud Types
+      investment_fraud: "Investment/Trading/IPO Fraud",
+      customer_care_fraud: "Customer Care Fraud",
+      upi_fraud: "UPI Fraud",
+      apk_fraud: "APK Fraud",
+      franchisee_fraud: "Fake Franchisee/Dealership Fraud",
+      job_fraud: "Online Job Fraud",
+      debit_card_fraud: "Debit Card Fraud",
+      credit_card_fraud: "Credit Card Fraud",
+      ecommerce_fraud: "E-Commerce Fraud",
+      loan_app_fraud: "Loan App Fraud",
+      sextortion_fraud: "Sextortion Fraud",
+      olx_fraud: "OLX Fraud",
+      lottery_fraud: "Lottery Fraud",
+      hotel_booking_fraud: "Hotel Booking Fraud",
+      gaming_app_fraud: "Gaming App Fraud",
+      aeps_fraud: "AEPS Fraud",
+      tower_installation_fraud: "Tower Installation Fraud",
+      ewallet_fraud: "E-Wallet Fraud",
+      digital_arrest_fraud: "Digital Arrest Fraud",
+      fake_website_fraud: "Fake Website Scam Fraud",
+      ticket_booking_fraud: "Ticket Booking Fraud",
+      insurance_fraud: "Insurance Maturity Fraud",
+      other_financial_fraud: "Other Financial Fraud",
+
+      // Social Media Fraud Types
       facebook_fraud: "Facebook Fraud",
       instagram_fraud: "Instagram Fraud",
       twitter_fraud: "X (Twitter) Fraud",
@@ -2793,7 +3513,16 @@ class WhatsAppService {
       telegram_fraud: "Telegram Fraud",
       other_social_media: "Other Social Media Fraud",
     };
-    return fraudTypes[fraudType] || fraudType || "Social Media Fraud";
+    return fraudTypes[fraudType] || fraudType || "Fraud";
+  }
+
+  /**
+   * Get display name for fraud type (alias for backward compatibility)
+   * @param {string} fraudType - Fraud type code
+   * @returns {string} Display name
+   */
+  getFraudTypeDisplayName(fraudType) {
+    return this.getFraudTypeDisplay(fraudType);
   }
 
   /**
