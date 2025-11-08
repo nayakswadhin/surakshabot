@@ -54,4 +54,9 @@ router.post("/send-message", (req, res) => {
   whatsappController.sendAdminMessage(req, res);
 });
 
+// API endpoint to get heatmap data
+router.get("/heatmap-data", (req, res) => {
+  whatsappController.getHeatmapData(req, res);
+});
+
 module.exports = router;

@@ -1,6 +1,6 @@
 # SurakshaBot Frontend
 
-Professional Next.js dashboard for the 1930 Cyber Helpline, Odisha.
+Professional Next.js dashboard for the 1930 Cyber Helpline, India.
 
 ## Features
 
@@ -226,14 +226,14 @@ npm start
 ## Support
 
 For issues or queries:
-- **Email**: cybercrime.odisha@gov.in
+- **Email**: cybercrime@gov.in
 - **Helpline**: 1930
 - **GitHub**: Create an issue in the repository
 
 ## License
 
-Government of Odisha - 1930 Cyber Helpline
+Government of India - 1930 Cyber Helpline
 
 ---
 
-**Built for the Government of Odisha** 🇮🇳
+**Built for India** 🇮🇳

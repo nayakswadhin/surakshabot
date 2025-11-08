@@ -62,7 +62,7 @@ class WhatsAppService {
       interactive: {
         type: "button",
         body: {
-          text: "Welcome to 1930, Cyber Helpline, Odisha.\n\nHow can I help you?\n\nA- New Complaint\nB- Status Check\nC- Account Unfreeze\nD- Other Queries\n\nSelect an option below:",
+          text: "Welcome to 1930, Cyber Helpline, India.\n\nHow can I help you?\n\nA- New Complaint\nB- Status Check\nC- Account Unfreeze\nD- Other Queries\n\nSelect an option below:",
         },
         action: {
           buttons: [
@@ -160,7 +160,7 @@ class WhatsAppService {
       try {
         const fallbackMessage = this.createTextMessage(
           to,
-          "Welcome to 1930, Cyber Helpline, Odisha. There was an issue with the menu. Please type 'menu' to try again."
+          "Welcome to 1930, Cyber Helpline, India. There was an issue with the menu. Please type 'menu' to try again."
         );
         await this.sendMessage(to, fallbackMessage);
       } catch (fallbackError) {
@@ -1830,12 +1830,25 @@ class WhatsAppService {
     const complaintData = session.data;
 
     try {
+      // Get user state from database
+      const { Users } = require('../models');
+      let userState = null;
+      try {
+        const user = await Users.findOne({ phoneNumber: to });
+        if (user && user.state) {
+          userState = user.state;
+        }
+      } catch (error) {
+        console.error('Error fetching user state:', error);
+      }
+
       // Here you would save the complaint to database
       // For now, we'll just show success message
 
-      const message = this.complaintService.createComplaintSubmittedMessage(
+      const message = await this.complaintService.createComplaintSubmittedMessage(
         to,
-        complaintData.caseId
+        complaintData.caseId,
+        userState
       );
       await this.sendMessage(to, message);
 

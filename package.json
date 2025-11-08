@@ -20,7 +20,12 @@
   "author": "Suraksha Bot Team",
   "license": "MIT",
   "dependencies": {
+<<<<<<< Updated upstream
     "@google-cloud/speech": "^6.7.1",
+=======
+    "@google-cloud/speech": "^7.2.1",
+    "@google/generative-ai": "^0.24.1",
+>>>>>>> Stashed changes
     "axios": "^1.13.2",
     "body-parser": "^1.20.2",
     "cloudinary": "^1.41.3",

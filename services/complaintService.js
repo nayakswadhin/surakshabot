@@ -1,3 +1,5 @@
+const { StateContacts } = require('../models');
+
 class ComplaintService {
   constructor() {
     this.financialFraudTypes = [
@@ -358,7 +360,34 @@ class ComplaintService {
   }
 
   // Create complaint submitted success message
-  createComplaintSubmittedMessage(to, caseId) {
+  async createComplaintSubmittedMessage(to, caseId, userState = null) {
+    // Get state contact information
+    let contactInfo = '';
+    try {
+      if (userState) {
+        const stateContact = await StateContacts.findByState(userState);
+        if (stateContact) {
+          contactInfo = 
+            `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+            `📞 GRIEVANCE CONTACTS\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+            `If the response has not been appropriate, you may contact:\n\n` +
+            `🏛️ ${stateContact.stateUT}\n\n` +
+            `👨‍✈️ Nodal Officer:\n` +
+            `${stateContact.nodalOfficer.name}\n` +
+            `${stateContact.nodalOfficer.rank}\n` +
+            `📧 ${stateContact.nodalOfficer.email}\n\n` +
+            `👨‍⚖️ Grievance Officer:\n` +
+            `${stateContact.grievanceOfficer.name}\n` +
+            `${stateContact.grievanceOfficer.rank}\n` +
+            `📞 ${stateContact.grievanceOfficer.contact}\n` +
+            `📧 ${stateContact.grievanceOfficer.email}`;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching state contact:', error);
+    }
+
     return {
       messaging_product: "whatsapp",
       to: to,
@@ -369,11 +398,12 @@ class ComplaintService {
           text:
             `Complaint Submitted Successfully!\n\n` +
             `Your Case ID: ${caseId}\n\n` +
-            `Your complaint has been registered with 1930 Cyber Helpline, Odisha.\n\n` +
+            `Your complaint has been registered with 1930 Cyber Helpline, India.\n\n` +
             `• You will receive updates on this number\n` +
             `• Keep your Case ID for future reference\n` +
             `• Our team will contact you within 24 hours\n\n` +
-            `For urgent matters, call 1930 directly.`,
+            `For urgent matters, call 1930 directly.` +
+            contactInfo,
         },
         action: {
           buttons: [

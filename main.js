@@ -93,7 +93,7 @@ app.get("/", (req, res) => {
   res.json({
     message: "🤖 Suraksha Bot - WhatsApp Cyber Crime Helpline",
     version: "1.0.0",
-    description: "1930 Cyber Helpline, Odisha - WhatsApp Bot Service",
+    description: "1930 Cyber Helpline, India - WhatsApp Bot Service",
     endpoints: {
       health: "/api/health",
       webhook: "/api/whatsapp/webhook",

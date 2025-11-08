@@ -30,7 +30,7 @@ export default function Footer() {
                   height={20}
                   className="brightness-0 invert opacity-80"
                 />
-                <span>© {currentYear} Government of Odisha. All Rights Reserved.</span>
+                <span>© {currentYear} Government of India. All Rights Reserved.</span>
               </div>
             </div>
 
