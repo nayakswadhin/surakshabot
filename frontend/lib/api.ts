@@ -79,7 +79,23 @@ export const fetchComplaints = async (filters?: {
 export const fetchComplaintById = async (caseId: string) => {
   try {
     const response = await apiClient.get(`/whatsapp/case/${caseId}`)
-    return response.data.data
+    const data = response.data.data
+    
+    // Check if API returns new format with complaint and user properties
+    if (data.complaint && data.user !== undefined) {
+      return data
+    }
+    
+    // Otherwise, API returns old format (case data directly)
+    // Convert it to expected format by fetching user from /users/all
+    const usersResponse = await apiClient.get('/whatsapp/users/all')
+    const users = usersResponse.data.data
+    const user = users.find((u: any) => u.aadharNumber === data.aadharNumber)
+    
+    return {
+      complaint: data,
+      user: user || null
+    }
   } catch (error) {
     console.error('Error fetching complaint:', error)
     return null
@@ -201,6 +217,61 @@ export const fetchHeatmapData = async () => {
   } catch (error) {
     console.error('Error fetching heatmap data:', error)
     return []
+  }
+}
+
+// Fetch all unfreeze inquiries
+export const fetchUnfreezeInquiries = async (filters?: {
+  state?: string
+  bank?: string
+  search?: string
+  frozenByState?: string
+}) => {
+  try {
+    const response = await apiClient.get('/unfreeze/inquiries')
+    let inquiries = response.data.data || []
+
+    // Apply filters
+    if (filters?.state) {
+      inquiries = inquiries.filter((i: any) => 
+        i.accountDetails?.freezeState?.toLowerCase() === filters.state.toLowerCase()
+      )
+    }
+    if (filters?.bank) {
+      inquiries = inquiries.filter((i: any) => 
+        i.accountDetails?.bankName?.toLowerCase().includes(filters.bank.toLowerCase())
+      )
+    }
+    if (filters?.frozenByState) {
+      inquiries = inquiries.filter((i: any) => 
+        i.accountDetails?.frozenByStatePolice?.toLowerCase() === filters.frozenByState.toLowerCase()
+      )
+    }
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase()
+      inquiries = inquiries.filter((i: any) =>
+        i.inquiryId?.toLowerCase().includes(searchLower) ||
+        i.userDetails?.name?.toLowerCase().includes(searchLower) ||
+        i.accountDetails?.accountNumber?.includes(searchLower) ||
+        i.userDetails?.phone?.includes(searchLower)
+      )
+    }
+
+    return inquiries
+  } catch (error) {
+    console.error('Error fetching unfreeze inquiries:', error)
+    return []
+  }
+}
+
+// Fetch single unfreeze inquiry by ID
+export const fetchUnfreezeInquiryById = async (inquiryId: string) => {
+  try {
+    const response = await apiClient.get(`/unfreeze/inquiry/${inquiryId}`)
+    return response.data.data
+  } catch (error) {
+    console.error('Error fetching unfreeze inquiry:', error)
+    return null
   }
 }
 

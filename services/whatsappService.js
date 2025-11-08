@@ -1003,17 +1003,18 @@ class WhatsAppService {
   async handleAccountUnfreeze(to) {
     this.sessionManager.updateSession(to, {
       state: SessionManager.STATES.ACCOUNT_UNFREEZE,
-      step: SessionManager.ACCOUNT_UNFREEZE_STEPS.ACCOUNT_INPUT,
+      step: SessionManager.ACCOUNT_UNFREEZE_STEPS.BANK_NAME,
       data: {},
     });
 
     const message = this.createTextMessage(
       to,
-      "🔓 **Account Unfreeze Support**\n\n" +
-        "To check your account freeze status, please provide:\n\n" +
-        "• Your Account Number\n" +
-        "• Your Phone Number\n\n" +
-        "Please enter your Account Number or Phone Number:"
+      "🔓 *Account Unfreeze Inquiry*\n\n" +
+        "I'll help you find the right police contacts to approach for account unfreeze.\n\n" +
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+        "1️⃣ *Bank Name:*\n\n" +
+        "Please enter the name of your bank:\n" +
+        "(e.g., State Bank of India, HDFC Bank, ICICI Bank, Axis Bank, PNB, etc.)"
     );
     await this.sendMessage(to, message);
   }

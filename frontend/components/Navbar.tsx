@@ -8,6 +8,7 @@ import {
     FaExclamationTriangle,
     FaHome,
     FaRobot,
+    FaUnlock,
     FaUsers,
 } from 'react-icons/fa'
 
@@ -16,6 +17,7 @@ const navItems = [
   { href: '/complaints', label: 'Complaints', icon: FaExclamationTriangle },
   { href: '/analytics', label: 'Analytics & Reports', icon: FaChartLine },
   { href: '/users', label: 'Users', icon: FaUsers },
+  { href: '/unfreeze', label: 'Unfreeze Complaints', icon: FaUnlock },
   { href: '/assistant', label: 'Assistant', icon: FaRobot },
 ]
 

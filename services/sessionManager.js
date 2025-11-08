@@ -120,8 +120,14 @@ class SessionManager {
 
   // Account unfreeze steps
   static ACCOUNT_UNFREEZE_STEPS = {
-    ACCOUNT_INPUT: 0,
-    DISPLAY_DETAILS: 1,
+    BANK_NAME: "bank_name",
+    ACCOUNT_NUMBER: "account_number",
+    ACCOUNT_HOLDER_NAME: "account_holder_name",
+    BANK_BRANCH_STATE: "bank_branch_state",
+    FREEZE_DATE: "freeze_date",
+    REASON: "reason",
+    TRANSACTION_ID: "transaction_id",
+    DISPLAY_CONTACTS: "display_contacts",
   };
 
   // Document collection steps for financial fraud

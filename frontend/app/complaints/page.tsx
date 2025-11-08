@@ -213,7 +213,7 @@ export default function ComplaintsPage() {
                     <tr key={complaint._id} className="border-b hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => router.push(`/complaints/${complaint._id}`)}
+                          onClick={() => router.push(`/complaints/${complaint.caseId}`)}
                           className="font-medium text-primary hover:text-primary-dark hover:underline"
                         >
                           {complaint.caseId}
@@ -245,7 +245,7 @@ export default function ComplaintsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => router.push(`/complaints/${complaint._id}`)}
+                          onClick={() => router.push(`/complaints/${complaint.caseId}`)}
                           className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium"
                         >
                           <FaEye /> View
