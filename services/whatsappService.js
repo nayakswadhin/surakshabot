@@ -4,6 +4,7 @@ const PinCodeService = require("./pinCodeService");
 const ComplaintService = require("./complaintService");
 const CloudinaryService = require("./cloudinaryService");
 const VoiceService = require("./voiceService");
+const DiditService = require("./diditService");
 require("dotenv").config();
 
 class WhatsAppService {
@@ -16,6 +17,7 @@ class WhatsAppService {
     this.complaintService = new ComplaintService();
     this.cloudinaryService = new CloudinaryService();
     this.voiceService = new VoiceService();
+    this.diditService = new DiditService();
 
     // Clean up old sessions every 10 minutes
     setInterval(() => {
@@ -214,6 +216,24 @@ class WhatsAppService {
       // Registration flow buttons
       case "start_registration":
         return await this.startRegistration(to);
+
+      case "start_verification":
+        return await this.startDiditVerification(to);
+
+      case "verification_done":
+        return await this.checkVerificationStatus(to);
+
+      case "retry_verification":
+        return await this.retryDiditVerification(to);
+
+      case "confirm_didit_data":
+        return await this.handleDiditDataConfirmation(to);
+
+      case "retry_didit":
+        return await this.retryDiditVerification(to);
+
+      case "confirm_final_registration":
+        return await this.saveFinalRegistration(to);
 
       case "skip_registration":
         return await this.handleExistingUser(to);
@@ -1072,12 +1092,12 @@ class WhatsAppService {
 
         await this.sendMessage(to, message);
       } else {
-        // User doesn't exist, start registration
+        // User doesn't exist, start Didit verification
         console.log(`New user detected for phone: ${phoneNumber}`);
         const responseText =
           "New User Detected\n\n" +
           "I don't find your phone number in our records.\n\n" +
-          "Let's register you first to proceed with the complaint.";
+          "To proceed with your complaint, we need to verify your identity using Government ID.";
 
         const message = {
           messaging_product: "whatsapp",
@@ -1091,8 +1111,8 @@ class WhatsAppService {
                 {
                   type: "reply",
                   reply: {
-                    id: "start_registration",
-                    title: "Start Registration",
+                    id: "start_verification",
+                    title: "Start Verification",
                   },
                 },
                 {
@@ -1116,6 +1136,656 @@ class WhatsAppService {
       await this.sendMessage(to, errorMessage);
     }
   }
+
+  // ============================================================================
+  // DIDIT VERIFICATION METHODS
+  // ============================================================================
+
+  /**
+   * Start Didit verification process
+   */
+  async startDiditVerification(to) {
+    try {
+      console.log(`Starting Didit verification for ${to}`);
+
+      // Create verification session
+      const sessionResult = await this.diditService.createVerificationSession(
+        `WhatsApp_${to}`
+      );
+
+      if (!sessionResult.success) {
+        console.error("Failed to create Didit session:", sessionResult.error);
+        const errorMessage = this.createTextMessage(
+          to,
+          "Sorry, there was an error starting the verification process. Please try again or contact support."
+        );
+        await this.sendMessage(to, errorMessage);
+        return;
+      }
+
+      // Update session with Didit data
+      this.sessionManager.updateSession(to, {
+        state: SessionManager.STATES.DIDIT_VERIFICATION,
+        step: SessionManager.DIDIT_STEPS.VERIFICATION_PENDING,
+        data: {
+          diditSessionId: sessionResult.sessionId,
+          diditSessionToken: sessionResult.sessionToken,
+          diditVerificationUrl: sessionResult.url,
+          phone: to.replace(/^\+?91/, "").replace(/\D/g, "").slice(-10),
+        },
+      });
+
+      // Send verification link to user
+      const responseText =
+        "Identity Verification Required\n\n" +
+        "Please verify your identity by clicking the link below:\n\n" +
+        `${sessionResult.url}\n\n` +
+        "This will take 2-3 minutes. You'll need:\n" +
+        "- Your Aadhar Card or any Government ID\n" +
+        "- Good lighting for photo capture\n\n" +
+        "Click 'Yes I'm Done' after completing verification.";
+
+      const message = {
+        messaging_product: "whatsapp",
+        to: to,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: responseText },
+          action: {
+            buttons: [
+              {
+                type: "reply",
+                reply: { id: "verification_done", title: "Yes I'm Done" },
+              },
+              {
+                type: "reply",
+                reply: { id: "retry_verification", title: "Retry" },
+              },
+              { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+            ],
+          },
+        },
+      };
+
+      await this.sendMessage(to, message);
+      console.log(`Verification link sent to ${to}`);
+    } catch (error) {
+      console.error("Error starting Didit verification:", error);
+      const errorMessage = this.createTextMessage(
+        to,
+        "Sorry, there was an unexpected error. Please try again."
+      );
+      await this.sendMessage(to, errorMessage);
+    }
+  }
+
+  /**
+   * Retry Didit verification (create new session)
+   */
+  async retryDiditVerification(to) {
+    console.log(`Retrying Didit verification for ${to}`);
+    const session = this.sessionManager.getSession(to);
+
+    // Clear old Didit data
+    if (session && session.data) {
+      delete session.data.diditSessionId;
+      delete session.data.diditSessionToken;
+      delete session.data.diditVerificationUrl;
+      delete session.data.diditUserData;
+    }
+
+    // Start new verification
+    await this.startDiditVerification(to);
+  }
+
+  /**
+   * Check verification status
+   */
+  async checkVerificationStatus(to) {
+    try {
+      const session = this.sessionManager.getSession(to);
+
+      if (!session || !session.data || !session.data.diditSessionId) {
+        console.error("No Didit session ID found for", to);
+        const errorMessage = this.createTextMessage(
+          to,
+          "Session expired. Please start verification again."
+        );
+        await this.sendMessage(to, errorMessage);
+        await this.handleGreeting(to);
+        return;
+      }
+
+      console.log(
+        `Checking verification status for ${to}, session ID: ${session.data.diditSessionId}`
+      );
+
+      // Get session decision from Didit
+      const decision = await this.diditService.getSessionDecision(
+        session.data.diditSessionId
+      );
+
+      if (!decision.success) {
+        console.error("Failed to get Didit decision:", decision.error);
+        const errorMessage = this.createTextMessage(
+          to,
+          "Sorry, there was an error checking your verification status. Please try again."
+        );
+        await this.sendMessage(to, errorMessage);
+        return;
+      }
+
+      console.log(`Verification status: ${decision.status}`);
+
+      // Handle based on status
+      if (decision.status === "Approved") {
+        await this.handleApprovedVerification(to, decision);
+      } else if (this.diditService.isVerificationPending(decision.status)) {
+        await this.handlePendingVerification(to, decision.status);
+      } else {
+        // Declined or other status
+        await this.handleDeclinedVerification(to, decision.status);
+      }
+    } catch (error) {
+      console.error("Error checking verification status:", error);
+      const errorMessage = this.createTextMessage(
+        to,
+        "Sorry, there was an unexpected error. Please try again."
+      );
+      await this.sendMessage(to, errorMessage);
+    }
+  }
+
+  /**
+   * Handle approved verification
+   */
+  async handleApprovedVerification(to, decision) {
+    console.log(`Verification approved for ${to}`);
+
+    // Extract user data from verification
+    const userData = this.diditService.extractUserData(decision);
+
+    if (!userData) {
+      console.error("Failed to extract user data from approved verification");
+      const errorMessage = this.createTextMessage(
+        to,
+        "Sorry, we couldn't extract your information from the verification. Please try again."
+      );
+      await this.sendMessage(to, errorMessage);
+      return;
+    }
+
+    // Store extracted data in session
+    const session = this.sessionManager.getSession(to);
+    this.sessionManager.updateSession(to, {
+      state: SessionManager.STATES.DIDIT_DATA_CONFIRMATION,
+      step: SessionManager.DIDIT_STEPS.DATA_CONFIRMATION,
+      data: {
+        ...session.data,
+        diditUserData: userData,
+        name: userData.name,
+        aadharNumber: userData.aadharNumber,
+        gender: userData.gender,
+        dob: userData.dob,
+      },
+    });
+
+    // Show extracted data for confirmation
+    const responseText =
+      "Verification Successful!\n\n" +
+      "We extracted the following details from your ID:\n\n" +
+      `Name: ${userData.name}\n` +
+      `Aadhar Number: ${userData.aadharNumber}\n` +
+      `Gender: ${userData.gender}\n` +
+      `Date of Birth: ${userData.dob}\n` +
+      `Phone: ${session.data.phone}\n\n` +
+      "Is this information correct?";
+
+    const message = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: { text: responseText },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: { id: "confirm_didit_data", title: "Correct" },
+            },
+            {
+              type: "reply",
+              reply: { id: "retry_didit", title: "Incorrect" },
+            },
+            { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+          ],
+        },
+      },
+    };
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Handle pending verification
+   */
+  async handlePendingVerification(to, status) {
+    console.log(`Verification pending for ${to}: ${status}`);
+
+    const statusMessage = this.diditService.getStatusMessage(status);
+    const responseText =
+      `Verification Status: ${status}\n\n` +
+      `${statusMessage}\n\n` +
+      "Please complete your verification or wait for it to be reviewed.";
+
+    const message = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: { text: responseText },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: { id: "verification_done", title: "Check Status" },
+            },
+            {
+              type: "reply",
+              reply: { id: "retry_verification", title: "Retry" },
+            },
+            { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+          ],
+        },
+      },
+    };
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Handle declined verification
+   */
+  async handleDeclinedVerification(to, status) {
+    console.log(`Verification declined for ${to}: ${status}`);
+
+    const statusMessage = this.diditService.getStatusMessage(status);
+    const responseText =
+      `Verification Status: ${status}\n\n` +
+      `${statusMessage}\n\n` +
+      "Would you like to try again?";
+
+    const message = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: { text: responseText },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: { id: "retry_verification", title: "Retry" },
+            },
+            {
+              type: "reply",
+              reply: { id: "main_menu", title: "Main Menu" },
+            },
+            { type: "reply", reply: { id: "exit_session", title: "Exit" } },
+          ],
+        },
+      },
+    };
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Handle confirmation of Didit extracted data
+   */
+  async handleDiditDataConfirmation(to) {
+    console.log(`User confirmed Didit data for ${to}`);
+
+    // Move to next step - ask for pincode
+    this.sessionManager.updateSession(to, {
+      state: SessionManager.STATES.DIDIT_ADDITIONAL_INFO,
+      step: SessionManager.DIDIT_STEPS.ASK_PINCODE,
+    });
+
+    const message = this.createNavigationMessage(
+      to,
+      "Address Information\n\nPlease enter your 6-digit Pincode:"
+    );
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Handle text input during Didit registration flow
+   */
+  async handleDiditAdditionalInfo(to, text) {
+    const session = this.sessionManager.getSession(to);
+
+    if (!session || session.state !== SessionManager.STATES.DIDIT_ADDITIONAL_INFO) {
+      console.log("Invalid session state for Didit additional info");
+      return;
+    }
+
+    const step = session.step;
+
+    try {
+      switch (step) {
+        case SessionManager.DIDIT_STEPS.ASK_PINCODE:
+          await this.handlePincodeInput(to, text);
+          break;
+
+        case SessionManager.DIDIT_STEPS.ASK_VILLAGE:
+          await this.handleVillageInput(to, text);
+          break;
+
+        case SessionManager.DIDIT_STEPS.ASK_FATHER_SPOUSE_GUARDIAN:
+          await this.handleFatherSpouseGuardianInput(to, text);
+          break;
+
+        case SessionManager.DIDIT_STEPS.ASK_EMAIL:
+          await this.handleEmailInput(to, text);
+          break;
+
+        default:
+          console.log(`Unknown Didit step: ${step}`);
+      }
+    } catch (error) {
+      console.error("Error handling Didit additional info:", error);
+      const errorMessage = this.createTextMessage(
+        to,
+        "Sorry, there was an error processing your input. Please try again."
+      );
+      await this.sendMessage(to, errorMessage);
+    }
+  }
+
+  /**
+   * Handle pincode input
+   */
+  async handlePincodeInput(to, pincode) {
+    const session = this.sessionManager.getSession(to);
+    const cleanPincode = pincode.trim().replace(/\D/g, "");
+
+    // Validate pincode
+    if (!/^[0-9]{6}$/.test(cleanPincode)) {
+      const message = this.createNavigationMessage(
+        to,
+        "Invalid pincode. Please enter a valid 6-digit pincode:"
+      );
+      await this.sendMessage(to, message);
+      return;
+    }
+
+    // Fetch location details
+    const locationDetails = await this.pinCodeService.getLocationDetails(
+      cleanPincode
+    );
+
+    if (!locationDetails.success) {
+      const message = this.createNavigationMessage(
+        to,
+        "Invalid pincode. Please enter a valid 6-digit pincode:"
+      );
+      await this.sendMessage(to, message);
+      return;
+    }
+
+    // Store pincode and location data
+    this.sessionManager.updateSession(to, {
+      step: SessionManager.DIDIT_STEPS.ASK_VILLAGE,
+      data: {
+        ...session.data,
+        pincode: cleanPincode,
+        locationData: locationDetails.data,
+        district: locationDetails.data.district,
+        state: locationDetails.data.state,
+      },
+    });
+
+    // Ask for village
+    const message = this.createNavigationMessage(
+      to,
+      `Address Details\n\n` +
+        `District: ${locationDetails.data.district}\n` +
+        `State: ${locationDetails.data.state}\n` +
+        `Pincode: ${cleanPincode}\n\n` +
+        `Please enter your Village/Town name:`
+    );
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Handle village input
+   */
+  async handleVillageInput(to, village) {
+    const session = this.sessionManager.getSession(to);
+    const trimmedVillage = village.trim();
+
+    if (trimmedVillage.length < 2) {
+      const message = this.createNavigationMessage(
+        to,
+        "Village name must be at least 2 characters long. Please enter your Village/Town name:"
+      );
+      await this.sendMessage(to, message);
+      return;
+    }
+
+    // Store village
+    this.sessionManager.updateSession(to, {
+      step: SessionManager.DIDIT_STEPS.ASK_FATHER_SPOUSE_GUARDIAN,
+      data: {
+        ...session.data,
+        village: trimmedVillage,
+      },
+    });
+
+    // Ask for father/spouse/guardian name
+    const message = this.createNavigationMessage(
+      to,
+      "Family Details\n\nPlease enter your Father's/Spouse's/Guardian's name:"
+    );
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Handle father/spouse/guardian input
+   */
+  async handleFatherSpouseGuardianInput(to, name) {
+    const session = this.sessionManager.getSession(to);
+    const trimmedName = name.trim();
+
+    if (trimmedName.length < 2) {
+      const message = this.createNavigationMessage(
+        to,
+        "Name must be at least 2 characters long. Please enter your Father's/Spouse's/Guardian's name:"
+      );
+      await this.sendMessage(to, message);
+      return;
+    }
+
+    // Store father/spouse/guardian name
+    this.sessionManager.updateSession(to, {
+      step: SessionManager.DIDIT_STEPS.ASK_EMAIL,
+      data: {
+        ...session.data,
+        fatherSpouseGuardianName: trimmedName,
+      },
+    });
+
+    // Ask for email
+    const message = this.createNavigationMessage(
+      to,
+      "Contact Details\n\nPlease enter your Email ID:"
+    );
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Handle email input
+   */
+  async handleEmailInput(to, email) {
+    const session = this.sessionManager.getSession(to);
+    const trimmedEmail = email.trim().toLowerCase();
+
+    // Validate email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(trimmedEmail)) {
+      const message = this.createNavigationMessage(
+        to,
+        "Invalid email address. Please enter a valid Email ID:"
+      );
+      await this.sendMessage(to, message);
+      return;
+    }
+
+    // Store email and move to final confirmation
+    this.sessionManager.updateSession(to, {
+      step: SessionManager.DIDIT_STEPS.FINAL_CONFIRMATION,
+      data: {
+        ...session.data,
+        emailid: trimmedEmail,
+      },
+    });
+
+    // Show final confirmation
+    await this.showFinalConfirmation(to);
+  }
+
+  /**
+   * Show final confirmation before saving
+   */
+  async showFinalConfirmation(to) {
+    const session = this.sessionManager.getSession(to);
+    const data = session.data;
+    const locationData = data.locationData || {};
+
+    const confirmationText =
+      "Registration Summary\n\n" +
+      "Please confirm your details:\n\n" +
+      `Name: ${data.name}\n` +
+      `Aadhar: ${data.aadharNumber}\n` +
+      `Gender: ${data.gender}\n` +
+      `DOB: ${data.dob}\n` +
+      `Phone: ${data.phone}\n` +
+      `Father/Spouse/Guardian: ${data.fatherSpouseGuardianName}\n` +
+      `Email: ${data.emailid}\n` +
+      `Village: ${data.village}\n` +
+      `District: ${data.district}\n` +
+      `State: ${data.state}\n` +
+      `Pincode: ${data.pincode}\n\n` +
+      "Is everything correct?";
+
+    const message = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: { text: confirmationText },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: "confirm_final_registration",
+                title: "Confirm & Save",
+              },
+            },
+            {
+              type: "reply",
+              reply: { id: "back_step", title: "Edit" },
+            },
+            { type: "reply", reply: { id: "exit_session", title: "Cancel" } },
+          ],
+        },
+      },
+    };
+
+    await this.sendMessage(to, message);
+  }
+
+  /**
+   * Save final registration to database
+   */
+  async saveFinalRegistration(to) {
+    const session = this.sessionManager.getSession(to);
+    const data = session.data;
+
+    try {
+      console.log(`Saving registration to database for ${to}`);
+
+      const { Users } = require("../models");
+
+      // Create new user
+      const newUser = new Users({
+        name: data.name,
+        aadharNumber: data.aadharNumber,
+        fatherSpouseGuardianName: data.fatherSpouseGuardianName,
+        gender: data.gender,
+        emailid: data.emailid,
+        dob: new Date(data.dob),
+        phoneNumber: data.phone,
+        address: {
+          village: data.village,
+          area: data.village,
+          district: data.district || data.locationData?.district || "TBD",
+          pincode: data.pincode,
+          postOffice: data.locationData?.postOffice || "TBD",
+          policeStation: data.locationData?.policeStation || "TBD",
+        },
+        verifiedVia: "didit",
+        diditSessionId: data.diditSessionId,
+      });
+
+      await newUser.save();
+
+      console.log(`User saved successfully: ${newUser._id}`);
+
+      // Send success message
+      const successMessage = this.createTextMessage(
+        to,
+        "Registration Successful!\n\n" +
+          "Your details have been saved.\n\n" +
+          "Now let's proceed with your complaint."
+      );
+
+      await this.sendMessage(to, successMessage);
+
+      // Wait a moment, then proceed to complaint filing
+      setTimeout(async () => {
+        await this.handleComplaintDetails(to);
+      }, 2000);
+    } catch (error) {
+      console.error("Error saving registration:", error);
+
+      let errorMessage = "Sorry, there was an error saving your registration.";
+
+      // Check for duplicate Aadhar error
+      if (error.code === 11000 && error.keyPattern?.aadharNumber) {
+        errorMessage =
+          "This Aadhar number is already registered. If you're already registered, please use the main menu to file a complaint.";
+      }
+
+      const message = this.createTextMessage(to, errorMessage);
+      await this.sendMessage(to, message);
+    }
+  }
+
+  // ============================================================================
+  // END DIDIT VERIFICATION METHODS
+  // ============================================================================
 
   async handleComplaintDetails(to) {
     // Set session state for complaint filing

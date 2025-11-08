@@ -135,6 +135,9 @@ class WhatsAppController {
       if (session.state === SessionManager.STATES.REGISTRATION) {
         console.log(`Processing registration input for step ${session.step}`);
         await this.whatsappService.handleRegistrationInput(from, text);
+      } else if (session.state === SessionManager.STATES.DIDIT_ADDITIONAL_INFO) {
+        console.log(`Processing Didit additional info for step ${session.step}`);
+        await this.whatsappService.handleDiditAdditionalInfo(from, text);
       } else if (session.state === SessionManager.STATES.NEW_COMPLAINT) {
         await this.handleNewComplaintInput(from, text);
       } else if (session.state === SessionManager.STATES.STATUS_CHECK) {

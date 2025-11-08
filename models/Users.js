@@ -78,6 +78,15 @@ const usersSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  verifiedVia: {
+    type: String,
+    enum: ["manual", "didit"],
+    default: "manual",
+  },
+  diditSessionId: {
+    type: String,
+    default: null,
+  },
 });
 
 // Update the updatedAt field before saving
