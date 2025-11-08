@@ -6,6 +6,7 @@ interface StatsCardProps {
   icon: ReactNode
   color: 'blue' | 'green' | 'orange' | 'purple'
   loading?: boolean
+  subtitle?: string
 }
 
 const colorClasses = {
@@ -15,7 +16,7 @@ const colorClasses = {
   purple: 'bg-purple-600',
 }
 
-export default function StatsCard({ title, value, icon, color, loading }: StatsCardProps) {
+export default function StatsCard({ title, value, icon, color, loading, subtitle }: StatsCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-all transform hover:-translate-y-1">
       <div className="flex items-center gap-4">
@@ -29,7 +30,7 @@ export default function StatsCard({ title, value, icon, color, loading }: StatsC
           ) : (
             <p className="text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
           )}
-          <span className="text-xs text-gray-500 mt-1">All time {title.toLowerCase()}</span>
+          <span className="text-xs text-gray-500 mt-1">{subtitle || `All time ${title.toLowerCase()}`}</span>
         </div>
       </div>
     </div>

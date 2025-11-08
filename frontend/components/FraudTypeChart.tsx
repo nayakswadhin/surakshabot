@@ -4,16 +4,25 @@ import { useEffect, useState } from 'react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
 import { fetchFraudTypeDistribution } from '@/lib/api'
+import { useTranslation } from '@/hooks/useTranslation'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 export default function FraudTypeChart() {
+  const { t, currentLanguage } = useTranslation()
   const [chartData, setChartData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [title, setTitle] = useState('Most Common Type of Fraud')
+  const [noDataText, setNoDataText] = useState('No data available')
 
   useEffect(() => {
     loadChartData()
   }, [])
+
+  useEffect(() => {
+    setTitle(t('Most Common Type of Fraud'))
+    setNoDataText(t('No data available'))
+  }, [currentLanguage, t])
 
   const loadChartData = async () => {
     try {
@@ -55,7 +64,7 @@ export default function FraudTypeChart() {
 
   return (
     <div className="card">
-      <h3 className="text-xl font-semibold text-primary mb-4">Most Common Type of Fraud</h3>
+      <h3 className="text-xl font-semibold text-primary mb-4">{title}</h3>
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -84,7 +93,7 @@ export default function FraudTypeChart() {
         </div>
       ) : (
         <div className="flex items-center justify-center h-64 text-gray-500">
-          No data available
+          {noDataText}
         </div>
       )}
     </div>

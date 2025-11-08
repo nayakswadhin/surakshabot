@@ -7,10 +7,12 @@ import { Bar, Doughnut, Line } from 'react-chartjs-2'
 import { FaCalendarAlt, FaDownload, FaFileCsv, FaFilePdf, FaChevronDown } from 'react-icons/fa'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { useTranslation } from '@/hooks/useTranslation'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, LineElement, PointElement)
 
 export default function AnalyticsPage() {
+  const { t, currentLanguage } = useTranslation()
   const [fraudDistribution, setFraudDistribution] = useState<any[]>([])
   const [complaints, setComplaints] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
@@ -21,10 +23,39 @@ export default function AnalyticsPage() {
   const [filteredComplaints, setFilteredComplaints] = useState<any[]>([])
   const [showExportMenu, setShowExportMenu] = useState(false)
   const exportMenuRef = useRef<HTMLDivElement>(null)
+  
+  // Translations
+  const [translations, setTranslations] = useState({
+    analyticsReports: 'Analytics & Reports',
+    export: 'Export',
+    clear: 'Clear',
+    totalComplaints: 'Total Complaints',
+    solved: 'Solved',
+    pending: 'Pending',
+    resolutionRate: 'Resolution Rate',
+    fraudTypes: 'Fraud Types',
+    complaintsCategory: 'Complaints by Category',
+    statusDistribution: 'Status Distribution',
+  })
 
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    setTranslations({
+      analyticsReports: t('Analytics & Reports'),
+      export: t('Export'),
+      clear: t('Clear'),
+      totalComplaints: t('Total Complaints'),
+      solved: t('Solved'),
+      pending: t('Pending'),
+      resolutionRate: t('Resolution Rate'),
+      fraudTypes: t('Fraud Types'),
+      complaintsCategory: t('Complaints by Category'),
+      statusDistribution: t('Status Distribution'),
+    })
+  }, [currentLanguage, t])
 
   useEffect(() => {
     applyDateFilter()
@@ -342,7 +373,7 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <h1 className="text-3xl font-bold text-primary">Analytics & Reports</h1>
+        <h1 className="text-3xl font-bold text-primary">{translations.analyticsReports}</h1>
         
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
           {/* Date Range Picker */}
@@ -368,7 +399,7 @@ export default function AnalyticsPage() {
               }}
               className="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
             >
-              Clear
+              {translations.clear}
             </button>
           </div>
 
@@ -378,7 +409,7 @@ export default function AnalyticsPage() {
               onClick={() => setShowExportMenu(!showExportMenu)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium w-full sm:w-auto justify-center"
             >
-              <FaDownload /> Export <FaChevronDown className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+              <FaDownload /> {translations.export} <FaChevronDown className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
             </button>
             
             {showExportMenu && (
@@ -404,23 +435,23 @@ export default function AnalyticsPage() {
       {/* Summary Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="card border-l-4 border-blue-500 p-6">
-          <div className="text-sm text-gray-600 mb-1">Total Complaints</div>
+          <div className="text-sm text-gray-600 mb-1">{translations.totalComplaints}</div>
           <div className="text-4xl font-bold text-gray-900">{filteredComplaints.length}</div>
         </div>
         <div className="card border-l-4 border-green-500 p-6">
-          <div className="text-sm text-gray-600 mb-1">Solved</div>
+          <div className="text-sm text-gray-600 mb-1">{translations.solved}</div>
           <div className="text-4xl font-bold text-gray-900">
             {filteredComplaints.filter((c) => c.status === 'solved').length}
           </div>
         </div>
         <div className="card border-l-4 border-orange-500 p-6">
-          <div className="text-sm text-gray-600 mb-1">Pending</div>
+          <div className="text-sm text-gray-600 mb-1">{translations.pending}</div>
           <div className="text-4xl font-bold text-gray-900">
             {filteredComplaints.filter((c) => c.status === 'pending').length}
           </div>
         </div>
         <div className="card border-l-4 border-purple-500 p-6">
-          <div className="text-sm text-gray-600 mb-1">Resolution Rate</div>
+          <div className="text-sm text-gray-600 mb-1">{translations.resolutionRate}</div>
           <div className="text-4xl font-bold text-gray-900">
             {filteredComplaints.length > 0
               ? Math.round((filteredComplaints.filter((c) => c.status === 'solved').length / filteredComplaints.length) * 100)
@@ -429,7 +460,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
         <div className="card border-l-4 border-indigo-500 p-6">
-          <div className="text-sm text-gray-600 mb-1">Fraud Types</div>
+          <div className="text-sm text-gray-600 mb-1">{translations.fraudTypes}</div>
           <div className="text-4xl font-bold text-gray-900">{filteredData.length}</div>
         </div>
       </div>
@@ -438,7 +469,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Category Chart */}
         <div className="card p-6">
-          <h3 className="text-xl font-semibold text-primary mb-6">Complaints by Category</h3>
+          <h3 className="text-xl font-semibold text-primary mb-6">{translations.complaintsCategory}</h3>
           <div className="h-80 flex items-center justify-center">
             <Doughnut
               data={categoryData}
@@ -463,7 +494,7 @@ export default function AnalyticsPage() {
 
         {/* Status Distribution */}
         <div className="card p-6">
-          <h3 className="text-xl font-semibold text-primary mb-6">Status Distribution</h3>
+          <h3 className="text-xl font-semibold text-primary mb-6">{translations.statusDistribution}</h3>
           <div className="h-80 flex items-center justify-center">
             <Doughnut
               data={statusData}

@@ -16,6 +16,7 @@ import {
   FaCreditCard,
   FaFilter
 } from 'react-icons/fa'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface UnfreezeInquiry {
   _id: string
@@ -55,6 +56,7 @@ interface UnfreezeInquiry {
 }
 
 export default function UnfreezePage() {
+  const { t, currentLanguage } = useTranslation()
   const [inquiries, setInquiries] = useState<UnfreezeInquiry[]>([])
   const [filteredInquiries, setFilteredInquiries] = useState<UnfreezeInquiry[]>([])
   const [loading, setLoading] = useState(true)
@@ -68,6 +70,28 @@ export default function UnfreezePage() {
   const [showFilters, setShowFilters] = useState(false)
   const itemsPerPage = 15
 
+  // Translations
+  const [translations, setTranslations] = useState({
+    accountUnfreezeInquiries: 'Account Unfreeze Inquiries',
+    manageAndTrack: 'Manage and track frozen account inquiries',
+    totalInquiries: 'Total Inquiries',
+    totalRecords: 'Total Records',
+    statesCovered: 'States Covered',
+    banksInvolved: 'Banks Involved',
+    showingResults: 'Showing Results',
+    searchPlaceholder: 'Search by Inquiry ID, Name, Phone, Account Number, or Bank...',
+    filters: 'Filters',
+    inquiryId: 'Inquiry ID',
+    userName: 'User Name',
+    accountNumber: 'Account Number',
+    bank: 'Bank',
+    accountState: 'Account State',
+    frozenBy: 'Frozen By',
+    freezeDate: 'Freeze Date',
+    actions: 'Actions',
+    view: 'View',
+  })
+
   // Get unique states and banks for filters
   const uniqueStates = Array.from(new Set(inquiries.map(i => i.accountDetails.freezeState))).sort()
   const uniqueBanks = Array.from(new Set(inquiries.map(i => i.accountDetails.bankName))).sort()
@@ -76,6 +100,29 @@ export default function UnfreezePage() {
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    setTranslations({
+      accountUnfreezeInquiries: t('Account Unfreeze Inquiries'),
+      manageAndTrack: t('Manage and track frozen account inquiries'),
+      totalInquiries: t('Total Inquiries'),
+      totalRecords: t('Total Records'),
+      statesCovered: t('States Covered'),
+      banksInvolved: t('Banks Involved'),
+      showingResults: t('Showing Results'),
+      searchPlaceholder: t('Search by Inquiry ID, Name, Phone, Account Number, or Bank...'),
+      filters: t('Filters'),
+      inquiryId: t('Inquiry ID'),
+      userName: t('User Name'),
+      accountNumber: t('Account Number'),
+      bank: t('Bank'),
+      accountState: t('Account State'),
+      frozenBy: t('Frozen By'),
+      freezeDate: t('Freeze Date'),
+      actions: t('Actions'),
+      view: t('View'),
+    })
+  }, [currentLanguage, t])
 
   useEffect(() => {
     applyFilters()
@@ -168,12 +215,12 @@ export default function UnfreezePage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-primary">Account Unfreeze Inquiries</h1>
-          <p className="text-gray-600 mt-1">Manage and track frozen account inquiries</p>
+          <h1 className="text-3xl font-bold text-primary">{translations.accountUnfreezeInquiries}</h1>
+          <p className="text-gray-600 mt-1">{translations.manageAndTrack}</p>
         </div>
         <div className="text-right">
           <div className="text-3xl font-bold text-primary">{stats.filtered}</div>
-          <div className="text-sm text-gray-600">Total Inquiries</div>
+          <div className="text-sm text-gray-600">{translations.totalInquiries}</div>
         </div>
       </div>
 
@@ -183,7 +230,7 @@ export default function UnfreezePage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold">{stats.total}</div>
-              <div className="text-blue-100 mt-1">Total Records</div>
+              <div className="text-blue-100 mt-1">{translations.totalRecords}</div>
             </div>
             <FaShieldAlt className="text-5xl opacity-20" />
           </div>
@@ -193,7 +240,7 @@ export default function UnfreezePage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold">{stats.uniqueStates}</div>
-              <div className="text-green-100 mt-1">States Covered</div>
+              <div className="text-green-100 mt-1">{translations.statesCovered}</div>
             </div>
             <FaMapMarkerAlt className="text-5xl opacity-20" />
           </div>
@@ -203,7 +250,7 @@ export default function UnfreezePage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold">{stats.uniqueBanks}</div>
-              <div className="text-purple-100 mt-1">Banks Involved</div>
+              <div className="text-purple-100 mt-1">{translations.banksInvolved}</div>
             </div>
             <FaUniversity className="text-5xl opacity-20" />
           </div>
@@ -213,7 +260,7 @@ export default function UnfreezePage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold">{stats.filtered}</div>
-              <div className="text-orange-100 mt-1">Showing Results</div>
+              <div className="text-orange-100 mt-1">{translations.showingResults}</div>
             </div>
             <FaFilter className="text-5xl opacity-20" />
           </div>
@@ -228,7 +275,7 @@ export default function UnfreezePage() {
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
             <input
               type="text"
-              placeholder="Search by Inquiry ID, Name, Phone, Account Number, or Bank..."
+              placeholder={translations.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
@@ -242,7 +289,7 @@ export default function UnfreezePage() {
               showFilters ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            <FaFilter /> Filters
+            <FaFilter /> {translations.filters}
           </button>
         </div>
 
@@ -321,14 +368,14 @@ export default function UnfreezePage() {
           <table className="w-full">
             <thead className="bg-primary text-white">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Inquiry ID</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">User Name</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Account Number</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Bank</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Account State</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Frozen By</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Freeze Date</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.inquiryId}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.userName}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.accountNumber}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.bank}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.accountState}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.frozenBy}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.freezeDate}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">{translations.actions}</th>
               </tr>
             </thead>
             <tbody>
@@ -376,7 +423,7 @@ export default function UnfreezePage() {
                         onClick={() => handleViewInquiry(inquiry)}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium"
                       >
-                        <FaEye /> View
+                        <FaEye /> {translations.view}
                       </button>
                     </td>
                   </tr>

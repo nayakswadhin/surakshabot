@@ -2,7 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost', 'upload.wikimedia.org'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
+      },
+    ],
+    unoptimized: true,
   },
   async rewrites() {
     return [
