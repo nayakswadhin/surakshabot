@@ -104,18 +104,6 @@ class SessionManager {
     DISPLAY_DETAILS: 1,
   };
 
-  // Complaint filing steps
-  static COMPLAINT_FILING_STEPS = {
-    AADHAR: 0,
-    INCIDENT_DESCRIPTION: 1,
-    FRAUD_PINCODE: 2,
-    PINCODE_CONFIRMATION: 3,
-    FRAUD_DATE: 4,
-    FRAUD_TIME: 5,
-    CATEGORY_SELECTION: 6,
-    FRAUD_TYPE_SELECTION: 7,
-  };
-
   // Account unfreeze steps
   static ACCOUNT_UNFREEZE_STEPS = {
     ACCOUNT_INPUT: 0,

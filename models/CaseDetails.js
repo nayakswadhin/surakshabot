@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const caseDetailsSchema = new mongoose.Schema({
+  caseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Cases",
+    required: true,
+  },
   photos: [
     {
       documentType: {
@@ -40,6 +45,10 @@ const caseDetailsSchema = new mongoose.Schema({
       type: String,
     },
   ],
+  policeStationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PoliceStation",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

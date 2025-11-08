@@ -15,32 +15,6 @@ const casesSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  fraudLocation: {
-    pincode: {
-      type: String,
-      match: /^[0-9]{6}$/,
-    },
-    area: {
-      type: String,
-    },
-    district: {
-      type: String,
-    },
-    postOffice: {
-      type: String,
-    },
-  },
-  fraudDateTime: {
-    date: {
-      type: String,
-    },
-    time: {
-      type: String,
-    },
-    timestamp: {
-      type: Date,
-    },
-  },
   caseCategory: {
     type: String,
     enum: ["Financial", "Social"],
@@ -87,35 +61,8 @@ const casesSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "solved", "under_review", "investigating", "rejected"],
+    enum: ["pending", "solved"],
     default: "pending",
-  },
-  priority: {
-    type: String,
-    enum: ["low", "medium", "high", "urgent"],
-    default: "medium",
-  },
-  remarks: {
-    type: String,
-  },
-  statusHistory: [
-    {
-      status: {
-        type: String,
-        required: true,
-      },
-      remarks: String,
-      updatedBy: String,
-      updatedAt: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
-  assignedTo: {
-    officerId: String,
-    officerName: String,
-    assignedAt: Date,
   },
   caseDetailsId: {
     type: mongoose.Schema.Types.ObjectId,
