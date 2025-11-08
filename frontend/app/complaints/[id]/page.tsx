@@ -161,7 +161,7 @@ export default function ComplaintDetailPage() {
       const body = encodeURIComponent(
         `Dear ${user.name},\n\nRegarding your cyber crime complaint (Case ID: ${complaint?.caseId}).\n\nStatus: ${complaint?.status}\nCategory: ${complaint?.caseCategory}\nType: ${complaint?.typeOfFraud}\n\n` +
         `We are writing to inform you about the progress of your complaint.\n\n` +
-        `Best regards,\n1930 Cyber Helpline, Odisha`
+        `Best regards,\n1930 Cyber Helpline, India`
       )
       // Direct mailto link opens email client
       const mailtoLink = document.createElement('a')
@@ -250,7 +250,7 @@ export default function ComplaintDetailPage() {
       <div className="space-y-6">
         {/* Print-only Header */}
         <div className="hidden print:block text-center mb-6">
-          <h1 className="text-2xl font-bold">SurakshaBot - 1930 Cyber Helpline, Odisha</h1>
+          <h1 className="text-2xl font-bold">SurakshaBot - 1930 Cyber Helpline, India</h1>
           <p className="text-sm text-gray-600">Cyber Crime Complaint Report</p>
           <p className="text-xs text-gray-500">Generated on: {new Date().toLocaleString()}</p>
         </div>

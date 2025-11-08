@@ -146,7 +146,7 @@ export default function Header() {
             </div>
             <div>
               <h1 className="text-2xl font-bold">SurakshaBot</h1>
-              <p className="text-sm opacity-90">1930 Cyber Helpline, Odisha</p>
+              <p className="text-sm opacity-90">1930 Cyber Helpline, India</p>
             </div>
           </div>
 

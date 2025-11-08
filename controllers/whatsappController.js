@@ -1,6 +1,13 @@
 const WhatsAppService = require("../services/whatsappService");
 const SessionManager = require("../services/sessionManager");
+<<<<<<< Updated upstream
 const { Users, Cases, CaseDetails } = require("../models");
+=======
+const NotificationService = require("../services/notificationService");
+const VoiceProcessingService = require("../services/voiceProcessingService");
+const { Users, Cases, CaseDetails, StateContacts } = require("../models");
+const geocodingService = require("../services/geocodingService");
+>>>>>>> Stashed changes
 
 class WhatsAppController {
   constructor() {
@@ -713,7 +720,7 @@ class WhatsAppController {
             `📞 **Our caller Agent will call or message you shortly & solve your issue.**\n\n` +
             `For immediate assistance:\n` +
             `• Call: 1930\n` +
-            `• Email: cybercrime.odisha@gov.in`;
+            `• Email: cybercrime@gov.in`;
         } else {
           finalMessage =
             statusText +
@@ -721,7 +728,7 @@ class WhatsAppController {
             `📞 **Our caller Agent will call or message you shortly & solve your issue.**\n\n` +
             `If you're facing any issues:\n` +
             `• Call: 1930\n` +
-            `• Email: cybercrime.odisha@gov.in`;
+            `• Email: cybercrime@gov.in`;
         }
 
         const message = this.whatsappService.createNavigationMessage(
@@ -1174,9 +1181,122 @@ class WhatsAppController {
    */
   async handleSocialMediaUrlInput(from, text, session) {
     try {
+<<<<<<< Updated upstream
       await this.whatsappService.handleSocialMediaUrlInput(from, text, session);
     } catch (error) {
       console.error("Error handling Social Media URL input:", error);
+=======
+      const { phoneNumber, message, caseId } = req.body;
+
+      if (!phoneNumber || !message) {
+        return res.status(400).json({
+          success: false,
+          error: "Phone number and message are required",
+        });
+      }
+
+      // Format phone number (remove +91 if present, ensure it's clean)
+      const cleanPhone = phoneNumber.replace(/^\+91/, '').replace(/\D/g, '');
+      const formattedPhone = `91${cleanPhone}`;
+
+      // Create the message with case reference if provided
+      let messageText = message;
+    if (caseId) {
+        messageText = `[Case ID: ${caseId}]\n\n${message}\n\n---\n1930 Cyber Helpline, India`;
+    } else {
+        messageText = `${message}\n\n---\n1930 Cyber Helpline, India`;
+    }      const whatsappMessage = this.whatsappService.createTextMessage(
+        formattedPhone,
+        messageText
+      );
+
+      const result = await this.whatsappService.sendMessage(
+        formattedPhone,
+        whatsappMessage
+      );
+
+      console.log(`Admin message sent to ${formattedPhone}:`, result);
+
+      res.status(200).json({
+        success: true,
+        message: "Message sent successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error sending admin message:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to send message",
+        details: error.message,
+      });
+    }
+  }
+
+  // Handle voice message for complaint filing
+  async handleVoiceMessage(from, audio) {
+    try {
+      const mediaId = audio.id;
+      
+      // Send processing message
+      const processingMessage = this.whatsappService.createTextMessage(
+        from,
+        "🎤 Processing your voice message...\n\n⏳ Converting speech to text...\n🤖 AI is improving the text...\n📊 Extracting complaint details..."
+      );
+      await this.whatsappService.sendMessage(from, processingMessage);
+
+      // Use the new VoiceService with Gemini AI
+      const VoiceService = require('../services/voiceService');
+      const voiceService = new VoiceService();
+      
+      const result = await voiceService.processVoiceMessage(mediaId);
+
+      if (result.success && result.refinedText) {
+        // Extract details from the AI-refined text
+        const details = this.voiceProcessingService.extractDetailsFromText(result.refinedText);
+
+        // Create a session with extracted data
+        this.whatsappService.sessionManager.createSession(from, {
+          state: "VOICE_COMPLAINT_CONFIRM",
+          data: {
+            description: result.refinedText,
+            rawTranscription: result.rawTranscription,
+            amount: details.amount,
+            incidentDate: details.date,
+            fraudType: details.fraudType,
+            transcription: result.refinedText,
+            confidence: result.confidence,
+          },
+        });
+
+        const confidencePercent = (result.confidence * 100).toFixed(0);
+
+        // Send confirmation message with extracted details
+        const confirmationText = 
+          `✅ Voice processed! (${confidencePercent}% accuracy)\n\n` +
+          `🤖 *AI-Refined Text:*\n"${result.refinedText.substring(0, 200)}${result.refinedText.length > 200 ? '...' : ''}"\n\n` +
+          `📊 *Auto-Detected:*\n` +
+          `💰 Amount: ${details.amount ? '₹' + details.amount : 'Not detected'}\n` +
+          `📅 Date: ${details.date || 'Not detected'}\n` +
+          `🔍 Fraud Type: ${details.fraudType || 'Not detected'}\n\n` +
+          `Is this information correct?\n\n` +
+          `Reply with:\n` +
+          `✅ *YES* - To continue filing complaint\n` +
+          `✏️ *EDIT* - To modify details\n` +
+          `❌ *CANCEL* - To cancel`;
+
+        const confirmMessage = this.whatsappService.createTextMessage(
+          from,
+          confirmationText
+        );
+        await this.whatsappService.sendMessage(from, confirmMessage);
+
+      } else {
+        throw new Error("Voice processing failed");
+      }
+    } catch (error) {
+      console.error("Error handling voice message:", error);
+      
+>>>>>>> Stashed changes
       const errorMessage = this.whatsappService.createTextMessage(
         from,
         "❌ Sorry, there was an error processing your URL. Please try again."
@@ -1195,13 +1315,379 @@ class WhatsAppController {
     try {
       await this.whatsappService.handleSocialMediaUrlInput(from, text);
     } catch (error) {
+<<<<<<< Updated upstream
       console.error("Error handling Social Media URL input:", error);
+=======
+      console.error("Error handling voice complaint confirmation:", error);
+    }
+  }
+
+  // Handle voice input specifically for incident description
+  async handleVoiceDescriptionInput(from, audio) {
+    try {
+      const session = this.whatsappService.sessionManager.getSession(from);
+      const VoiceService = require('../services/voiceService');
+      const voiceService = new VoiceService();
+      
+      // Send processing message
+      const processingMessage = this.whatsappService.createTextMessage(
+        from,
+        "🎤 Processing your voice message...\n\n⏳ Step 1/2: Converting speech to text...\n⏳ Step 2/2: AI is refining the text..."
+      );
+      await this.whatsappService.sendMessage(from, processingMessage);
+
+      // Process voice: Download → Transcribe → AI Fine-tune
+      const result = await voiceService.processVoiceMessage(audio.id);
+
+      if (result.success && result.refinedText) {
+        // Store both raw and refined transcription
+        this.whatsappService.sessionManager.updateSession(from, {
+          step: "VOICE_DESCRIPTION_CONFIRM",
+          data: {
+            ...session.data,
+            transcribedDescription: result.refinedText,
+            rawTranscription: result.rawTranscription,
+            confidence: result.confidence,
+          },
+        });
+
+        // Show AI-refined text and ask for confirmation with clickable buttons
+        const confidencePercent = (result.confidence * 100).toFixed(0);
+        const confirmationMessage = {
+          messaging_product: "whatsapp",
+          to: from,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: {
+              text: `✅ Voice processed successfully! (${confidencePercent}% accuracy)\n\n🤖 AI-Refined Text:\n"${result.refinedText}"\n\nIs this correct?`,
+            },
+            action: {
+              buttons: [
+                {
+                  type: "reply",
+                  reply: {
+                    id: "voice_confirm_yes",
+                    title: "✅ YES",
+                  },
+                },
+                {
+                  type: "reply",
+                  reply: {
+                    id: "voice_confirm_no",
+                    title: "❌ NO",
+                  },
+                },
+                {
+                  type: "reply",
+                  reply: {
+                    id: "voice_confirm_retry",
+                    title: "🔄 RETRY",
+                  },
+                },
+              ],
+            },
+          },
+        };
+
+        await this.whatsappService.sendMessage(from, confirmationMessage);
+      } else {
+        throw new Error("Transcription failed");
+      }
+    } catch (error) {
+      console.error("Error processing voice description:", error);
+      
+      // Get session data before it's lost
+      const session = this.whatsappService.sessionManager.getSession(from);
+      const sessionData = session ? session.data : {};
+      
+      // Fallback to text input
+>>>>>>> Stashed changes
       const errorMessage = this.whatsappService.createTextMessage(
         from,
         "❌ Sorry, there was an error processing your URL. Please try again."
       );
       await this.whatsappService.sendMessage(from, errorMessage);
+<<<<<<< Updated upstream
+=======
+      
+      // Update session to text description mode
+      this.whatsappService.sessionManager.updateSession(from, {
+        step: "AWAITING_TEXT_DESCRIPTION",
+        data: sessionData,
+      });
     }
+  }
+
+  // Handle confirmation of voice-transcribed description
+  async handleVoiceDescriptionConfirmation(from, text) {
+    try {
+      const session = this.whatsappService.sessionManager.getSession(from);
+      const textLower = text.toLowerCase().trim();
+
+      if (textLower === "yes" || textLower === "हां" || textLower === "ha" || textLower === "y") {
+        // User confirmed transcription is correct
+        const transcription = session.data.transcribedDescription;
+        
+        // Move to fraud category selection with transcribed description
+        this.whatsappService.sessionManager.updateSession(from, {
+          step: "FRAUD_CATEGORY_SELECTION",
+          data: { 
+            ...session.data, 
+            incident: transcription 
+          },
+        });
+
+        const message =
+          this.whatsappService.complaintService.createFraudCategoryMessage(from);
+        await this.whatsappService.sendMessage(from, message);
+        
+      } else if (textLower === "no" || textLower === "नहीं" || textLower === "nahi") {
+        // User wants to type manually instead
+        const textInputMessage = this.whatsappService.createTextMessage(
+          from,
+          "✍️ Please type the incident description manually:"
+        );
+        
+        await this.whatsappService.sendMessage(from, textInputMessage);
+        
+        // Update session to text description mode
+        this.whatsappService.sessionManager.updateSession(from, {
+          step: "AWAITING_TEXT_DESCRIPTION",
+          data: session.data,
+        });
+        
+      } else if (textLower === "retry" || textLower === "फिर से" || textLower === "phir se") {
+        // User wants to send voice again
+        const retryMessage = this.whatsappService.createTextMessage(
+          from,
+          "🎤 Please send your voice message again.\n\n" +
+          "Speak clearly and include all relevant details."
+        );
+        
+        await this.whatsappService.sendMessage(from, retryMessage);
+        
+        // Update session back to awaiting voice
+        this.whatsappService.sessionManager.updateSession(from, {
+          step: "AWAITING_VOICE_DESCRIPTION",
+          data: session.data,
+        });
+        
+      } else {
+        // Invalid response
+        const message = this.whatsappService.createTextMessage(
+          from,
+          "Please reply with:\n" +
+          "✅ *YES* - If transcription is correct\n" +
+          "✏️ *NO* - To type manually\n" +
+          "🔄 *RETRY* - To send voice again"
+        );
+        
+        await this.whatsappService.sendMessage(from, message);
+      }
+    } catch (error) {
+      console.error("Error handling voice description confirmation:", error);
+    }
+  }
+
+  // Create complaint from voice-extracted data
+  async createComplaintFromVoiceData(from, user, voiceData) {
+    try {
+      // Generate case ID
+      const caseId = this.whatsappService.complaintService.generateCaseId();
+
+      // Create complaint with voice data
+      const complaintData = {
+        userId: user._id,
+        name: user.name,
+        phoneNumber: user.phoneNumber,
+        aadharNumber: user.aadharNumber,
+        emailid: user.emailid,
+        caseId: caseId,
+        caseCategory: "Financial", // Default, can be improved
+        typeOfFraud: voiceData.fraudType || "Voice Complaint",
+        status: "pending",
+        priority: voiceData.amount && parseInt(voiceData.amount) > 10000 ? "high" : "medium",
+      };
+
+      const newCase = new Cases(complaintData);
+      await newCase.save();
+
+      // Create case details
+      const caseDetailsData = {
+        caseId: newCase._id,
+        incidentDescription: voiceData.transcription,
+        amountLost: voiceData.amount || "Not specified",
+        incidentDate: voiceData.incidentDate || new Date().toISOString(),
+        suspectInfo: "Extracted from voice message",
+        photos: [],
+      };
+
+      const newCaseDetails = new CaseDetails(caseDetailsData);
+      await newCaseDetails.save();
+
+      newCase.caseDetailsId = newCaseDetails._id;
+      await newCase.save();
+
+      // Send notification
+      NotificationService.emitNewComplaint(newCase);
+
+      // Clear session
+      this.whatsappService.sessionManager.endSession(from);
+
+      // Get state contact information
+      const stateContact = await this.getStateContactInfo(user.state);
+      const contactInfo = this.formatStateContactMessage(stateContact);
+
+      // Send success message
+      const successMessage = this.whatsappService.createTextMessage(
+        from,
+        `✅ *Complaint Filed Successfully!*\n\n` +
+        `📋 Your Case ID: *${caseId}*\n` +
+        `📊 Priority: ${complaintData.priority.toUpperCase()}\n` +
+        `💰 Amount: ${voiceData.amount ? '₹' + voiceData.amount : 'Not specified'}\n\n` +
+        `Our team will investigate and contact you soon.\n\n` +
+        `Save this Case ID for future reference.` +
+        contactInfo +
+        `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+        `Type *MENU* to see other options.`
+      );
+
+      await this.whatsappService.sendMessage(from, successMessage);
+
+      console.log(`✅ Voice complaint filed successfully: ${caseId}`);
+    } catch (error) {
+      console.error("Error creating complaint from voice data:", error);
+      
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "❌ Sorry, there was an error filing your complaint.\n\n" +
+        "Please try again or contact our helpline.\n\n" +
+        "Type *HELLO* to start over."
+      );
+
+      await this.whatsappService.sendMessage(from, errorMessage);
+>>>>>>> Stashed changes
+    }
+  }
+
+  /**
+   * Get heatmap data for dashboard
+   * Returns array of coordinates with fraud information
+   */
+  async getHeatmapData(req, res) {
+    try {
+      // Fetch all cases with user data
+      const cases = await Cases.find().lean();
+      const users = await Users.find().lean();
+
+      // Create a map of aadhar to user for quick lookup
+      const userMap = {};
+      users.forEach(user => {
+        userMap[user.aadharNumber] = user;
+      });
+
+      const heatmapPoints = [];
+
+      for (const complaint of cases) {
+        const user = userMap[complaint.aadharNumber];
+        
+        if (!user || !user.address || !user.address.pincode) {
+          continue;
+        }
+
+        // Get coordinates from pincode
+        let coords = await geocodingService.getCoordinatesFromPincode(user.address.pincode);
+        
+        // If pincode not found, use district coordinates
+        if (!coords) {
+          coords = geocodingService.getDistrictCoordinates(user.address.district);
+        }
+
+        // Add random offset to avoid exact overlapping points
+        const offsetCoords = geocodingService.addRandomOffset(coords, 0.02);
+
+        heatmapPoints.push({
+          lat: offsetCoords.lat,
+          lng: offsetCoords.lng,
+          weight: complaint.priority === 'urgent' ? 3 : 
+                  complaint.priority === 'high' ? 2 : 1,
+          caseId: complaint.caseId,
+          fraudType: complaint.typeOfFraud,
+          category: complaint.caseCategory,
+          status: complaint.status,
+          district: user.address.district,
+          pincode: user.address.pincode,
+          createdAt: complaint.createdAt
+        });
+      }
+
+      res.json({
+        success: true,
+        count: heatmapPoints.length,
+        data: heatmapPoints
+      });
+    } catch (error) {
+      console.error("Error fetching heatmap data:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching heatmap data",
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Get state contact information for grievance
+   * @param {string} userState - User's state or location
+   * @returns {Object|null} Contact information or null
+   */
+  async getStateContactInfo(userState) {
+    try {
+      if (!userState) return null;
+      
+      // Try to find contact information for the user's state
+      const stateContact = await StateContacts.findByState(userState);
+      
+      if (!stateContact) {
+        console.log(`No contact found for state: ${userState}`);
+        return null;
+      }
+      
+      return stateContact;
+    } catch (error) {
+      console.error("Error fetching state contact:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Format state contact message for WhatsApp
+   * @param {Object} stateContact - State contact information
+   * @returns {string} Formatted message
+   */
+  formatStateContactMessage(stateContact) {
+    if (!stateContact) {
+      return `\n\n📞 *For Grievances:*\nIf the response has not been appropriate, you may contact your State/UT Nodal Officer or Grievance Officer.\n\nNational Helpline: *1930*`;
+    }
+
+    return (
+      `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `📞 *GRIEVANCE CONTACTS*\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `If the response has not been appropriate, you may contact:\n\n` +
+      `🏛️ *${stateContact.stateUT}*\n\n` +
+      `👨‍✈️ *Nodal Cyber Cell Officer:*\n` +
+      `   Name: ${stateContact.nodalOfficer.name}\n` +
+      `   Rank: ${stateContact.nodalOfficer.rank}\n` +
+      `   📧 ${stateContact.nodalOfficer.email}\n\n` +
+      `👨‍⚖️ *Grievance Officer:*\n` +
+      `   Name: ${stateContact.grievanceOfficer.name}\n` +
+      `   Rank: ${stateContact.grievanceOfficer.rank}\n` +
+      `   📞 ${stateContact.grievanceOfficer.contact}\n` +
+      `   📧 ${stateContact.grievanceOfficer.email}\n\n` +
+      `🇮🇳 *National Helpline:* 1930`
+    );
   }
 }
 

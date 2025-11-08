@@ -5,6 +5,7 @@ const speech = require("@google-cloud/speech");
 const { exec } = require("child_process");
 const util = require("util");
 const execPromise = util.promisify(exec);
+const geminiService = require('./geminiService');
 
 class VoiceService {
   constructor() {
@@ -162,7 +163,10 @@ class VoiceService {
         `[VoiceService] Confidence: ${(confidence * 100).toFixed(1)}%`
       );
 
-      return transcription.trim();
+      return {
+        rawText: transcription.trim(),
+        confidence: confidence
+      };
     } catch (error) {
       console.error(
         "[VoiceService] ❌ Error transcribing audio:",
@@ -174,7 +178,50 @@ class VoiceService {
   }
 
   /**
-   * Process voice message: Download → Convert → Transcribe → Return text
+   * Fine-tune transcribed text using Gemini AI
+   * Improves grammar, punctuation, and clarity for fraud complaint reporting
+   */
+  async fineTuneTextWithGemini(rawText, confidence) {
+    try {
+      console.log(`[VoiceService] 🤖 Fine-tuning text with Gemini AI...`);
+
+      const prompt = `
+You are a text refinement assistant for a cybercrime complaint system in India. 
+A user has given a voice input describing a fraud/scam incident, which was transcribed by speech-to-text.
+
+Raw transcription (confidence: ${(confidence * 100).toFixed(1)}%):
+"${rawText}"
+
+Your task:
+1. Fix grammar and spelling mistakes
+2. Add proper punctuation and capitalize appropriately
+3. Structure sentences clearly and coherently
+4. Preserve all factual information (amounts, dates, names, places, phone numbers)
+5. Keep the tone professional but natural
+6. Format amounts with ₹ symbol if mentioned
+7. If the text is in Hindi/Hinglish, keep it as is but improve structure
+8. Do NOT add any information that wasn't in the original text
+9. Do NOT change the meaning or facts
+
+Return ONLY the refined text without any additional comments or explanations.
+`;
+
+      const refinedText = await geminiService.generateContent(prompt);
+
+      console.log(`[VoiceService] ✅ Gemini refinement complete!`);
+      console.log(`[VoiceService] Refined text: "${refinedText}"`);
+
+      return refinedText.trim();
+    } catch (error) {
+      console.error('[VoiceService] ⚠️ Gemini refinement failed:', error.message);
+      console.log('[VoiceService] Falling back to raw transcription');
+      // Fallback to raw text if Gemini fails
+      return rawText;
+    }
+  }
+
+  /**
+   * Process voice message: Download → Convert → Transcribe → Fine-tune with AI → Return text
    */
   async processVoiceMessage(mediaId) {
     let audioFilePath = null;
@@ -182,18 +229,28 @@ class VoiceService {
     try {
       console.log(`[VoiceService] Processing voice message: ${mediaId}`);
 
-      // Download audio
+      // Step 1: Download audio
       audioFilePath = await this.downloadAudioFromWhatsApp(mediaId);
 
-      // Transcribe audio (conversion happens inside if needed)
-      const transcription = await this.transcribeAudio(audioFilePath);
+      // Step 2: Transcribe audio using Google Speech-to-Text
+      const transcriptionResult = await this.transcribeAudio(audioFilePath);
+      const rawText = transcriptionResult.rawText;
+      const confidence = transcriptionResult.confidence;
+
+      console.log(`[VoiceService] Raw transcription: "${rawText}"`);
+
+      // Step 3: Fine-tune with Gemini AI
+      const refinedText = await this.fineTuneTextWithGemini(rawText, confidence);
 
       // Cleanup temp files
       this.cleanupTempFile(audioFilePath);
 
       return {
         success: true,
-        transcription: transcription,
+        rawTranscription: rawText,
+        refinedText: refinedText,
+        transcription: refinedText, // Default to refined text
+        confidence: confidence,
       };
     } catch (error) {
       console.error("[VoiceService] Error processing voice message:", error);

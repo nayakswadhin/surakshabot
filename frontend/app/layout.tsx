@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'SurakshaBot - 1930 Cyber Helpline Dashboard',
-  description: 'Government of Odisha - Cyber Crime Management System',
+  description: 'Government of India - Cyber Crime Management System',
 }
 
 export default function RootLayout({
