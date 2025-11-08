@@ -691,6 +691,52 @@ export const translations: Record<string, Record<string, string>> = {
     hi: 'दिसंबर',
     or: 'ଡିସେମ୍ବର',
   },
+
+  // Heatmap Widget
+  'Fraud Heatmap - India': {
+    hi: 'धोखाधड़ी हीटमैप - भारत',
+    or: 'ଠକାମ ହିଟମ୍ୟାପ - ଭାରତ',
+  },
+  'Refresh': {
+    hi: 'रीफ्रेश',
+    or: 'ରିଫ୍ରେସ',
+  },
+  'Loading heatmap data...': {
+    hi: 'हीटमैप डेटा लोड हो रहा है...',
+    or: 'ହିଟମ୍ୟାପ ତଥ୍ୟ ଲୋଡ ହେଉଛି...',
+  },
+  'No location data available': {
+    hi: 'कोई स्थान डेटा उपलब्ध नहीं',
+    or: 'କୌଣସି ସ୍ଥାନ ତଥ୍ୟ ଉପଲବ୍ଧ ନାହିଁ',
+  },
+  'Failed to load heatmap data': {
+    hi: 'हीटमैप डेटा लोड करने में विफल',
+    or: 'ହିଟମ୍ୟାପ ତଥ୍ୟ ଲୋଡ କରିବାରେ ବିଫଳ',
+  },
+  'Error loading Google Maps. Please check your API key.': {
+    hi: 'Google मानचित्र लोड करने में त्रुटि। कृपया अपनी API कुंजी जांचें।',
+    or: 'Google ମାନଚିତ୍ର ଲୋଡ କରିବାରେ ତ୍ରୁଟି। ଦୟାକରି ଆପଣଙ୍କର API କି ଯାଞ୍ଚ କରନ୍ତୁ।',
+  },
+  'Heatmap Legend:': {
+    hi: 'हीटमैप किंवदंती:',
+    or: 'ହିଟମ୍ୟାପ ଲେଜେଣ୍ଡ:',
+  },
+  'Low Density': {
+    hi: 'कम घनत्व',
+    or: 'କମ୍ ଘନତା',
+  },
+  'Medium Density': {
+    hi: 'मध्यम घनत्व',
+    or: 'ମଧ୍ୟମ ଘନତା',
+  },
+  'High Density': {
+    hi: 'उच्च घनत्व',
+    or: 'ଉଚ୍ଚ ଘନତା',
+  },
+  'Updated:': {
+    hi: 'अद्यतन:',
+    or: 'ଅପଡେଟ୍:',
+  },
 }
 
 /**
