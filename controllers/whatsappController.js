@@ -161,6 +161,9 @@ class WhatsAppController {
         await this.handleStatusCheckInput(from, text);
       } else if (session.state === SessionManager.STATES.ACCOUNT_UNFREEZE) {
         await this.handleAccountUnfreezeInput(from, text);
+      } else if (session.state === SessionManager.STATES.OTHER_QUERIES) {
+        // Handle user query input for OTHER_QUERIES state
+        await this.handleUserQueryInput(from, text, session);
       } else if (session.state === SessionManager.STATES.COMPLAINT_FILING) {
         await this.handleComplaintFilingInput(from, text, session);
       } else if (session.state === SessionManager.STATES.DOCUMENT_COLLECTION) {
@@ -1660,6 +1663,103 @@ class WhatsAppController {
         "❌ Sorry, there was an error processing your URL. Please try again."
       );
       await this.whatsappService.sendMessage(from, errorMessage);
+    }
+  }
+
+  /**
+   * Handle user query input for OTHER_QUERIES state
+   * @param {string} from - User phone number
+   * @param {string} queryText - User's query text
+   * @param {Object} session - Current session
+   */
+  async handleUserQueryInput(from, queryText, session) {
+    try {
+      // Check if user is in the awaiting query step
+      if (session.step !== "AWAITING_QUERY") {
+        return;
+      }
+
+      console.log(`[WhatsAppController] Processing user query: "${queryText}"`);
+
+      // Send processing message
+      const processingMessage = this.whatsappService.createTextMessage(
+        from,
+        "🔍 Searching for answers...\n\nPlease wait while I find the best information for you."
+      );
+      await this.whatsappService.sendMessage(from, processingMessage);
+
+      // Import query service
+      const queryService = require("../services/queryService");
+
+      // Process the query
+      const result = await queryService.processQuery(queryText);
+
+      if (result.success) {
+        // Format and send the response
+        const formattedAnswer = queryService.formatResponse(result.data);
+
+        // Send the answer
+        const answerMessage = this.whatsappService.createTextMessage(
+          from,
+          formattedAnswer
+        );
+        await this.whatsappService.sendMessage(from, answerMessage);
+
+        // Update session state
+        this.whatsappService.sessionManager.updateSession(from, {
+          state: SessionManager.STATES.OTHER_QUERIES,
+          step: "QUERY_COMPLETE",
+        });
+
+        // Send action buttons after a small delay
+        setTimeout(async () => {
+          await this.whatsappService.sendQueryActionButtons(
+            from,
+            "💡 Was this helpful?\n\nWhat would you like to do next?"
+          );
+        }, 1000);
+      } else {
+        // Query processing failed
+        console.error(`[WhatsAppController] Query failed:`, result.error);
+
+        const errorMessage = this.whatsappService.createTextMessage(
+          from,
+          queryService.getErrorMessage()
+        );
+        await this.whatsappService.sendMessage(from, errorMessage);
+
+        // Send retry options
+        setTimeout(async () => {
+          await this.whatsappService.sendQueryActionButtons(
+            from,
+            "What would you like to do?"
+          );
+        }, 1000);
+
+        // Keep session in AWAITING_QUERY state for retry
+        this.whatsappService.sessionManager.updateSession(from, {
+          state: SessionManager.STATES.OTHER_QUERIES,
+          step: "AWAITING_QUERY",
+        });
+      }
+    } catch (error) {
+      console.error("[WhatsAppController] Error handling user query:", error);
+
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "❌ An unexpected error occurred.\n\n" +
+          "📞 Please call our helpline: 1930 (24x7)\n" +
+          "🌐 Or visit: https://cybercrime.gov.in"
+      );
+      await this.whatsappService.sendMessage(from, errorMessage);
+
+      // Send action buttons
+      setTimeout(async () => {
+        await this.whatsappService.sendQueryActionButtons(
+          from,
+          "What would you like to do?"
+        );
+      }, 1000);
     }
   }
 }

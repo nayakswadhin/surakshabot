@@ -276,6 +276,10 @@ class WhatsAppService {
       case "yes_everything_correct":
         return await this.completeSocialMediaComplaint(to);
 
+      // Query flow buttons
+      case "ask_more":
+        return await this.handleOtherQueries(to);
+
       default:
         const responseText =
           "Sorry, I didn't understand that. Please use the menu options provided.";
@@ -1020,15 +1024,23 @@ class WhatsAppService {
   }
 
   async handleOtherQueries(to) {
-    const responseText =
-      "❓ **Other Queries**\n\n" +
-      "For other cyber crime related queries:\n\n" +
-      "📞 Call our helpline: **1930**\n" +
-      "🏛️ Visit nearest police station\n" +
-      "📧 Email: cybercrime.odisha@gov.in\n\n" +
-      "Or describe your query here and our team will assist you.";
+    // Update session to waiting for query
+    this.sessionManager.updateSession(to, {
+      state: SessionManager.STATES.OTHER_QUERIES,
+      step: "AWAITING_QUERY",
+    });
 
-    const message = this.createNavigationMessage(to, responseText);
+    const responseText =
+      "🤝 We're Here to Help!\n\n" +
+      "📞 Need Immediate Assistance?\n" +
+      "Call our Cybercrime Helpline: 1930 (24x7)\n\n" +
+      "💬 Have a Question?\n" +
+      "Please type your query below, and I'll find the most relevant information for you.\n\n" +
+      'Example: "How do I report a phishing attempt?"\n\n' +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "✨ Tip: Be specific for better results!";
+
+    const message = this.createTextMessage(to, responseText);
     await this.sendMessage(to, message);
   }
 
@@ -1845,7 +1857,7 @@ class WhatsAppService {
 
     try {
       // Get user state from database
-      const { Users } = require('../models');
+      const { Users } = require("../models");
       let userState = null;
       try {
         const user = await Users.findOne({ phoneNumber: to });
@@ -1853,17 +1865,18 @@ class WhatsAppService {
           userState = user.state;
         }
       } catch (error) {
-        console.error('Error fetching user state:', error);
+        console.error("Error fetching user state:", error);
       }
 
       // Here you would save the complaint to database
       // For now, we'll just show success message
 
-      const message = await this.complaintService.createComplaintSubmittedMessage(
-        to,
-        complaintData.caseId,
-        userState
-      );
+      const message =
+        await this.complaintService.createComplaintSubmittedMessage(
+          to,
+          complaintData.caseId,
+          userState
+        );
       await this.sendMessage(to, message);
 
       // Clear the session after successful submission
@@ -3044,6 +3057,52 @@ class WhatsAppService {
 
       // Don't clear session in case of error so user can retry
     }
+  }
+
+  /**
+   * Send query action buttons (Ask More, Main Menu, Exit)
+   * @param {string} to - Phone number
+   * @param {string} bodyText - Message text
+   */
+  async sendQueryActionButtons(to, bodyText) {
+    const message = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: {
+          text: bodyText,
+        },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: "ask_more",
+                title: "❓ Ask More",
+              },
+            },
+            {
+              type: "reply",
+              reply: {
+                id: "main_menu",
+                title: "🏠 Main Menu",
+              },
+            },
+            {
+              type: "reply",
+              reply: {
+                id: "exit_session",
+                title: "👋 Exit",
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    await this.sendMessage(to, message);
   }
 
   /**
