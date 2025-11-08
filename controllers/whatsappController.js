@@ -3,13 +3,21 @@ const SessionManager = require("../services/sessionManager");
 const NotificationService = require("../services/notificationService");
 const VoiceProcessingService = require("../services/voiceProcessingService");
 const UnfreezeService = require("../services/unfreezeService");
-const { Users, Cases, CaseDetails, StateContacts, AccountFreezeInquiry } = require("../models");
+const ClassificationService = require("../services/classificationService");
+const {
+  Users,
+  Cases,
+  CaseDetails,
+  StateContacts,
+  AccountFreezeInquiry,
+} = require("../models");
 const geocodingService = require("../services/geocodingService");
 
 class WhatsAppController {
   constructor() {
     this.whatsappService = new WhatsAppService();
     this.unfreezeService = new UnfreezeService();
+    this.classificationService = new ClassificationService();
   }
 
   async verifyWebhook(req, res) {
@@ -247,6 +255,17 @@ class WhatsAppController {
         return;
       }
 
+      // Handle classification confirmation
+      if (buttonId === "confirm_classification") {
+        await this.handleClassificationResponse(from, true);
+        return;
+      }
+
+      if (buttonId === "reject_classification") {
+        await this.handleClassificationResponse(from, false);
+        return;
+      }
+
       // Handle other buttons through WhatsApp service
       await this.whatsappService.handleButtonPress(from, buttonId);
     } catch (error) {
@@ -303,18 +322,23 @@ class WhatsAppController {
 
       // Save transcription as incident description
       this.whatsappService.sessionManager.updateSession(from, {
-        step: "FRAUD_CATEGORY_SELECTION",
+        step: "AUTO_CLASSIFICATION",
         data: {
           ...session.data,
           incident: transcription,
-          tempTranscription: null, // Clear temp transcription
+          tempTranscription: null,
         },
       });
 
-      // Proceed to fraud category selection
-      const message =
-        this.whatsappService.complaintService.createFraudCategoryMessage(from);
-      await this.whatsappService.sendMessage(from, message);
+      // Send processing message
+      const processingMessage = this.whatsappService.createTextMessage(
+        from,
+        "Analyzing your incident description using AI...\n\nThis may take a few seconds."
+      );
+      await this.whatsappService.sendMessage(from, processingMessage);
+
+      // Call classification API
+      await this.classifyAndConfirm(from, transcription);
     } catch (error) {
       console.error("Error handling transcription confirmation:", error);
     }
@@ -341,6 +365,194 @@ class WhatsAppController {
       await this.whatsappService.sendMessage(from, message);
     } catch (error) {
       console.error("Error handling retry voice:", error);
+    }
+  }
+
+  /**
+   * Call classification API and show results to user
+   * @param {string} from - User phone number
+   * @param {string} incidentText - Incident description
+   */
+  async classifyAndConfirm(from, incidentText) {
+    try {
+      // Call classification API
+      const classificationResult =
+        await this.classificationService.classifyIncident(incidentText);
+
+      if (!classificationResult.success) {
+        // Classification API failed, fall back to manual selection
+        console.error(
+          "Classification failed, falling back to manual selection"
+        );
+
+        const errorMessage = this.whatsappService.createTextMessage(
+          from,
+          "We couldn't automatically classify your complaint.\n\nPlease select the fraud category manually."
+        );
+        await this.whatsappService.sendMessage(from, errorMessage);
+
+        // Fall back to manual category selection
+        setTimeout(async () => {
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: "FRAUD_CATEGORY_SELECTION",
+          });
+
+          const message =
+            this.whatsappService.complaintService.createFraudCategoryMessage(
+              from
+            );
+          await this.whatsappService.sendMessage(from, message);
+        }, 1000);
+
+        return;
+      }
+
+      // Store classification result in session
+      const session = this.whatsappService.sessionManager.getSession(from);
+      const classificationData = classificationResult.data;
+
+      // Map API category to internal category
+      const internalCategory = this.classificationService.mapToInternalCategory(
+        classificationData.primary_category
+      );
+
+      this.whatsappService.sessionManager.updateSession(from, {
+        step: "CLASSIFICATION_CONFIRMATION",
+        data: {
+          ...session.data,
+          classificationResult: classificationData,
+          category: internalCategory,
+          fraudType: classificationData.subcategory,
+        },
+      });
+
+      // Format and send classification result
+      const formattedResult =
+        this.classificationService.formatClassificationResult(
+          classificationData
+        );
+      const confirmationMessage =
+        this.classificationService.createClassificationConfirmationMessage(
+          from,
+          formattedResult
+        );
+
+      await this.whatsappService.sendMessage(from, confirmationMessage);
+    } catch (error) {
+      console.error("Error in classifyAndConfirm:", error);
+
+      // Fall back to manual selection on error
+      const errorMessage = this.whatsappService.createTextMessage(
+        from,
+        "Something went wrong with classification.\n\nPlease select the fraud category manually."
+      );
+      await this.whatsappService.sendMessage(from, errorMessage);
+
+      setTimeout(async () => {
+        this.whatsappService.sessionManager.updateSession(from, {
+          step: "FRAUD_CATEGORY_SELECTION",
+        });
+
+        const message =
+          this.whatsappService.complaintService.createFraudCategoryMessage(
+            from
+          );
+        await this.whatsappService.sendMessage(from, message);
+      }, 1000);
+    }
+  }
+
+  /**
+   * Handle classification confirmation response
+   * @param {string} from - User phone number
+   * @param {boolean} isConfirmed - Whether user confirmed classification
+   */
+  async handleClassificationResponse(from, isConfirmed) {
+    try {
+      const session = this.whatsappService.sessionManager.getSession(from);
+
+      if (!session || !session.data.classificationResult) {
+        console.error("No classification result found in session");
+        return;
+      }
+
+      if (isConfirmed) {
+        // User confirmed classification, proceed to document collection
+        console.log(
+          "User confirmed classification, proceeding to document collection"
+        );
+
+        const category = session.data.category;
+        const caseId = this.whatsappService.complaintService.generateCaseId();
+
+        const complaintData = {
+          ...session.data,
+          caseId: caseId,
+        };
+
+        this.whatsappService.sessionManager.updateSession(from, {
+          data: complaintData,
+        });
+
+        // Send confirmation message
+        const confirmMessage = this.whatsappService.createTextMessage(
+          from,
+          `Classification confirmed!\n\nCase ID: *${caseId}*\n\nNext, we'll collect relevant documents for your complaint.`
+        );
+        await this.whatsappService.sendMessage(from, confirmMessage);
+
+        // Route to appropriate document collection based on category
+        setTimeout(async () => {
+          try {
+            if (category === "financial") {
+              await this.whatsappService.startDocumentCollection(from);
+            } else if (category === "social_media") {
+              await this.whatsappService.startSocialMediaDocumentCollection(
+                from
+              );
+            } else {
+              // For other categories, go to complaint confirmation
+              this.whatsappService.sessionManager.updateSession(from, {
+                step: "COMPLAINT_CONFIRMATION",
+              });
+
+              const message =
+                this.whatsappService.complaintService.createComplaintConfirmationMessage(
+                  from,
+                  complaintData
+                );
+              await this.whatsappService.sendMessage(from, message);
+            }
+          } catch (error) {
+            console.error("Error starting document collection:", error);
+          }
+        }, 1500);
+      } else {
+        // User rejected classification, fall back to manual selection
+        console.log(
+          "User rejected classification, switching to manual selection"
+        );
+
+        const message = this.whatsappService.createTextMessage(
+          from,
+          "No problem! Please select the fraud category manually."
+        );
+        await this.whatsappService.sendMessage(from, message);
+
+        setTimeout(async () => {
+          this.whatsappService.sessionManager.updateSession(from, {
+            step: "FRAUD_CATEGORY_SELECTION",
+          });
+
+          const categoryMessage =
+            this.whatsappService.complaintService.createFraudCategoryMessage(
+              from
+            );
+          await this.whatsappService.sendMessage(from, categoryMessage);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error handling classification response:", error);
     }
   }
 
@@ -674,7 +886,9 @@ class WhatsAppController {
       const inputText = text.trim();
       const currentStep = session.step;
 
-      console.log(`[Unfreeze] Processing step: ${currentStep}, input: ${inputText}`);
+      console.log(
+        `[Unfreeze] Processing step: ${currentStep}, input: ${inputText}`
+      );
 
       switch (currentStep) {
         case SessionManager.ACCOUNT_UNFREEZE_STEPS.BANK_NAME:
@@ -697,29 +911,33 @@ class WhatsAppController {
         case SessionManager.ACCOUNT_UNFREEZE_STEPS.ACCOUNT_NUMBER:
           // Save FULL account number and check if it exists in database
           if (inputText.length < 9 || inputText.length > 18) {
-            const invalidAccountMessage = this.whatsappService.createTextMessage(
-              from,
-              "❌ Invalid account number.\n\n" +
-                "Account number should be 9-18 digits.\n" +
-                "Please enter your complete account number:"
-            );
+            const invalidAccountMessage =
+              this.whatsappService.createTextMessage(
+                from,
+                "❌ Invalid account number.\n\n" +
+                  "Account number should be 9-18 digits.\n" +
+                  "Please enter your complete account number:"
+              );
             await this.whatsappService.sendMessage(from, invalidAccountMessage);
             return;
           }
 
           // Look up account in database to find which state police froze it
-          const AccountFreezeInquiry = require('../models/AccountFreezeInquiry');
+          const AccountFreezeInquiry = require("../models/AccountFreezeInquiry");
           const existingRecord = await AccountFreezeInquiry.findOne({
-            'accountDetails.accountNumber': inputText
+            "accountDetails.accountNumber": inputText,
           });
 
           if (existingRecord) {
             // Account found! We know which state police froze it
-            const frozenByState = existingRecord.accountDetails.frozenByStatePolice;
-            
+            const frozenByState =
+              existingRecord.accountDetails.frozenByStatePolice;
+
             // Get that state's police contacts
-            const policeContacts = await this.unfreezeService.getStateContacts(frozenByState);
-            
+            const policeContacts = await this.unfreezeService.getStateContacts(
+              frozenByState
+            );
+
             if (policeContacts) {
               // Display information to user
               const contactMessage = this.whatsappService.createTextMessage(
@@ -740,7 +958,9 @@ class WhatsAppController {
                   `👨‍⚖️ *Grievance Officer:*\n` +
                   `Name: ${policeContacts.grievanceOfficer.name}\n` +
                   `Rank: ${policeContacts.grievanceOfficer.rank}\n` +
-                  `Contact: ${policeContacts.grievanceOfficer.contact || 'Not Available'}\n` +
+                  `Contact: ${
+                    policeContacts.grievanceOfficer.contact || "Not Available"
+                  }\n` +
                   `Email: ${policeContacts.grievanceOfficer.email}\n\n` +
                   `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
                   `💡 *Next Steps:*\n` +
@@ -751,9 +971,9 @@ class WhatsAppController {
                   `📋 *Reference ID:* ${existingRecord.inquiryId}\n\n` +
                   `🆘 *Need help? Call 1930*`
               );
-              
+
               await this.whatsappService.sendMessage(from, contactMessage);
-              
+
               // Clear session as inquiry is complete
               this.whatsappService.sessionManager.clearSession(from);
               return;
@@ -803,7 +1023,7 @@ class WhatsAppController {
         case SessionManager.ACCOUNT_UNFREEZE_STEPS.BANK_BRANCH_STATE:
           // Detect state from input
           const detectedState = this.unfreezeService.detectState(inputText);
-          
+
           if (!detectedState) {
             const errorMessage = this.whatsappService.createTextMessage(
               from,
@@ -816,7 +1036,9 @@ class WhatsAppController {
           }
 
           // Verify state exists in database
-          const stateContact = await this.unfreezeService.getStateContacts(detectedState);
+          const stateContact = await this.unfreezeService.getStateContacts(
+            detectedState
+          );
           if (!stateContact) {
             const notFoundMessage = this.whatsappService.createTextMessage(
               from,
@@ -850,7 +1072,7 @@ class WhatsAppController {
         case SessionManager.ACCOUNT_UNFREEZE_STEPS.FREEZE_DATE:
           // Parse and validate date
           const freezeDate = this.unfreezeService.parseDate(inputText);
-          
+
           if (!freezeDate) {
             const invalidDateMessage = this.whatsappService.createTextMessage(
               from,
@@ -897,14 +1119,17 @@ class WhatsAppController {
         case SessionManager.ACCOUNT_UNFREEZE_STEPS.TRANSACTION_ID:
           // Save transaction ID and display contacts
           session.data.transactionId = inputText;
-          
+
           // Get user details
           const cleanPhone = from.replace(/^\+?91/, "").replace(/\D/g, "");
-          const phoneNumber = cleanPhone.length === 10 ? cleanPhone : cleanPhone.slice(-10);
+          const phoneNumber =
+            cleanPhone.length === 10 ? cleanPhone : cleanPhone.slice(-10);
           const user = await Users.findOne({ phoneNumber });
 
           // Get state contacts for the bank branch state
-          const finalStateContact = await this.unfreezeService.getStateContacts(session.data.contactState);
+          const finalStateContact = await this.unfreezeService.getStateContacts(
+            session.data.contactState
+          );
 
           if (!finalStateContact) {
             const errorContactMessage = this.whatsappService.createTextMessage(
@@ -943,17 +1168,25 @@ class WhatsAppController {
           };
 
           // Save to database
-          const inquiry = await this.unfreezeService.createFreezeInquiry(inquiryData);
+          const inquiry = await this.unfreezeService.createFreezeInquiry(
+            inquiryData
+          );
           inquiryData.inquiryId = inquiry.inquiryId;
 
           // Format and send contact message
-          const contactMessage = this.unfreezeService.formatContactMessage(finalStateContact, inquiryData);
-          const finalMessage = this.whatsappService.createNavigationMessage(from, contactMessage);
+          const contactMessage = this.unfreezeService.formatContactMessage(
+            finalStateContact,
+            inquiryData
+          );
+          const finalMessage = this.whatsappService.createNavigationMessage(
+            from,
+            contactMessage
+          );
           await this.whatsappService.sendMessage(from, finalMessage);
 
           // Clear session
           this.whatsappService.sessionManager.clearSession(from);
-          
+
           console.log(`[Unfreeze] Inquiry completed: ${inquiry.inquiryId}`);
           break;
 
@@ -1287,17 +1520,21 @@ class WhatsAppController {
       } else if (step === "WAITING_FOR_TEXT") {
         // User chose text input and is now typing incident description
         this.whatsappService.sessionManager.updateSession(from, {
-          step: "FRAUD_CATEGORY_SELECTION",
+          step: "AUTO_CLASSIFICATION",
           data: { ...session.data, incident: text },
         });
 
-        const message =
-          this.whatsappService.complaintService.createFraudCategoryMessage(
-            from
-          );
-        await this.whatsappService.sendMessage(from, message);
+        // Send processing message
+        const processingMessage = this.whatsappService.createTextMessage(
+          from,
+          "Analyzing your incident description using AI...\n\nThis may take a few seconds."
+        );
+        await this.whatsappService.sendMessage(from, processingMessage);
+
+        // Call classification API
+        await this.classifyAndConfirm(from, text);
       } else if (step === "FRAUD_TYPE_SELECTION") {
-        // Handle fraud type selection by number
+        // Handle fraud type selection by number (fallback if classification was rejected)
         const category = session.data.category;
         const fraudType =
           this.whatsappService.complaintService.validateFraudTypeSelection(
