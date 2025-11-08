@@ -479,13 +479,13 @@ export default function ComplaintDetailPage() {
                 {complaint.caseDetailsId.photos.map((photo: any, index: number) => (
                   <div
                     key={index}
-                    className="relative group print:static"
+                    className="relative group print:static cursor-pointer"
+                    onClick={() => setSelectedImage(photo.url)}
                   >
                     <img
                       src={photo.url}
                       alt={photo.fileName || `Evidence ${index + 1}`}
-                      onClick={() => setSelectedImage(photo.url)}
-                      className="w-full h-48 object-cover rounded-lg border-2 border-gray-200 group-hover:border-primary transition-colors cursor-pointer print:cursor-default print:h-auto print:max-h-80 print:object-contain print:border-black print:rounded-none"
+                      className="w-full h-48 object-cover rounded-lg border-2 border-gray-200 group-hover:border-primary transition-colors print:cursor-default print:h-auto print:max-h-80 print:object-contain print:border-black print:rounded-none"
                       style={{ colorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' } as any}
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-lg transition-opacity flex items-center justify-center no-print">

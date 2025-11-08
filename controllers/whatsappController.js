@@ -769,8 +769,8 @@ class WhatsAppController {
 
           const holderNameMessage = this.whatsappService.createTextMessage(
             from,
-            "❌ *Account not found in our records*\n\n" +
-              "Don't worry! Let's collect your details manually.\n\n" +
+            "✅ *Account Number Recorded*\n\n" +
+              "📋 Let's collect your account details.\n\n" +
               "3️⃣ *Account Holder Name:*\n\n" +
               "Please enter the account holder's name as per bank records:"
           );
