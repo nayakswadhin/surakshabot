@@ -60,7 +60,7 @@ export default function LoginPage() {
               </div>
             </div>
             <h1 className="text-center text-xl font-bold text-gray-800 mb-1">
-              Government of Odisha
+              Government of India
             </h1>
             <p className="text-center text-sm text-gray-600 mb-2">
               Cyber Crime Police Station

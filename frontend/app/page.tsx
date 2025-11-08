@@ -5,6 +5,7 @@ import StatsCard from '@/components/StatsCard'
 import RecentComplaints from '@/components/RecentComplaints'
 import FraudTypeChart from '@/components/FraudTypeChart'
 import RecentActivity from '@/components/RecentActivity'
+import HeatmapWidget from '@/components/HeatmapWidget'
 import { fetchDashboardStats } from '@/lib/api'
 import { FaFileAlt, FaCheckCircle, FaClock, FaUserShield } from 'react-icons/fa'
 
@@ -124,6 +125,9 @@ export default function Home() {
         <FraudTypeChart />
         <RecentActivity />
       </div>
+
+      {/* Heatmap Widget */}
+      <HeatmapWidget />
 
       {/* Recent Complaints */}
       <RecentComplaints />
