@@ -1136,9 +1136,15 @@ class WhatsAppController {
         });
       }
 
+      // Fetch user details using aadhar number
+      const user = await Users.findOne({ aadharNumber: case_.aadharNumber });
+
       res.json({
         success: true,
-        data: case_,
+        data: {
+          complaint: case_,
+          user: user || null,
+        },
       });
     } catch (error) {
       console.error("Error fetching case by ID:", error);

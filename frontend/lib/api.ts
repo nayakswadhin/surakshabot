@@ -79,7 +79,23 @@ export const fetchComplaints = async (filters?: {
 export const fetchComplaintById = async (caseId: string) => {
   try {
     const response = await apiClient.get(`/whatsapp/case/${caseId}`)
-    return response.data.data
+    const data = response.data.data
+    
+    // Check if API returns new format with complaint and user properties
+    if (data.complaint && data.user !== undefined) {
+      return data
+    }
+    
+    // Otherwise, API returns old format (case data directly)
+    // Convert it to expected format by fetching user from /users/all
+    const usersResponse = await apiClient.get('/whatsapp/users/all')
+    const users = usersResponse.data.data
+    const user = users.find((u: any) => u.aadharNumber === data.aadharNumber)
+    
+    return {
+      complaint: data,
+      user: user || null
+    }
   } catch (error) {
     console.error('Error fetching complaint:', error)
     return null
