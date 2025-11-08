@@ -1,10 +1,7 @@
 const express = require("express");
 const whatsappRoutes = require("./whatsapp");
-<<<<<<< Updated upstream
 const chatbotRoutes = require("./chatbot");
-=======
 const geminiRoutes = require("./gemini");
->>>>>>> Stashed changes
 const NotificationService = require("../services/notificationService");
 
 const router = express.Router();
@@ -12,13 +9,11 @@ const router = express.Router();
 // WhatsApp bot routes
 router.use("/whatsapp", whatsappRoutes);
 
-<<<<<<< Updated upstream
 // Chatbot routes
 router.use("/chatbot", chatbotRoutes);
-=======
+
 // Gemini AI routes
 router.use("/gemini", geminiRoutes);
->>>>>>> Stashed changes
 
 // Health check endpoint
 router.get("/health", (req, res) => {
