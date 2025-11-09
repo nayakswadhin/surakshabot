@@ -737,6 +737,22 @@ export const translations: Record<string, Record<string, string>> = {
     hi: 'अद्यतन:',
     or: 'ଅପଡେଟ୍:',
   },
+  'Send Alert': {
+    hi: 'अलर्ट भेजें',
+    or: 'ଆଲର୍ଟ ପଠାନ୍ତୁ',
+  },
+  'Sending...': {
+    hi: 'भेजा जा रहा है...',
+    or: 'ପଠାଯାଉଛି...',
+  },
+  'Alert sent successfully!': {
+    hi: 'अलर्ट सफलतापूर्वक भेजा गया!',
+    or: 'ଆଲର୍ଟ ସଫଳତାର ସହିତ ପଠାଗଲା!',
+  },
+  'Failed to send alert': {
+    hi: 'अलर्ट भेजने में विफल',
+    or: 'ଆଲର୍ଟ ପଠାଇବାରେ ବିଫଳ',
+  },
 }
 
 /**
