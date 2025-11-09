@@ -10,10 +10,12 @@ import {
     FaRobot,
     FaUnlock,
     FaUsers,
+    FaBell,
 } from 'react-icons/fa'
 import LanguageSelector from './LanguageSelector'
 import { useTranslation } from '../hooks/useTranslation'
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: FaHome },
@@ -28,6 +30,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const { t, currentLanguage, setLanguage } = useTranslation()
   const [translatedLabels, setTranslatedLabels] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
 
   // Translate nav labels when language changes
   useEffect(() => {
@@ -47,6 +50,34 @@ export default function Navbar() {
     setLanguage(lang)
     // Reset translations to trigger re-translation
     setTranslatedLabels({})
+  }
+
+  const sendAlert = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch('http://localhost:5000/api/alert/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        toast.success(t('Alert sent successfully!'), {
+          duration: 3000,
+          position: 'top-right',
+        })
+      } else {
+        throw new Error('Failed to send alert')
+      }
+    } catch (error) {
+      toast.error(t('Failed to send alert'), {
+        duration: 3000,
+        position: 'top-right',
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -76,7 +107,20 @@ export default function Navbar() {
               )
             })}
           </ul>
-          <div className="py-2">
+          <div className="flex items-center gap-4 py-2">
+            <button
+              onClick={sendAlert}
+              disabled={isLoading}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-white text-sm font-medium transition-all ${
+                isLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-red-600 hover:bg-red-700 active:scale-95'
+              }`}
+              title={t('Send Alert')}
+            >
+              <FaBell className={`text-xs ${isLoading ? 'animate-pulse' : ''}`} />
+              <span className="text-xs">{isLoading ? t('Sending...') : t('Send Alert')}</span>
+            </button>
             <LanguageSelector 
               currentLanguage={currentLanguage}
               onLanguageChange={handleLanguageChange}
