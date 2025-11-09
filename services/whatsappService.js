@@ -64,7 +64,14 @@ class WhatsAppService {
       interactive: {
         type: "button",
         body: {
-          text: "Welcome to 1930, Cyber Helpline, India.\n\nHow can I help you?\n\nA- New Complaint\nB- Status Check\nC- Account Unfreeze\nD- Other Queries\n\nSelect an option below:",
+          text: "🇮🇳 Welcome to 1930, Cyber Helpline, India\n\n" +
+            "Your trusted partner in cybercrime prevention and resolution.\n\n" +
+            "📞 How may we assist you today?\n\n" +
+            "🔹 A - File New Complaint\n" +
+            "🔹 B - Check Complaint Status\n" +
+            "🔹 C - Account Unfreeze Inquiry\n" +
+            "🔹 D - Other Services & Queries\n\n" +
+            "Please select an option below to proceed:",
         },
         action: {
           buttons: [
@@ -1148,11 +1155,13 @@ class WhatsAppService {
 
     const message = this.createTextMessage(
       to,
-      "🔍 **Complaint Status Check**\n\n" +
-        "To check your complaint status, please provide your:\n\n" +
-        "• Case Registration Number\n" +
+      "🔍 *Complaint Status Check*\n\n" +
+        "Welcome to the 1930 Cyber Helpline status inquiry service.\n\n" +
+        "To retrieve your complaint status, please provide:\n\n" +
+        "📋 *Required Information:*\n" +
+        "• Case Registration Number, OR\n" +
         "• Acknowledgement Number\n\n" +
-        "Please enter your Case ID or Acknowledgement Number:"
+        "Please enter your Case ID or Acknowledgement Number below:"
     );
     await this.sendMessage(to, message);
   }
@@ -2997,6 +3006,11 @@ class WhatsAppService {
         }
       }
 
+      // Determine priority based on fraud category
+      const isFinancial = complaintData.category === "financial";
+      const priority = isFinancial ? "high" : "medium";
+      const isHighAlert = isFinancial;
+
       // Create new Case
       const newCase = new (require("../models").Cases)({
         caseId: complaintData.caseId,
@@ -3007,6 +3021,8 @@ class WhatsAppService {
           complaintData.category === "financial" ? "Financial" : "Social",
         typeOfFraud: fraudTypeDisplayName,
         status: "pending",
+        priority: priority,
+        isHighAlert: isHighAlert,
       });
 
       const savedCase = await newCase.save();
@@ -3031,10 +3047,15 @@ class WhatsAppService {
 
       console.log(`Complaint completed successfully for ${from}`);
 
+      const priorityBadge = isFinancial
+        ? "🚨 HIGH PRIORITY - IMMEDIATE ACTION REQUIRED\n\n"
+        : "";
+
       const successText =
-        `🎉 Complaint Filed Successfully!\n\n` +
+        `✅ Complaint Filed Successfully!\n\n` +
+        priorityBadge +
         `📋 Case ID: ${complaintData.caseId}\n\n` +
-        `✅ Summary:\n` +
+        `📊 Case Summary:\n` +
         `• Incident: ${
           complaintData.incident || "Financial fraud incident"
         }\n` +
@@ -3044,13 +3065,46 @@ class WhatsAppService {
             : "Social Media Fraud"
         }\n` +
         `• Fraud Type: ${fraudTypeDisplayName}\n` +
-        `• Documents Uploaded: ${documentsArray.length}/8\n\n` +
-        `📞 Our team will contact you within 24 hours.\n\n` +
-        `Keep your Case ID for future reference.\n\n` +
-        `You can check status anytime using "Status Check" option.`;
+        `• Priority Level: ${priority.toUpperCase()}\n` +
+        `• Documents Submitted: ${documentsArray.length}/8\n\n` +
+        (isFinancial
+          ? `⚠️ This case has been marked as HIGH PRIORITY due to the financial nature of the fraud. Our specialized team will review your case immediately.\n\n`
+          : "") +
+        `📞 Response Timeline:\n` +
+        `• Initial Review: Within 24 hours\n` +
+        `• Team Assignment: Within 48 hours\n` +
+        `• Status Updates: Via WhatsApp notifications\n\n` +
+        `💡 Important:\n` +
+        `• Keep your Case ID safe for future reference\n` +
+        `• You will receive WhatsApp notifications on status updates\n` +
+        `• Check status anytime using "Status Check" option\n\n` +
+        `Thank you for reporting. We are committed to resolving your case.`;
 
       const message = this.createNavigationMessage(from, successText);
       await this.sendMessage(from, message);
+
+      // Send additional high priority alert for financial fraud cases
+      if (isFinancial) {
+        console.log(`📤 Sending high priority alert for case ${complaintData.caseId}`);
+        
+        const StatusNotificationService = require("./statusNotificationService");
+        const statusNotificationService = new StatusNotificationService();
+        
+        // Wait 3 seconds before sending the alert to ensure the success message is delivered first
+        setTimeout(async () => {
+          try {
+            await statusNotificationService.sendHighPriorityAlert(
+              from,
+              complaintData.caseId,
+              fraudTypeDisplayName
+            );
+            console.log(`✅ High priority alert sent for case ${complaintData.caseId}`);
+          } catch (alertError) {
+            console.error("⚠️ Failed to send high priority alert:", alertError.message);
+            // Don't fail the complaint filing if alert fails
+          }
+        }, 3000);
+      }
 
       // Clear session
       this.sessionManager.clearSession(from);

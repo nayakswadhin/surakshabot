@@ -1,30 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import {
   fetchComplaintById,
-  updateComplaintStatus,
   sendWhatsAppMessage,
+  updateComplaintStatus,
 } from "@/lib/api";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   FaArrowLeft,
-  FaUser,
-  FaPhone,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaIdCard,
   FaCalendar,
-  FaFileAlt,
-  FaExclamationCircle,
   FaCheckCircle,
   FaClock,
   FaEdit,
+  FaEnvelope,
+  FaExclamationCircle,
+  FaFileAlt,
+  FaHistory,
+  FaIdCard,
+  FaImage,
+  FaMapMarkerAlt,
+  FaPhone,
   FaSave,
   FaTimes,
-  FaImage,
-  FaHistory,
+  FaUser,
 } from "react-icons/fa";
 
 export default function ComplaintDetailPage() {
@@ -210,31 +210,51 @@ export default function ComplaintDetailPage() {
       `We will keep you updated on the progress.\n\n` +
       `If you have any questions, please reply to this message.`;
 
+    let loadingToast: any = null;
+    
     try {
       setSendingWhatsApp(true);
-      const loadingToast = toast.loading("Sending WhatsApp message...");
+      loadingToast = toast.loading("Sending WhatsApp message...");
 
-      // Send via WhatsApp Business API
-      const result = await sendWhatsAppMessage(
-        user.phoneNumber,
-        message,
-        complaint?.caseId
-      );
+      console.log('📱 Preparing to send WhatsApp to:', user.phoneNumber);
 
-      if (result.success) {
+      // Add timeout safeguard - force completion after 30 seconds
+      const timeoutPromise = new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ success: false, error: "Request timed out after 30 seconds" });
+        }, 30000);
+      });
+
+      // Send via WhatsApp Business API with timeout
+      const result: any = await Promise.race([
+        sendWhatsAppMessage(user.phoneNumber, message, complaint?.caseId),
+        timeoutPromise
+      ]);
+
+      console.log('📨 WhatsApp send result:', result);
+
+      if (result?.success) {
         toast.success("WhatsApp message sent successfully!", {
           id: loadingToast,
         });
       } else {
-        throw new Error(result.error || "Failed to send message");
+        toast.error(result?.error || "Failed to send WhatsApp message", {
+          id: loadingToast,
+        });
       }
     } catch (error: any) {
-      console.error("Error sending WhatsApp:", error);
-      toast.error(
-        `Failed to send WhatsApp: ${error.message || "Unknown error"}`
-      );
+      console.error('❌ WhatsApp send error:', error);
+      if (loadingToast) {
+        toast.error(error.message || "Failed to send WhatsApp message", {
+          id: loadingToast,
+        });
+      } else {
+        toast.error(error.message || "Failed to send WhatsApp message");
+      }
     } finally {
+      // Force button state reset - guaranteed to run
       setSendingWhatsApp(false);
+      console.log('🔄 Button state reset');
     }
   };
 

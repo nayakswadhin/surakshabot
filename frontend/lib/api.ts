@@ -9,6 +9,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 second timeout to prevent hanging requests
 })
 
 // Dashboard Stats
@@ -197,15 +198,21 @@ export const sendWhatsAppMessage = async (
   caseId?: string
 ) => {
   try {
+    console.log('📤 Sending WhatsApp message:', { phoneNumber, caseId })
     const response = await apiClient.post('/whatsapp/send-message', {
       phoneNumber,
       message,
       caseId,
     })
+    console.log('✅ WhatsApp message sent:', response.data)
     return response.data
-  } catch (error) {
-    console.error('Error sending WhatsApp message:', error)
-    throw error
+  } catch (error: any) {
+    console.error('❌ Error sending WhatsApp message:', error)
+    console.error('Error details:', error.response?.data)
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to send message'
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 const WhatsAppService = require("../services/whatsappService");
 const SessionManager = require("../services/sessionManager");
 const NotificationService = require("../services/notificationService");
+const StatusNotificationService = require("../services/statusNotificationService");
 const VoiceProcessingService = require("../services/voiceProcessingService");
 const UnfreezeService = require("../services/unfreezeService");
 const ClassificationService = require("../services/classificationService");
@@ -18,6 +19,7 @@ class WhatsAppController {
     this.whatsappService = new WhatsAppService();
     this.unfreezeService = new UnfreezeService();
     this.classificationService = new ClassificationService();
+    this.statusNotificationService = new StatusNotificationService();
   }
 
   async verifyWebhook(req, res) {
@@ -850,18 +852,68 @@ class WhatsAppController {
       }
 
       if (case_) {
+        const priorityEmoji = {
+          low: "🟢",
+          medium: "🟡",
+          high: "🔴",
+          critical: "🚨",
+        };
+
+        const priorityBadge = case_.isHighAlert
+          ? "🚨 HIGH PRIORITY CASE"
+          : "";
+
+        const statusEmoji = {
+          pending: "🕐",
+          under_review: "🔍",
+          investigating: "🔎",
+          resolved: "✅",
+          closed: "✔️",
+          rejected: "❌",
+          on_hold: "⏸️",
+        };
+
         const statusText =
-          `📋 **Case Details Found**\n\n` +
-          `🆔 **Case ID:** ${case_.caseId}\n` +
-          `📝 **Fraud Type:** ${case_.typeOfFraud}\n` +
-          `📂 **Category:** ${case_.caseCategory}\n` +
-          `📊 **Status:** ${
-            case_.status === "pending" ? "🟡 Pending" : "✅ Solved"
+          `📋 *Case Status Information*\n\n` +
+          (priorityBadge ? `${priorityBadge}\n\n` : "") +
+          `🆔 *Case ID:* ${case_.caseId}\n` +
+          `📝 *Fraud Type:* ${case_.typeOfFraud}\n` +
+          `📂 *Category:* ${case_.caseCategory}\n` +
+          `📊 *Current Status:* ${
+            statusEmoji[case_.status] || "📋"
+          } ${case_.status.replace(/_/g, " ").toUpperCase()}\n` +
+          `⚡ *Priority Level:* ${priorityEmoji[case_.priority || "medium"]} ${
+            (case_.priority || "medium").toUpperCase()
           }\n` +
-          `📅 **Registered:** ${case_.createdAt.toLocaleDateString()}\n` +
-          `📅 **Last Updated:** ${case_.updatedAt.toLocaleDateString()}\n\n` +
-          `📋 **Incident Description:**\n${case_.incidentDescription}\n\n` +
-          `📞 **Our caller Agent will call or message you shortly & solve your issue.**`;
+          `📅 *Registered On:* ${case_.createdAt.toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}\n` +
+          `📅 *Last Updated:* ${case_.updatedAt.toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `📋 *Incident Description:*\n${case_.incidentDescription}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          (case_.status === "pending"
+            ? `⏳ *Your case is currently under review.*\n\n`
+            : "") +
+          (case_.status === "under_review"
+            ? `🔍 *Our team is reviewing your case.*\n\n`
+            : "") +
+          (case_.status === "investigating"
+            ? `🔎 *Investigation is in progress.*\n\n`
+            : "") +
+          (case_.status === "resolved"
+            ? `✅ *Your case has been successfully resolved.*\n\n`
+            : "") +
+          `📞 *Need Help?*\n` +
+          `• Helpline: 1930 (24x7)\n` +
+          `• You will receive WhatsApp notifications on status updates\n\n` +
+          `Thank you for your patience and cooperation.`;
 
         const message = this.whatsappService.createNavigationMessage(
           from,
@@ -870,10 +922,15 @@ class WhatsAppController {
         await this.whatsappService.sendMessage(from, message);
       } else {
         const responseText =
-          "❌ **Case Not Found**\n\n" +
-          "No case found with the provided Case ID or Acknowledgement Number.\n\n" +
-          "Please check your Case ID and try again.\n\n" +
-          "📞 For assistance, call 1930 or contact our support team.";
+          "❌ *Case Not Found*\n\n" +
+          "We could not locate a case with the provided Case ID or Acknowledgement Number.\n\n" +
+          "📝 *Please verify:*\n" +
+          "• Case ID format is correct\n" +
+          "• No typing errors in the Case ID\n\n" +
+          "� *Need Assistance?*\n" +
+          "• Call our helpline: 1930 (24x7)\n" +
+          "• Our support team is ready to help\n\n" +
+          "You can try again or contact us directly for assistance.";
 
         const message = this.whatsappService.createNavigationMessage(
           from,
@@ -889,7 +946,12 @@ class WhatsAppController {
 
       const errorMessage = this.whatsappService.createTextMessage(
         from,
-        "❌ Sorry, there was an error checking the case status. Please try again later."
+        "❌ *Service Temporarily Unavailable*\n\n" +
+          "We apologize for the inconvenience. There was an error processing your status check request.\n\n" +
+          "📞 *Immediate Assistance:*\n" +
+          "• Call our helpline: 1930 (24x7)\n" +
+          "• Our team is available to help\n\n" +
+          "Please try again in a few moments or contact us directly."
       );
       await this.whatsappService.sendMessage(from, errorMessage);
     }
@@ -1408,20 +1470,90 @@ class WhatsAppController {
       const { caseId } = req.params;
       const updateData = req.body;
 
-      const updatedCase = await Cases.findOneAndUpdate({ caseId }, updateData, {
-        new: true,
-      }).populate("caseDetailsId");
+      // First, get the current case to compare status
+      const currentCase = await Cases.findOne({ caseId }).populate(
+        "caseDetailsId"
+      );
 
-      if (!updatedCase) {
+      if (!currentCase) {
         return res.status(404).json({
           success: false,
           message: "Case not found",
         });
       }
 
+      const oldStatus = currentCase.status;
+      const newStatus = updateData.status || oldStatus;
+
+      // Update the case
+      const updatedCase = await Cases.findOneAndUpdate(
+        { caseId },
+        updateData,
+        {
+          new: true,
+        }
+      ).populate("caseDetailsId");
+
+      // If status has changed, send WhatsApp notification to user
+      if (oldStatus !== newStatus) {
+        console.log(
+          `📊 Status changed for case ${caseId}: ${oldStatus} → ${newStatus}`
+        );
+
+        // Get user details to send notification
+        const user = await Users.findOne({
+          aadharNumber: updatedCase.aadharNumber,
+        });
+
+        if (user && user.phoneNumber) {
+          // Format phone number (ensure it has country code)
+          let phoneNumber = user.phoneNumber;
+          if (!phoneNumber.startsWith("91")) {
+            phoneNumber = "91" + phoneNumber;
+          }
+
+          // Prepare case information
+          const caseInfo = {
+            fraudType: updatedCase.typeOfFraud,
+            category: updatedCase.caseCategory,
+            priority: updatedCase.priority || "medium",
+          };
+
+          // Send WhatsApp notification
+          try {
+            await this.statusNotificationService.sendStatusUpdateNotification(
+              phoneNumber,
+              caseId,
+              oldStatus,
+              newStatus,
+              updateData.remarks || null,
+              caseInfo
+            );
+
+            console.log(
+              `✅ WhatsApp status notification sent to user ${phoneNumber}`
+            );
+          } catch (notificationError) {
+            console.error(
+              "⚠️ Failed to send WhatsApp notification:",
+              notificationError.message
+            );
+            // Don't fail the status update if notification fails
+          }
+        } else {
+          console.warn(
+            `⚠️ User phone number not found for case ${caseId}, skipping WhatsApp notification`
+          );
+        }
+
+        // Emit Socket.IO notification for dashboard
+        NotificationService.emitStatusUpdate(updatedCase, oldStatus);
+      }
+
       res.json({
         success: true,
         data: updatedCase,
+        notificationSent: oldStatus !== newStatus,
       });
     } catch (error) {
       console.error("Error updating case status:", error);
@@ -1477,7 +1609,7 @@ class WhatsAppController {
 
   async sendAdminMessage(req, res) {
     try {
-      const { phoneNumber, message } = req.body;
+      const { phoneNumber, message, caseId } = req.body;
 
       if (!phoneNumber || !message) {
         return res.status(400).json({
@@ -1486,21 +1618,48 @@ class WhatsAppController {
         });
       }
 
+      console.log(`📤 Sending WhatsApp message to ${phoneNumber}`);
+      console.log(`Message: ${message.substring(0, 100)}...`);
+
+      // Format phone number - ensure it has country code
+      let formattedPhone = phoneNumber.replace(/\D/g, ""); // Remove non-digits
+      
+      // Add country code if not present
+      if (!formattedPhone.startsWith("91") && formattedPhone.length === 10) {
+        formattedPhone = "91" + formattedPhone;
+      }
+
+      console.log(`📱 Formatted phone: ${formattedPhone}`);
+
+      // Create and send WhatsApp message
       const textMessage = this.whatsappService.createTextMessage(
-        phoneNumber,
+        formattedPhone,
         message
       );
-      await this.whatsappService.sendMessage(phoneNumber, textMessage);
+      
+      const result = await this.whatsappService.sendMessage(
+        formattedPhone,
+        textMessage
+      );
+
+      console.log(`✅ WhatsApp message sent successfully to ${formattedPhone}`);
 
       res.json({
         success: true,
-        message: "Message sent successfully",
+        message: "WhatsApp message sent successfully",
+        data: {
+          phoneNumber: formattedPhone,
+          messageId: result.messages?.[0]?.id,
+        },
       });
     } catch (error) {
-      console.error("Error sending admin message:", error);
+      console.error("❌ Error sending admin message:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      
       res.status(500).json({
         success: false,
-        message: "Error sending message",
+        message: "Failed to send WhatsApp message",
+        error: error.message,
       });
     }
   }

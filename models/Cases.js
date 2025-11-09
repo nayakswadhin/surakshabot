@@ -28,6 +28,15 @@ const casesSchema = new mongoose.Schema({
     type: String,
     default: "pending",
   },
+  priority: {
+    type: String,
+    enum: ["low", "medium", "high", "critical"],
+    default: "medium",
+  },
+  isHighAlert: {
+    type: Boolean,
+    default: false,
+  },
   caseDetailsId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "CaseDetails",
