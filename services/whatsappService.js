@@ -2905,17 +2905,97 @@ class WhatsAppService {
       }
 
       // Prepare documents array for CaseDetails
-      const documentsArray = Object.values(complaintData.documents || {}).map(
-        (doc) => ({
-          documentType: doc.documentType,
-          url: doc.url,
-          fileName: doc.fileName,
-          publicId: doc.publicId,
-          uploadedAt: doc.uploadedAt,
-        })
-      );
+      const documentsArray = [];
+
+      // Process all documents
+      for (const [key, doc] of Object.entries(complaintData.documents || {})) {
+        if (!doc) continue;
+
+        // Check if this is a DIDIT Aadhaar document
+        if (key === "aadhar_pan" && doc.source === "didit") {
+          console.log("📄 Processing DIDIT Aadhaar document");
+
+          // Add front image of Aadhaar
+          if (doc.frontImage) {
+            documentsArray.push({
+              documentType: "aadhaar_card_front",
+              url: doc.frontImage,
+              fileName: `aadhaar_front_${doc.documentNumber}.jpg`,
+              publicId: "didit_front_image", // No Cloudinary ID for DIDIT images
+              uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            });
+            console.log("✅ Added Aadhaar front image from DIDIT");
+          }
+
+          // Add back image of Aadhaar
+          if (doc.backImage) {
+            documentsArray.push({
+              documentType: "aadhaar_card_back",
+              url: doc.backImage,
+              fileName: `aadhaar_back_${doc.documentNumber}.jpg`,
+              publicId: "didit_back_image",
+              uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            });
+            console.log("✅ Added Aadhaar back image from DIDIT");
+          }
+
+          // Optionally add full front image
+          if (doc.fullFrontImage) {
+            documentsArray.push({
+              documentType: "aadhaar_card_full_front",
+              url: doc.fullFrontImage,
+              fileName: `aadhaar_full_front_${doc.documentNumber}.jpg`,
+              publicId: "didit_full_front_image",
+              uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            });
+            console.log("✅ Added Aadhaar full front image from DIDIT");
+          }
+        } else {
+          // Regular uploaded document
+          documentsArray.push({
+            documentType: doc.documentType,
+            url: doc.url,
+            fileName: doc.fileName,
+            publicId: doc.publicId,
+            uploadedAt: doc.uploadedAt,
+          });
+        }
+      }
 
       console.log(`Creating case with ${documentsArray.length} documents`);
+      console.log("Documents array:", JSON.stringify(documentsArray, null, 2));
+
+      // Convert fraud type ID to display name for database
+      let fraudTypeDisplayName = complaintData.fraudType;
+
+      // If fraudType is a number, convert it to description
+      if (
+        typeof complaintData.fraudType === "number" ||
+        !isNaN(complaintData.fraudType)
+      ) {
+        const fraudTypeDetails = this.complaintService.getFraudTypeDetails(
+          complaintData.category,
+          parseInt(complaintData.fraudType)
+        );
+        if (fraudTypeDetails) {
+          fraudTypeDisplayName = fraudTypeDetails.description;
+          console.log(
+            `Fraud type converted: ${complaintData.fraudType} -> ${fraudTypeDisplayName}`
+          );
+        }
+      }
+      // If fraudType is a code string (like "credit_card_fraud"), convert it
+      else if (typeof complaintData.fraudType === "string") {
+        const displayFromCode = this.getFraudTypeDisplay(
+          complaintData.fraudType
+        );
+        if (displayFromCode && displayFromCode !== complaintData.fraudType) {
+          fraudTypeDisplayName = displayFromCode;
+          console.log(
+            `Fraud type converted from code: ${complaintData.fraudType} -> ${fraudTypeDisplayName}`
+          );
+        }
+      }
 
       // Create new Case
       const newCase = new (require("../models").Cases)({
@@ -2925,7 +3005,7 @@ class WhatsAppService {
           complaintData.incident || "Financial fraud incident",
         caseCategory:
           complaintData.category === "financial" ? "Financial" : "Social",
-        typeOfFraud: complaintData.fraudType,
+        typeOfFraud: fraudTypeDisplayName,
         status: "pending",
       });
 
@@ -2963,7 +3043,7 @@ class WhatsAppService {
             ? "Financial Fraud"
             : "Social Media Fraud"
         }\n` +
-        `• Fraud Type: ${complaintData.fraudType}\n` +
+        `• Fraud Type: ${fraudTypeDisplayName}\n` +
         `• Documents Uploaded: ${documentsArray.length}/8\n\n` +
         `📞 Our team will contact you within 24 hours.\n\n` +
         `Keep your Case ID for future reference.\n\n` +
