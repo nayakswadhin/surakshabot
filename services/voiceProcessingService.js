@@ -2,11 +2,38 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const FormData = require("form-data");
+const speech = require("@google-cloud/speech");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 class VoiceProcessingService {
   constructor() {
-    // Using OpenAI Whisper for speech-to-text (you can use free alternatives too)
-    this.openaiApiKey = process.env.OPENAI_API_KEY || "";
+    // Initialize Google Cloud Speech-to-Text client
+    const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    if (credentialsPath && fs.existsSync(credentialsPath)) {
+      this.speechClient = new speech.SpeechClient({
+        keyFilename: credentialsPath,
+      });
+      console.log(
+        "[VoiceService] ✅ Initialized with Google Cloud Speech-to-Text"
+      );
+      console.log(`[VoiceService] Credentials: ${credentialsPath}`);
+    } else {
+      console.warn(
+        "[VoiceService] ⚠️  Google credentials not found, some features may not work"
+      );
+    }
+
+    // Google Translate API key
+    this.translateApiKey = process.env.GEMINI_TRANSLATION_API_KEY || "";
+
+    // Initialize Gemini for refinement (optional)
+    this.geminiApiKey = process.env.GEMINI_API_KEY;
+    if (this.geminiApiKey) {
+      this.genAI = new GoogleGenerativeAI(this.geminiApiKey);
+      this.geminiModel = this.genAI.getGenerativeModel({
+        model: "gemini-2.0-flash-exp",
+      });
+    }
   }
 
   /**
@@ -55,39 +82,143 @@ class VoiceProcessingService {
   }
 
   /**
-   * Transcribe audio using OpenAI Whisper
+   * Transcribe audio using Google Cloud Speech-to-Text
    * @param {string} audioFilePath - Path to audio file
+   * @param {string} languageCode - Language code (e.g., 'hi-IN' for Hindi, 'en-IN' for English)
    * @returns {Promise<string>} - Transcribed text
    */
-  async transcribeAudio(audioFilePath) {
+  async transcribeAudio(audioFilePath, languageCode = "hi-IN") {
     try {
-      if (!this.openaiApiKey) {
-        console.warn("OpenAI API key not set, using mock transcription");
+      if (!this.speechClient) {
+        console.warn(
+          "Google Speech-to-Text not configured, using mock transcription"
+        );
         return this.mockTranscription();
       }
 
-      const formData = new FormData();
-      formData.append("file", fs.createReadStream(audioFilePath));
-      formData.append("model", "whisper-1");
-      formData.append("language", "hi"); // Hindi/English auto-detect
+      console.log(`🎤 Transcribing audio with language: ${languageCode}`);
 
-      const response = await axios.post(
-        "https://api.openai.com/v1/audio/transcriptions",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${this.openaiApiKey}`,
-            ...formData.getHeaders(),
-          },
-        }
+      // Read the audio file
+      const audioBytes = fs.readFileSync(audioFilePath).toString("base64");
+
+      // Configure the request
+      const request = {
+        audio: {
+          content: audioBytes,
+        },
+        config: {
+          encoding: "OGG_OPUS", // WhatsApp audio format
+          sampleRateHertz: 16000,
+          languageCode: languageCode,
+          enableAutomaticPunctuation: true,
+          model: "default",
+        },
+      };
+
+      // Perform the transcription
+      const [response] = await this.speechClient.recognize(request);
+      const transcription = response.results
+        .map((result) => result.alternatives[0].transcript)
+        .join("\n");
+
+      if (!transcription || transcription.trim() === "") {
+        console.warn("No speech detected in audio");
+        return "No speech detected";
+      }
+
+      console.log(
+        `✅ Transcription successful (${languageCode}):`,
+        transcription
       );
-
-      console.log("Transcription successful:", response.data.text);
-      return response.data.text;
+      return transcription;
     } catch (error) {
-      console.error("Error transcribing audio:", error.message);
+      console.error("❌ Error transcribing audio:", error.message);
       // Fallback to mock if API fails
       return this.mockTranscription();
+    }
+  }
+
+  /**
+   * Translate text from Hindi to English using Google Translate API
+   * @param {string} hindiText - Text in Hindi language
+   * @returns {Promise<string>} - Translated English text
+   */
+  async translateHindiToEnglish(hindiText) {
+    try {
+      if (
+        !hindiText ||
+        hindiText.trim() === "" ||
+        hindiText === "No speech detected"
+      ) {
+        return hindiText;
+      }
+
+      if (!this.translateApiKey) {
+        console.warn("Google Translate API key not set, skipping translation");
+        return hindiText;
+      }
+
+      console.log("🌐 Translating Hindi text to English...");
+
+      const url = `https://translation.googleapis.com/language/translate/v2?key=${this.translateApiKey}`;
+
+      const response = await axios.post(url, {
+        q: hindiText,
+        source: "hi", // Hindi
+        target: "en", // English
+        format: "text",
+      });
+
+      const translatedText = response.data.data.translations[0].translatedText;
+      console.log(
+        "✅ Translation successful (Hindi → English):",
+        translatedText
+      );
+      return translatedText;
+    } catch (error) {
+      console.error("❌ Error translating text:", error.message);
+      // If translation fails, return original text
+      return hindiText;
+    }
+  }
+
+  /**
+   * Refine and structure the translated text using Gemini AI
+   * @param {string} englishText - Translated English text
+   * @returns {Promise<string>} - Refined and structured text
+   */
+  async refineTextWithGemini(englishText) {
+    try {
+      if (!this.geminiModel) {
+        console.log("Gemini API not configured, returning original text");
+        return englishText;
+      }
+
+      console.log("✨ Refining text with Gemini AI...");
+
+      const prompt = `You are a cyber crime report assistant. Refine the following incident description to make it clear, structured, and professional while preserving all details like dates, amounts, phone numbers, account numbers, etc.
+
+Original text: "${englishText}"
+
+Provide a refined version that:
+1. Corrects grammar and spelling
+2. Organizes information logically
+3. Preserves all specific details (dates, amounts, numbers, names)
+4. Makes it concise and suitable for a formal cyber crime complaint
+5. Keep it brief and to the point (max 3-4 sentences)
+
+Refined text:`;
+
+      const result = await this.geminiModel.generateContent(prompt);
+      const response = await result.response;
+      const refinedText = response.text();
+
+      console.log("✅ Text refined with Gemini AI");
+      return refinedText.trim();
+    } catch (error) {
+      console.error("❌ Error refining text with Gemini:", error.message);
+      // If Gemini fails, return the original English text
+      return englishText;
     }
   }
 
@@ -139,9 +270,15 @@ class VoiceProcessingService {
     for (const pattern of datePatterns) {
       const match = text.match(pattern);
       if (match) {
-        if (match[0].toLowerCase().includes("today") || match[0].includes("आज")) {
+        if (
+          match[0].toLowerCase().includes("today") ||
+          match[0].includes("आज")
+        ) {
           details.date = new Date().toISOString();
-        } else if (match[0].toLowerCase().includes("yesterday") || match[0].includes("कल")) {
+        } else if (
+          match[0].toLowerCase().includes("yesterday") ||
+          match[0].includes("कल")
+        ) {
           const yesterday = new Date();
           yesterday.setDate(yesterday.getDate() - 1);
           details.date = yesterday.toISOString();
@@ -179,14 +316,7 @@ class VoiceProcessingService {
         "screenshot",
         "qr code",
       ],
-      "Call Fraud": [
-        "call",
-        "phone",
-        "कॉल",
-        "फोन",
-        "बोल रहा",
-        "customer care",
-      ],
+      "Call Fraud": ["call", "phone", "कॉल", "फोन", "बोल रहा", "customer care"],
       "Investment Fraud": [
         "investment",
         "stock",
@@ -203,7 +333,9 @@ class VoiceProcessingService {
 
     const lowerText = text.toLowerCase();
     for (const [type, keywords] of Object.entries(fraudTypes)) {
-      if (keywords.some((keyword) => lowerText.includes(keyword.toLowerCase()))) {
+      if (
+        keywords.some((keyword) => lowerText.includes(keyword.toLowerCase()))
+      ) {
         details.fraudType = type;
         break;
       }
@@ -218,43 +350,72 @@ class VoiceProcessingService {
   }
 
   /**
-   * Process voice message end-to-end
+   * Process voice message end-to-end with Hindi → English → Gemini refinement
    * @param {string} mediaId - WhatsApp media ID
    * @param {string} accessToken - WhatsApp access token
    * @returns {Promise<Object>} - Extracted complaint details
    */
   async processVoiceMessage(mediaId, accessToken) {
     try {
-      console.log("🎤 Processing voice message...");
+      console.log("🎤 Processing Hindi voice message...");
 
-      // Step 1: Download audio
+      // Step 1: Download audio from WhatsApp
       const audioFilePath = await this.downloadAudioFromWhatsApp(
         mediaId,
         accessToken
       );
 
-      // Step 2: Transcribe audio to text
-      const transcribedText = await this.transcribeAudio(audioFilePath);
+      // Step 2: Transcribe Hindi audio to Hindi text using Google Speech-to-Text
+      console.log("📝 Step 1: Transcribing Hindi audio...");
+      const hindiText = await this.transcribeAudio(audioFilePath, "hi-IN");
 
-      // Step 3: Extract key details using NLP
-      const extractedDetails = this.extractDetailsFromText(transcribedText);
+      if (!hindiText || hindiText === "No speech detected") {
+        throw new Error("No speech detected in audio");
+      }
 
-      // Step 4: Clean up temp file
+      // Step 3: Translate Hindi text to English using Google Translate
+      console.log("🌐 Step 2: Translating Hindi to English...");
+      const englishText = await this.translateHindiToEnglish(hindiText);
+
+      // Step 4: Refine English text using Gemini AI (optional)
+      console.log("✨ Step 3: Refining with Gemini AI...");
+      const refinedText = await this.refineTextWithGemini(englishText);
+
+      // Step 5: Extract key details from refined text
+      console.log("🔍 Step 4: Extracting details...");
+      const extractedDetails = this.extractDetailsFromText(refinedText);
+
+      // Step 6: Clean up temp file
       try {
         fs.unlinkSync(audioFilePath);
       } catch (e) {
         console.log("Could not delete temp file:", e.message);
       }
 
-      console.log("✅ Voice processing complete:", extractedDetails);
+      console.log("✅ Voice processing complete!");
+      console.log("📊 Processing Summary:");
+      console.log("  - Hindi Text:", hindiText.substring(0, 100) + "...");
+      console.log(
+        "  - English Translation:",
+        englishText.substring(0, 100) + "..."
+      );
+      console.log("  - Refined Text:", refinedText.substring(0, 100) + "...");
+
       return {
         success: true,
-        transcription: transcribedText,
+        hindiTranscription: hindiText, // Original Hindi transcription
+        englishTranslation: englishText, // English translation
+        transcription: refinedText, // Final refined text (main output)
         details: extractedDetails,
       };
     } catch (error) {
       console.error("❌ Error processing voice message:", error);
-      throw error;
+      return {
+        success: false,
+        error: error.message,
+        transcription: "",
+        details: {},
+      };
     }
   }
 

@@ -5,7 +5,7 @@ const speech = require("@google-cloud/speech");
 const { exec } = require("child_process");
 const util = require("util");
 const execPromise = util.promisify(exec);
-const geminiService = require('./geminiService');
+const geminiService = require("./geminiService");
 
 class VoiceService {
   constructor() {
@@ -123,8 +123,8 @@ class VoiceService {
       const config = {
         encoding: "OGG_OPUS", // WhatsApp sends OGG OPUS format
         sampleRateHertz: 16000,
-        languageCode: "en-IN", // English (India)
-        alternativeLanguageCodes: ["en-US"], // Fallback to US English
+        languageCode: "hi-IN", // Hindi (India) - Changed from en-IN
+        alternativeLanguageCodes: ["en-IN", "en-US"], // Fallback to English
         enableAutomaticPunctuation: true,
         model: "default",
         audioChannelCount: 1, // Mono
@@ -156,8 +156,10 @@ class VoiceService {
         .join("\n");
 
       const confidence = response.results[0].alternatives[0].confidence || 0;
+      const detectedLanguage = response.results[0].languageCode || "hi-in";
 
       console.log(`[VoiceService] ✅ Google Cloud transcription successful!`);
+      console.log(`[VoiceService] Detected Language: ${detectedLanguage}`);
       console.log(`[VoiceService] Transcribed: "${transcription}"`);
       console.log(
         `[VoiceService] Confidence: ${(confidence * 100).toFixed(1)}%`
@@ -165,7 +167,8 @@ class VoiceService {
 
       return {
         rawText: transcription.trim(),
-        confidence: confidence
+        confidence: confidence,
+        language: detectedLanguage,
       };
     } catch (error) {
       console.error(
@@ -174,6 +177,65 @@ class VoiceService {
       );
       console.error("[VoiceService] Full error:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Translate Hindi text to English using Google Translate API
+   * Auto-detects if translation is needed based on language detection
+   */
+  async translateToEnglish(text, detectedLanguage) {
+    try {
+      const translateApiKey = process.env.GEMINI_TRANSLATION_API_KEY;
+
+      if (!translateApiKey) {
+        console.log(
+          "[VoiceService] ⚠️  Translation API key not set, skipping translation"
+        );
+        return { text, translated: false };
+      }
+
+      // Check if text is in English (based on detected language)
+      if (detectedLanguage && detectedLanguage.startsWith("en")) {
+        console.log(
+          `[VoiceService] ✅ Audio detected as English (${detectedLanguage}), skipping translation`
+        );
+        return { text, translated: false };
+      }
+
+      // Check if text contains Hindi (Devanagari script)
+      const hindiRegex = /[\u0900-\u097F]/;
+      if (!hindiRegex.test(text)) {
+        console.log(
+          "[VoiceService] Text appears to be in English, skipping translation"
+        );
+        return { text, translated: false };
+      }
+
+      console.log(
+        `[VoiceService] 🌐 Translating ${
+          detectedLanguage || "Hindi"
+        } to English...`
+      );
+
+      const url = `https://translation.googleapis.com/language/translate/v2?key=${translateApiKey}`;
+
+      const response = await axios.post(url, {
+        q: text,
+        source: "hi", // Hindi
+        target: "en", // English
+        format: "text",
+      });
+
+      const translatedText = response.data.data.translations[0].translatedText;
+      console.log("[VoiceService] ✅ Translation successful (Hindi → English)");
+      console.log(`[VoiceService] Translated: "${translatedText}"`);
+
+      return { text: translatedText, translated: true };
+    } catch (error) {
+      console.error("[VoiceService] ❌ Translation error:", error.message);
+      // Return original text if translation fails
+      return { text, translated: false };
     }
   }
 
@@ -213,8 +275,11 @@ Return ONLY the refined text without any additional comments or explanations.
 
       return refinedText.trim();
     } catch (error) {
-      console.error('[VoiceService] ⚠️ Gemini refinement failed:', error.message);
-      console.log('[VoiceService] Falling back to raw transcription');
+      console.error(
+        "[VoiceService] ⚠️ Gemini refinement failed:",
+        error.message
+      );
+      console.log("[VoiceService] Falling back to raw transcription");
       // Fallback to raw text if Gemini fails
       return rawText;
     }
@@ -232,25 +297,59 @@ Return ONLY the refined text without any additional comments or explanations.
       // Step 1: Download audio
       audioFilePath = await this.downloadAudioFromWhatsApp(mediaId);
 
-      // Step 2: Transcribe audio using Google Speech-to-Text
+      // Step 2: Transcribe audio using Google Speech-to-Text (supports Hindi & English)
       const transcriptionResult = await this.transcribeAudio(audioFilePath);
       const rawText = transcriptionResult.rawText;
       const confidence = transcriptionResult.confidence;
+      const detectedLanguage = transcriptionResult.language;
 
-      console.log(`[VoiceService] Raw transcription: "${rawText}"`);
+      console.log(
+        `[VoiceService] Raw transcription (${detectedLanguage}): "${rawText}"`
+      );
 
-      // Step 3: Fine-tune with Gemini AI
-      const refinedText = await this.fineTuneTextWithGemini(rawText, confidence);
+      // Step 3: Translate to English (only if needed)
+      const translationResult = await this.translateToEnglish(
+        rawText,
+        detectedLanguage
+      );
+      const englishText = translationResult.text;
+      const wasTranslated = translationResult.translated;
+
+      if (wasTranslated) {
+        console.log(
+          `[VoiceService] ✅ Translated to English: "${englishText}"`
+        );
+      } else {
+        console.log(
+          `[VoiceService] ⏭️  Translation skipped (already in English)`
+        );
+      }
+
+      // Step 4: Fine-tune with Gemini AI
+      const refinedText = await this.fineTuneTextWithGemini(
+        englishText,
+        confidence
+      );
 
       // Cleanup temp files
       this.cleanupTempFile(audioFilePath);
 
       return {
         success: true,
-        rawTranscription: rawText,
-        refinedText: refinedText,
-        transcription: refinedText, // Default to refined text
+        detectedLanguage: detectedLanguage, // Language detected by Google Speech API
+        rawTranscription: rawText, // Original transcription (Hindi or English)
+        wasTranslated: wasTranslated, // Whether translation was performed
+        englishTranslation: wasTranslated ? englishText : null, // Translated text (only if translated)
+        refinedText: refinedText, // AI-refined English text
+        transcription: refinedText, // Default to refined text (for backward compatibility)
         confidence: confidence,
+        processingSteps: {
+          transcription: `✅ Completed (${detectedLanguage})`,
+          translation: wasTranslated
+            ? "✅ Completed (Hindi → English)"
+            : "⏭️  Skipped (Already English)",
+          refinement: "✅ Completed with Gemini AI",
+        },
       };
     } catch (error) {
       console.error("[VoiceService] Error processing voice message:", error);
