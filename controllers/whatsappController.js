@@ -859,9 +859,7 @@ class WhatsAppController {
           critical: "🚨",
         };
 
-        const priorityBadge = case_.isHighAlert
-          ? "🚨 HIGH PRIORITY CASE"
-          : "";
+        const priorityBadge = case_.isHighAlert ? "🚨 HIGH PRIORITY CASE" : "";
 
         const statusEmoji = {
           pending: "🕐",
@@ -882,9 +880,9 @@ class WhatsAppController {
           `📊 *Current Status:* ${
             statusEmoji[case_.status] || "📋"
           } ${case_.status.replace(/_/g, " ").toUpperCase()}\n` +
-          `⚡ *Priority Level:* ${priorityEmoji[case_.priority || "medium"]} ${
-            (case_.priority || "medium").toUpperCase()
-          }\n` +
+          `⚡ *Priority Level:* ${priorityEmoji[case_.priority || "medium"]} ${(
+            case_.priority || "medium"
+          ).toUpperCase()}\n` +
           `📅 *Registered On:* ${case_.createdAt.toLocaleDateString("en-IN", {
             day: "numeric",
             month: "long",
@@ -1486,13 +1484,9 @@ class WhatsAppController {
       const newStatus = updateData.status || oldStatus;
 
       // Update the case
-      const updatedCase = await Cases.findOneAndUpdate(
-        { caseId },
-        updateData,
-        {
-          new: true,
-        }
-      ).populate("caseDetailsId");
+      const updatedCase = await Cases.findOneAndUpdate({ caseId }, updateData, {
+        new: true,
+      }).populate("caseDetailsId");
 
       // If status has changed, send WhatsApp notification to user
       if (oldStatus !== newStatus) {
@@ -1623,7 +1617,7 @@ class WhatsAppController {
 
       // Format phone number - ensure it has country code
       let formattedPhone = phoneNumber.replace(/\D/g, ""); // Remove non-digits
-      
+
       // Add country code if not present
       if (!formattedPhone.startsWith("91") && formattedPhone.length === 10) {
         formattedPhone = "91" + formattedPhone;
@@ -1636,7 +1630,7 @@ class WhatsAppController {
         formattedPhone,
         message
       );
-      
+
       const result = await this.whatsappService.sendMessage(
         formattedPhone,
         textMessage
@@ -1655,7 +1649,7 @@ class WhatsAppController {
     } catch (error) {
       console.error("❌ Error sending admin message:", error);
       console.error("Error details:", error.response?.data || error.message);
-      
+
       res.status(500).json({
         success: false,
         message: "Failed to send WhatsApp message",
@@ -1941,6 +1935,9 @@ class WhatsAppController {
     try {
       // Check if user is in the awaiting query step
       if (session.step !== "AWAITING_QUERY") {
+        console.log(
+          `[WhatsAppController] User not in AWAITING_QUERY step. Current step: ${session.step}`
+        );
         return;
       }
 
@@ -1955,12 +1952,19 @@ class WhatsAppController {
 
       // Import query service
       const queryService = require("../services/queryService");
+      console.log(`[WhatsAppController] Query service loaded successfully`);
 
-      // Process the query
+      // Process the query with detailed error logging
+      console.log(`[WhatsAppController] Calling queryService.processQuery()`);
       const result = await queryService.processQuery(queryText);
+      console.log(
+        `[WhatsAppController] Query result:`,
+        JSON.stringify(result, null, 2)
+      );
 
       if (result.success) {
         // Format and send the response
+        console.log(`[WhatsAppController] Formatting successful response`);
         const formattedAnswer = queryService.formatResponse(result.data);
 
         // Send the answer
@@ -1986,11 +1990,52 @@ class WhatsAppController {
       } else {
         // Query processing failed
         console.error(`[WhatsAppController] Query failed:`, result.error);
+        console.error(`[WhatsAppController] Error message:`, result.message);
 
-        const errorMessage = this.whatsappService.createTextMessage(
-          from,
-          queryService.getErrorMessage()
-        );
+        // Create user-friendly error message based on error type
+        let errorMessage;
+        if (
+          result.error === "Connection Error" ||
+          result.error === "Connection Refused"
+        ) {
+          errorMessage = this.whatsappService.createTextMessage(
+            from,
+            "⚠️ The AI query service is temporarily unavailable.\n\n" +
+              "This could be because:\n" +
+              "• The RAG API server is not running\n" +
+              "• Network connectivity issue\n\n" +
+              "📞 Meanwhile, you can:\n" +
+              "• Call helpline: 1930 (24x7)\n" +
+              "• Visit: https://cybercrime.gov.in\n\n" +
+              "Please try again in a few moments."
+          );
+        } else if (result.error === "Bad Request") {
+          errorMessage = this.whatsappService.createTextMessage(
+            from,
+            "❌ Your query format is invalid.\n\n" +
+              "Please try:\n" +
+              "• Make your question clearer\n" +
+              "• Use 3-500 characters\n" +
+              "• Avoid special characters\n\n" +
+              "Example: 'How to report online fraud?'"
+          );
+        } else if (result.error === "Timeout") {
+          errorMessage = this.whatsappService.createTextMessage(
+            from,
+            "⏱️ Your query is taking too long to process.\n\n" +
+              "Please try:\n" +
+              "• A shorter question\n" +
+              "• Breaking it into multiple queries\n\n" +
+              "Or contact us:\n" +
+              "📞 Helpline: 1930 (24x7)"
+          );
+        } else {
+          errorMessage = this.whatsappService.createTextMessage(
+            from,
+            queryService.getErrorMessage()
+          );
+        }
+
         await this.whatsappService.sendMessage(from, errorMessage);
 
         // Send retry options
@@ -2009,12 +2054,21 @@ class WhatsAppController {
       }
     } catch (error) {
       console.error("[WhatsAppController] Error handling user query:", error);
+      console.error("[WhatsAppController] Error stack:", error.stack);
+      console.error("[WhatsAppController] Error details:", {
+        message: error.message,
+        name: error.name,
+        queryText: queryText,
+        sessionState: session?.state,
+        sessionStep: session?.step,
+      });
 
       const errorMessage = this.whatsappService.createTextMessage(
         from,
-        "❌ An unexpected error occurred.\n\n" +
+        "❌ An unexpected error occurred while processing your query.\n\n" +
           "📞 Please call our helpline: 1930 (24x7)\n" +
-          "🌐 Or visit: https://cybercrime.gov.in"
+          "🌐 Or visit: https://cybercrime.gov.in\n\n" +
+          "Our team will assist you directly."
       );
       await this.whatsappService.sendMessage(from, errorMessage);
 

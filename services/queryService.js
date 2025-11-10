@@ -19,42 +19,91 @@ class QueryService {
   async processQuery(query, topK = DEFAULT_TOP_K) {
     try {
       console.log(`[QueryService] Processing query: "${query}"`);
+      console.log(`[QueryService] API URL: ${QUERY_API_URL}`);
+      console.log(`[QueryService] Top K: ${topK}`);
 
       // Validate query
       if (!this.validateQuery(query)) {
+        console.error("[QueryService] Query validation failed");
         throw new Error(
           "Invalid query. Query must be between 3 and 500 characters."
         );
       }
 
-      const response = await axios.post(
-        QUERY_API_URL,
-        {
-          query: query.trim(),
-          top_k: topK,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          timeout: REQUEST_TIMEOUT,
-        }
+      const requestPayload = {
+        query: query.trim(),
+        top_k: topK,
+      };
+
+      console.log(
+        "[QueryService] Request payload:",
+        JSON.stringify(requestPayload)
       );
 
-      console.log("[QueryService] Query processed successfully");
-      return {
-        success: true,
-        data: response.data,
-      };
+      const response = await axios.post(QUERY_API_URL, requestPayload, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        timeout: REQUEST_TIMEOUT,
+        validateStatus: function (status) {
+          return status < 500; // Resolve only if status < 500
+        },
+      });
+
+      console.log(`[QueryService] API Response Status: ${response.status}`);
+      console.log(
+        "[QueryService] API Response Data:",
+        JSON.stringify(response.data, null, 2)
+      );
+
+      // Check if response is successful
+      if (response.status === 200 && response.data) {
+        console.log("[QueryService] Query processed successfully");
+
+        // Validate response structure
+        if (!response.data.answer) {
+          console.warn("[QueryService] Response missing 'answer' field");
+          return {
+            success: false,
+            error: "Invalid Response",
+            message: "API returned incomplete data",
+          };
+        }
+
+        return {
+          success: true,
+          data: response.data,
+        };
+      } else if (response.status === 400) {
+        console.error("[QueryService] Bad Request (400):", response.data);
+        return {
+          success: false,
+          error: "Bad Request",
+          message: response.data.detail || "Invalid query format",
+        };
+      } else {
+        console.error(
+          `[QueryService] API Error (${response.status}):`,
+          response.data
+        );
+        return {
+          success: false,
+          error: `API Error: ${response.status}`,
+          message: response.data.detail || "Unknown error occurred",
+        };
+      }
     } catch (error) {
       console.error("[QueryService] Error processing query:", error.message);
+      console.error("[QueryService] Error stack:", error.stack);
 
       if (error.response) {
         // API returned an error response
         console.error(
           "[QueryService] API Response Error:",
-          error.response.data
+          error.response.status
         );
+        console.error("[QueryService] API Response Data:", error.response.data);
         return {
           success: false,
           error: `API Error: ${error.response.status}`,
@@ -63,14 +112,38 @@ class QueryService {
       } else if (error.request) {
         // Request was made but no response received
         console.error("[QueryService] No response from API");
+        console.error(
+          "[QueryService] Please check if the RAG API server is running at:",
+          QUERY_API_URL
+        );
         return {
           success: false,
           error: "Connection Error",
           message:
-            "Cannot connect to the query API. Please ensure the API server is running.",
+            "Cannot connect to the query API. Please ensure the RAG API server is running at " +
+            QUERY_API_URL,
+        };
+      } else if (error.code === "ECONNREFUSED") {
+        console.error(
+          "[QueryService] Connection refused - API server not running"
+        );
+        return {
+          success: false,
+          error: "Connection Refused",
+          message:
+            "RAG API server is not running. Please start the server at " +
+            QUERY_API_URL,
+        };
+      } else if (error.code === "ETIMEDOUT") {
+        console.error("[QueryService] Request timeout");
+        return {
+          success: false,
+          error: "Timeout",
+          message: "Query processing took too long. Please try again.",
         };
       } else {
         // Error in request setup
+        console.error("[QueryService] Request setup error:", error.message);
         return {
           success: false,
           error: "Request Error",
