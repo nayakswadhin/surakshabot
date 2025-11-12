@@ -1,0 +1,393 @@
+{
+  "analysis_timestamp": "2025-11-07T22:10:19.651282",
+  "time_patterns": {
+    "hourly_distribution": {
+      "1": 9,
+      "18": 7,
+      "10": 3,
+      "14": 4,
+      "22": 8,
+      "0": 6,
+      "20": 11,
+      "9": 6,
+      "19": 9,
+      "21": 4,
+      "17": 7,
+      "16": 2,
+      "8": 6,
+      "23": 10,
+      "12": 5,
+      "2": 6,
+      "15": 4,
+      "13": 2,
+      "11": 1
+    },
+    "daily_distribution": {
+      "Monday": 21,
+      "Tuesday": 18,
+      "Wednesday": 14,
+      "Saturday": 13,
+      "Friday": 16,
+      "Thursday": 10,
+      "Sunday": 18
+    },
+    "peak_hours": [
+      {
+        "hour": 20,
+        "count": 11
+      },
+      {
+        "hour": 23,
+        "count": 10
+      },
+      {
+        "hour": 1,
+        "count": 9
+      }
+    ],
+    "recommended_alert_hours": [
+      18,
+      21,
+      23
+    ],
+    "fraud_type_by_hour": {
+      "1": {
+        "WhatsApp Fraud": 1,
+        "Facebook Fraud": 1,
+        "E-Wallet Fraud": 1,
+        "Debit Card Fraud": 3,
+        "Loan App Fraud": 1,
+        "X (Twitter) Fraud": 1,
+        "Hacked Gmail/YouTube": 1
+      },
+      "18": {
+        "Digital Arrest Fraud": 1,
+        "Customer Care Fraud": 1,
+        "Debit Card Fraud": 2,
+        "Investment/Trading/IPO Fraud": 1,
+        "Credit Card Fraud": 1,
+        "X (Twitter) Fraud": 1
+      },
+      "10": {
+        "Instagram Fraud": 1,
+        "Online Job Fraud": 1,
+        "WhatsApp Fraud": 1
+      },
+      "14": {
+        "Social Media - Others": 1,
+        "Customer Care Fraud": 1,
+        "Instagram Fraud": 1,
+        "Gaming App Fraud": 1
+      },
+      "22": {
+        "Customer Care Fraud": 1,
+        "Loan App Fraud": 2,
+        "Fraud Call/SMS": 1,
+        "Digital Arrest Fraud": 1,
+        "Facebook Fraud": 2,
+        "WhatsApp Fraud": 1
+      },
+      "0": {
+        "Credit Card Fraud": 1,
+        "Customer Care Fraud": 1,
+        "UPI Fraud (UPI/IMPS/INB/NEFT/RTGS)": 1,
+        "WhatsApp Fraud": 1,
+        "Telegram Fraud": 1,
+        "E-Wallet Fraud": 1
+      },
+      "20": {
+        "WhatsApp Fraud": 1,
+        "Social Media - Others": 1,
+        "E-Wallet Fraud": 1,
+        "Customer Care Fraud": 1,
+        "Online Job Fraud": 1,
+        "Gaming App Fraud": 1,
+        "Fraud Call/SMS": 1,
+        "Credit Card Fraud": 1,
+        "Instagram Fraud": 1,
+        "E-Commerce Fraud": 1,
+        "Insurance Maturity Fraud": 1
+      },
+      "9": {
+        "Digital Arrest Fraud": 2,
+        "Online Job Fraud": 2,
+        "Gaming App Fraud": 1,
+        "Lottery Fraud": 1
+      },
+      "19": {
+        "Telegram Fraud": 1,
+        "Credit Card Fraud": 2,
+        "Online Job Fraud": 1,
+        "UPI Fraud (UPI/IMPS/INB/NEFT/RTGS)": 1,
+        "Hacked Gmail/YouTube": 1,
+        "Financial - Others": 1,
+        "X (Twitter) Fraud": 1,
+        "Investment/Trading/IPO Fraud": 1
+      },
+      "21": {
+        "Telegram Fraud": 1,
+        "Investment/Trading/IPO Fraud": 1,
+        "Insurance Maturity Fraud": 1,
+        "Lottery Fraud": 1
+      },
+      "17": {
+        "WhatsApp Fraud": 1,
+        "Digital Arrest Fraud": 1,
+        "Insurance Maturity Fraud": 1,
+        "Instagram Fraud": 1,
+        "E-Wallet Fraud": 3
+      },
+      "16": {
+        "X (Twitter) Fraud": 1,
+        "Loan App Fraud": 1
+      },
+      "8": {
+        "UPI Fraud (UPI/IMPS/INB/NEFT/RTGS)": 1,
+        "Insurance Maturity Fraud": 1,
+        "Lottery Fraud": 1,
+        "Social Media - Others": 1,
+        "Credit Card Fraud": 1,
+        "Gaming App Fraud": 1
+      },
+      "23": {
+        "Telegram Fraud": 2,
+        "Gaming App Fraud": 2,
+        "Insurance Maturity Fraud": 1,
+        "Digital Arrest Fraud": 1,
+        "Social Media - Others": 2,
+        "E-Wallet Fraud": 1,
+        "E-Commerce Fraud": 1
+      },
+      "12": {
+        "Digital Arrest Fraud": 1,
+        "Lottery Fraud": 1,
+        "X (Twitter) Fraud": 1,
+        "Gaming App Fraud": 1,
+        "Fraud Call/SMS": 1
+      },
+      "2": {
+        "Facebook Fraud": 1,
+        "Credit Card Fraud": 1,
+        "Insurance Maturity Fraud": 1,
+        "Gaming App Fraud": 1,
+        "Digital Arrest Fraud": 1,
+        "Financial - Others": 1
+      },
+      "15": {
+        "Customer Care Fraud": 1,
+        "Credit Card Fraud": 1,
+        "WhatsApp Fraud": 1,
+        "Social Media - Others": 1
+      },
+      "13": {
+        "Fraud Call/SMS": 1,
+        "E-Wallet Fraud": 1
+      },
+      "11": {
+        "Telegram Fraud": 1
+      }
+    }
+  },
+  "location_patterns": {
+    "district_fraud_count": {
+      "Chennai": 29,
+      "New Delhi": 24,
+      "Bengaluru": 15,
+      "Hyderabad": 16,
+      "Kolkata": 15,
+      "Mumbai": 11
+    },
+    "area_fraud_count": {
+      "Adyar": 7,
+      "Dwarka": 7,
+      "Indiranagar": 5,
+      "Madhapur": 3,
+      "Koramangala": 6,
+      "Rajarhat": 5,
+      "Rohini": 9,
+      "Howrah": 3,
+      "Kukatpally": 3,
+      "Anna Nagar": 6,
+      "Gachibowli": 5,
+      "Park Street": 4,
+      "Banjara Hills": 5,
+      "T Nagar": 8,
+      "Karol Bagh": 6,
+      "Velachery": 8,
+      "Salt Lake": 3,
+      "Powai": 6,
+      "Jayanagar": 1,
+      "Connaught Place": 2,
+      "Whitefield": 3,
+      "Bandra": 1,
+      "Borivali": 2,
+      "Colaba": 1,
+      "Andheri": 1
+    },
+    "high_risk_districts": [
+      {
+        "district": "Chennai",
+        "count": 29
+      },
+      {
+        "district": "New Delhi",
+        "count": 24
+      },
+      {
+        "district": "Hyderabad",
+        "count": 16
+      },
+      {
+        "district": "Bengaluru",
+        "count": 15
+      },
+      {
+        "district": "Kolkata",
+        "count": 15
+      }
+    ],
+    "high_risk_areas": [
+      {
+        "area": "Rohini",
+        "count": 9
+      },
+      {
+        "area": "T Nagar",
+        "count": 8
+      },
+      {
+        "area": "Velachery",
+        "count": 8
+      },
+      {
+        "area": "Adyar",
+        "count": 7
+      },
+      {
+        "area": "Dwarka",
+        "count": 7
+      }
+    ],
+    "district_fraud_types": {
+      "Chennai": {
+        "WhatsApp Fraud": 1,
+        "Instagram Fraud": 3,
+        "Social Media - Others": 2,
+        "Facebook Fraud": 1,
+        "UPI Fraud (UPI/IMPS/INB/NEFT/RTGS)": 2,
+        "Financial - Others": 1,
+        "Insurance Maturity Fraud": 2,
+        "E-Wallet Fraud": 3,
+        "Digital Arrest Fraud": 2,
+        "Debit Card Fraud": 3,
+        "Telegram Fraud": 1,
+        "Customer Care Fraud": 1,
+        "Fraud Call/SMS": 2,
+        "Investment/Trading/IPO Fraud": 1,
+        "X (Twitter) Fraud": 1,
+        "Credit Card Fraud": 2,
+        "Gaming App Fraud": 1
+      },
+      "New Delhi": {
+        "Digital Arrest Fraud": 2,
+        "Credit Card Fraud": 3,
+        "Telegram Fraud": 3,
+        "Loan App Fraud": 1,
+        "UPI Fraud (UPI/IMPS/INB/NEFT/RTGS)": 1,
+        "Hacked Gmail/YouTube": 1,
+        "Gaming App Fraud": 1,
+        "Insurance Maturity Fraud": 1,
+        "Social Media - Others": 2,
+        "Investment/Trading/IPO Fraud": 2,
+        "Customer Care Fraud": 1,
+        "Facebook Fraud": 2,
+        "Online Job Fraud": 1,
+        "WhatsApp Fraud": 2,
+        "Lottery Fraud": 1
+      },
+      "Bengaluru": {
+        "Social Media - Others": 1,
+        "Loan App Fraud": 3,
+        "WhatsApp Fraud": 1,
+        "Customer Care Fraud": 1,
+        "Facebook Fraud": 1,
+        "Lottery Fraud": 1,
+        "E-Wallet Fraud": 2,
+        "X (Twitter) Fraud": 1,
+        "Credit Card Fraud": 1,
+        "Gaming App Fraud": 1,
+        "Hacked Gmail/YouTube": 1,
+        "Fraud Call/SMS": 1
+      },
+      "Hyderabad": {
+        "Customer Care Fraud": 3,
+        "WhatsApp Fraud": 2,
+        "E-Wallet Fraud": 2,
+        "Online Job Fraud": 1,
+        "Digital Arrest Fraud": 2,
+        "Debit Card Fraud": 1,
+        "Gaming App Fraud": 2,
+        "Financial - Others": 1,
+        "X (Twitter) Fraud": 1,
+        "Insurance Maturity Fraud": 1
+      },
+      "Kolkata": {
+        "Digital Arrest Fraud": 1,
+        "Telegram Fraud": 2,
+        "X (Twitter) Fraud": 1,
+        "Online Job Fraud": 3,
+        "Debit Card Fraud": 1,
+        "Insurance Maturity Fraud": 1,
+        "Lottery Fraud": 2,
+        "Fraud Call/SMS": 1,
+        "WhatsApp Fraud": 1,
+        "Credit Card Fraud": 1,
+        "Instagram Fraud": 1
+      },
+      "Mumbai": {
+        "Social Media - Others": 1,
+        "X (Twitter) Fraud": 1,
+        "Digital Arrest Fraud": 1,
+        "Gaming App Fraud": 3,
+        "E-Commerce Fraud": 2,
+        "E-Wallet Fraud": 1,
+        "Insurance Maturity Fraud": 1,
+        "Credit Card Fraud": 1
+      }
+    }
+  },
+  "fraud_types": {
+    "fraud_type_distribution": {
+      "WhatsApp Fraud": 7,
+      "Digital Arrest Fraud": 8,
+      "Instagram Fraud": 4,
+      "Social Media - Others": 6,
+      "Customer Care Fraud": 6,
+      "Credit Card Fraud": 8,
+      "Loan App Fraud": 4,
+      "Telegram Fraud": 6,
+      "E-Wallet Fraud": 8,
+      "X (Twitter) Fraud": 5,
+      "Online Job Fraud": 5,
+      "Facebook Fraud": 4,
+      "UPI Fraud (UPI/IMPS/INB/NEFT/RTGS)": 3,
+      "Hacked Gmail/YouTube": 2,
+      "Debit Card Fraud": 5,
+      "Gaming App Fraud": 8,
+      "Insurance Maturity Fraud": 6,
+      "Financial - Others": 2,
+      "Lottery Fraud": 4,
+      "Fraud Call/SMS": 4,
+      "Investment/Trading/IPO Fraud": 3,
+      "E-Commerce Fraud": 2
+    },
+    "category_distribution": {
+      "Social": 38,
+      "Financial": 72
+    },
+    "total_cases": 110
+  },
+  "total_users": 50,
+  "total_cases": 110,
+  "total_case_details": 110
+}

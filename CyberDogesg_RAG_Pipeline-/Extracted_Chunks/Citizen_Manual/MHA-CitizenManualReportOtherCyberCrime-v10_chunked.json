@@ -1,0 +1,812 @@
+[
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p1_c1",
+    "page": 1,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 0 of 91 \n \n \n \n \n \n \n \nCITIZEN MANUAL \nFOR \nNATIONAL CYBERCRIME REPORTING \nPORTAL \n \nMINISTRY OF HOME AFFAIRS \n \nINDIAN CYBERCRIME COORDINATION CENTRE (I4C) \nMINISTRY OF HOME AFFAIRS"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p2_c1",
+    "page": 2,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 1 of 91 \n \n \n \n \n \n \n \n \n \nUSER MANUAL FOR REPORTING \nCYBER CRIMES (except Child \nPornography, Rape/Gang Rape \nand Obscene Content related \nCybercrimes) \n \nMinistry of Home Affairs \n \n \nDocument Information \nOwner \nMinistry of Home Affairs, Government of India \nDocument Status \nFinal \nDate Effective \n30 Aug 2019 \n \n \n \n \nDisclaimer \n \nAs per Article 246 of the Constitution of India, Public and Police order is the responsibility of the \nState. Due to transnational and borderless nature of cybercrimes, this Portal has been developed \nfor facilitating public to report cybercrime complaints online. \n \nAll the reported complaints are dealt by respective State/UT police authorities based on the \ninformation provided by the complainant for necessary action. This portal has been designed to \nreport complaints related to cybercrimes and should not be treated as an FIR. State /UT authorities \nare responsible for appropriate action on the complaints reported on the portal. Complainants are \nadvised to take care of the accuracy of information provided by them on the portal."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p3_c1",
+    "page": 3,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 2 of 91 \n \nABBREVIATIONS \n \nOTP   \nOne Time Password \n2FA \n \nTwo factor Authentication \nEML \n \nElectronic Mail \nBTC \n \nBitcoin \nTAU \n \nNational Cybercrime Threat Analytics Unit  \nNCFL  \nNational Cybercrime Forensic Laboratory \nNCTC  \nNational Cybercrime Training Centre  \nNCR&IC \nNational Cyber Research and Innovation Centre \nJPG/JPEG \nJoint Photographic Experts Group \nAVI \n \nAudio Video Interleave \nMP4 \n \nMPEG-4 AVC (Advanced Video Coding) \nFLV \n \nFlash Video \nMPEG  \nMoving Picture Experts Group \nAMR  \nAdaptive Multi-Rate \nDVI \n \nDigital Video Interactive \nPDF \n \nPortable Document Format \nPNG \n \nPortable Network Graphics \nWMV  \nWindows Media Video \n3GP \n \n3GPP file format \nDoc \n \nDocument"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p4_c1",
+    "page": 4,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p4_c2",
+    "page": 4,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 3 of 91 \n \n1. BACKGROUND \n5 \n2. INTRODUCTION \n5 \nWORKING OF THE PORTAL \n5 \nPURPOSE \n6 \n3. REPORT OTHER CYBERCRIME FLOWCHART \n7 \n4. HOW TO REPORT A COMPLAINT \n8 \nSTEP 1: NAVIGATE TO REPORT OTHER CYBER CRIME SECTION \n8 \nSTEP 2: LOGIN FOR REPORTING A COMPLAINT \n9 \nSTEP 3: SELECT CATEGORY AND SUB-CATEGORY OF COMPLAINT \n9 \nSTEP 4: PROVIDE INCIDENT DETAILS \n10 \nSTEP 5: PROVIDE SUSPECT DETAILS \n11 \nSTEP 6: PROVIDE COMPLAINANT DETAILS \n12 \nSTEP 7: PREVIEW & SUBMIT \n14 \nSTEP 8: GENERATE PDF OF REPORTED COMPLAINT \n14 \n5. INFORMATION REQUIRED FOR REPORTING OF CYBERCRIME COMPLAINTS- \nCATEGORIES/SUB-CATEGORIES \n16 \n5.1 REPORT ONLINE AND SOCIAL MEDIA RELATED CRIME \n16 \n5.1.1Cyber Bullying/Stalking/Sexting ........................................................................................... 16 \n5.1.2 E-Mail Phishing ....................................................................................................................... 19 \n5.1.3 Email Hacking ........................................................................................................................ 20 \n5.1.4 Fake/Impersonating Profile ................................................................................................... 21 \n5.1.5 Impersonating Email ............................................................................................................. 22 \n5.1.6 Online Job Fraud ................................................................................................................... 24 \n5.1.7 Online Matrimonial Fraud ......................................................................................................25 \n5.1.8 Profile Hacking ........................................................................................................................ 27 \n5.1.9 Provocative Speech .............................................................................................................. 28 \n5.1.10 Intimidating Email ................................................................................................................. 30 \n5.2 REPORT ONLINE FINANCIAL FRAUD \n31 \n5.2.1 Business Frauds/Email Takeover ........................................................................................ 32 \n5.2.2 Debit/Credit Card Fraud/SIM Swap Fraud .......................................................................... 34 \n5.2.3 E-Wallet Related Fraud .......................................................................................................... 36 \n5.2.4 Fraud Call/Vishing .................................................................................................................. 38 \n5.2.5 Internet banking Related Fraud ........................................................................................... 40 \n5.3 REPORT RANSOMWARE \n42 \n5.3.1 Ransomware ........................................................................................................................... 42 \n5.4 REPORT HACKING \n44 \n5.4.1 Unauthorized Access/Data Breach ..................................................................................... 44 \n5.4.2 Website Related/Defacement ............................................................................................... 46 \n5.5 REPORT CRYPTOCURRENCY CRIME \n47 \n5.5.1 Cryptocurrency Related Fraud ............................................................................................. 47 \n5.6 REPORT ONLINE TRAFFICKING \n49 \n5.6.1 Online Trafficking .................................................................................................................. 49 \n5.7 REPORT ONLINE GAMBLING \n50 \n5.7.1 Online Gambling .....................................................................................................................50 \n5.8 REPORT ANY OTHER CYBER CRIME \n52 \n6. TRACK COMPLAINT STATUS \n54 \n7. ADDITONAL FEATURES \n55"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p5_c1",
+    "page": 5,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 4 of 91 \n \n7.1 RECOVER YOUR USERNAME \n55 \n7.2 UPDATE MOBILE NUMBER \n55 \n7.3 CASE WITHDRAWAL \n56 \nANNEXURE A: TYPES OF VARIOUS CYBERCRIMES WHICH CAN BE REPORTED BY THE CITIZENS \n56 \nANNEXURE B: HELP \n57 \nANNEXURE C: SAMPLE OF EVIDENCES \n75"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p6_c1",
+    "page": 6,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p6_c2",
+    "page": 6,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 5 of 91 \n \n1. Background \n \nMinistry of Home Affairs, Government of India has set up ‘Indian Cyber Crime Coordination Centre \n(I4C)’ to deal with cybercrimes in a coordinated and comprehensive manner. Following are seven \ncomponents of the centre: \n \n1. \nNational Cybercrime Threat Analytics Unit (TAU)  \n2. \nNational Cybercrime Forensic Laboratory (NCFL) \n3. \nNational Cybercrime Training Centre (NCTC) \n4. \nCybercrime Ecosystem Management  \n5. \nPlatform for Joint Cybercrime Investigation Team  \n6. \nNational Cybercrime Reporting Portal \n7. \nNational Cyber Research and Innovation Centre (NCR&IC) \n \nOne of the components of I4C is operationalisation of National Cybercrime Reporting Portal to deal \nwith all types of cybercrimes. The earlier Cybercrime Reporting Portal www.cybercrime.gov.in was \nfor filing of cybercrime complaints pertaining to Child Pornography (CP)/ Rape Gang Rape (RGR)/ \nObscene Content only, however, the National Cybercrime Reporting Portal facilitates filing of all \ntypes of cybercrimes with special focus on the cybercrime against women and children.  \n \n2. Introduction \n \n \nWorking of the Portal \n \ni. \nThis portal facilitates a person to report any kind of cybercrime under various available \ncategory and sub-category, including cybercrimes affecting women and children. List of the \ncategories and subcategories is provided on Annexure ‘A’ \n \nii. \nThere is a dedicated section ‘Learn about Cybercrime’ on the home page of \ncybercrime.gov.in portal under which you can find out description of various type of \ncybercrime that can be reported through this portal  \n \niii. \nAssignment of a reported complaint to a State/UT is done on the basis of the address of \nthe complainant. \n \niv. \nFor future tracking of the complaint, the complainant will receive a complaint ID on the \nregistered mobile number and e-mail address. This complaint ID is not an FIR number but \nis a confirmation of registration of complaint on the portal. \n \nv. \nThe jurisdictional State/UT law enforcement agency will also send the update of action \ntaken on the registered mobile number and e-mail ID. \n  \nvi. \nIn case complainant is not satisfied with the action taken by the State/UT law enforcement \nagency he/she can reach out to grievance officers of the concerned State/UT. \n \nvii. \nThe complainant can track status of his/her reported complaint by logging into the account"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p7_c1",
+    "page": 7,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 6 of 91 \n \nPurpose \n \n \nThe purpose of this citizen manual document is to describe the functionalities and workflow \nthat is provided to citizens on the cybercrime portal for reporting other cybercrimes \n(excluding Child Pornography, Rape/Gang Rape and Obscene Content related \nCybercrimes) complaints.  \n \nIn addition to the information contained herein, further guidance can be found in the Help \nand Sample of evidences in Annexure 'B' and Annexure 'C'"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p8_c1",
+    "page": 8,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 7 of 91 \n \n3. Report Other Cybercrime Flowchart"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p9_c1",
+    "page": 9,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 8 of 91 \n \n4. HOW TO REPORT A COMPLAINT \n \nType the URL https://www.cybercrime.gov.in in the Web browser \n \nStep 1: Navigate to Report Other Cyber Crime section \n \nSelect Report Other Cyber Crime,if you want to report an online cybercrime such as Online and \nSocial Media Related Crime, online financial frauds, hacking, cryptocurrency crime, online job \nfraud, online matrimonial fraud, and other cyber crimes. Following are the steps to report a cyber \ncrime complaint: \n \nI. \nClick on “File a complaint” \n \n \nII. \nRead the message carefully in the window and check on the “I Accept” checkbox. \n \n \nIII. \nUnder Report Other Cyber Crime, click on “Report Other Cyber Crime”. Also \naccessed from “HOME” page :"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p10_c1",
+    "page": 10,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p10_c2",
+    "page": 10,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 9 of 91 \n \nStep 2: Login for reporting a complaint \n \nYou will need to register yourself using your mobile number. You will receive a One Time Password \n(OTP) that will be used to verify your phone number. The OTP is valid for 30 minutes. Once you \nsuccessfully register your mobile number on the portal, you will be able to report the compliant. \n \nYou required to fill the following details (mandatory) to login into the portal to report your complaint. \n \ni. \nEnter your name in “User Name” field (mandatory) \nii. \nEnter your Mobile Number (mandatory) \niii. \nClick on Get OTP \niv. \nEnter the OTP (received on mobile number) (mandatory) \nv. \nEnter the security answer for authentication in the field provided \nvi. \nClick on Submit button \n \n \n \nStep 3: Select category and sub-category of Complaint \n \nFrom this portal, complainants can report online cyber crime complaints. For each category and \nsub-category detailed steps are mentioned below.  \n \nUnder Incident details tab, select the category of complaints. \n \na. \nSelect “Category of complaint” (Mandatory) from the drop-down (following Eight  options \nare availabe in drop-down) : \n \n1. Online and Social Media Related Crime \n2. Online Financial Fraud \n3. Ransomware \n4. Hacking \n5. Cryptocurrency Related Crime \n6. Online Trafficking \n7. Online Gambling \n8. Any Other Cyber Crime"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p11_c1",
+    "page": 11,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 10 of 91 \n \n \nb. \nSimilarly, select the “Sub-Category of Crime” (Mandatory) from the drop-down for \nthe respective cybercrime category. \nStep 4: Provide Incident Details \nFill the following details about the complaint/incident details \ni. \nSelect approximate “Date and Time” of incident (Mandatory) \nii. \nGive “Reason for delay in reporting” \niii. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, twitter, Instagram etc.), messaging platform \n(WhatsApp, hike etc.), e-mail, website, URL or other (Mandatory)  \niv. \nEnter email Id (Mandatory)  if select other no mail ID required \n(Note: For help on uploading evidence refer AnnexureB Help,Section 10) \nv. \nUpload evidence if any (Maximum allowable limit is 5 MB). (Mandatory)  \nvi. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory)  \nvii. \nClick on Save and Next to proceed"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p12_c1",
+    "page": 12,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 11 of 91 \n \n \n \n \nStep 5: Provide Suspect Details \n \nShare the suspect details if suspect is known. \na. \nEnter “Suspect Details” to help in investigation \n \ni. Enter “Suspect Name” (If there is more than one suspect than click on Add More) \nii. Select ID – Provide suspect’s identity id e.g. (Driving License, Email, Gov. Issued Card, \nMobile Number, PAN Card, Voter Card and Other) then click Add and subsequently add \nthe selected details. \niii. Please upload any photograph of suspect."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p13_c1",
+    "page": 13,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 12 of 91 \n \n \n \n \nb. You may share the suspect’s address for correspondence if known (Click on Yes and fill the \nbelow details) \n \ni. Type house no., street name, colony, village/town/city, tehsil details \nii. Select “Country”  \niii. Select “State”  \niv. Select “District”  \nv. Select “Police Station” \nvi. Enter “Pin code” number \nvii. Click Save & Next  \n \n \n \n \nStep 6: Provide Complainant Details \n \nClick on “Complainant Details” tab to provide the details of complainants \n \na. \nFill the complainant details"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p14_c1",
+    "page": 14,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 13 of 91 \n \ni. Select the “Gender” & Enter “DOB”. \nii. Enter the “Father/Mother/Spouse Name” details (Mandatory) \niii. Select “Relationship with the victim” \niv. Provide your email id if any, for further communication during the investigation \nv. “Upload victim National ID (voter ID/ PAN card/ Driving License or any Govt. issued card)” \n- (Mandatory) \n \n \n \nb. Provide the complainant’s address for correspondence \n \ni. Select Your “Nationality” \nii. Type House no., Street Name, Colony, Tehsil details \niii. Type Village/Town/City  \niv. Select “Country” (By default India)  \nv. Select “State” – (Mandatory) \nvi. Select “District” - (Mandatory) \nvii. Select “Police Station” \nviii. Enter “tehsil” \nix. Enter “Pin code” number \nx. Click Save & Preview"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p15_c1",
+    "page": 15,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 14 of 91 \n \nStep 7: Preview & Submit \n \nClick on “Preview & Submit” tab to review the information you provided before submission of the \ncomplaint \na. \nClick “Reset”, if you want to edit the filled information, or \nb. \nCheck “I Agree” Button \nc. \nClick “Confirm & Submit” to submit the complaint \n \n \n \nOn submission of the complaint, a complaint submission confirmation message with ‘Complaint ID’ \nwill be displayed on the portal  \n \n \nYou will also receive a message and e-mail on the registered mobile number and e-mail ID once \nthe complaint is successfully submitted on the portal.  \n \nStep 8: Generate PDF of reported complaint \n \nIf you want to download the complaint, click on the “Download PDF” option, details of the complaint \nreported gets downloaded in PDF format, which could be used for further reference."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p16_c1",
+    "page": 16,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 15 of 91 \n \n \n \nFollowing are the sample of downloaded complaint \n \n \nSnapshot: Sample of downloaded complaint"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p17_c1",
+    "page": 17,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p17_c2",
+    "page": 17,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 16 of 91 \n \n \n \n5. INFORMATION REQUIRED FOR REPORTING OF CYBERCRIME \nCOMPLAINTS- CATEGORIES/SUB-CATEGORIES \n \n5.1 Report Online and Social Media Related Crime \n \nTo report cybercrimes related to social media, Go to homepage, Click on File a Complaint Read \nand Accept the Acknowledgement Select Report Other Cyber Cime  Login \n \nAfter login, under the “Incident Details” tab, complainant need to provide the following details: \n \n1. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \n \n2. \nSelect the “Sub-category of complaint” (Mandatory) from the drop-down  (multiple \noptions are availabe in drop-down), select one  – 1. Cyber Bullying/Stalking/Sexting, 2. \nE-Mail Phishing, 3. E-mail Hacking, 4. Fake/Impersonating Profile, 5. Impersonating \nEmail, 6. Online Job Fraud, 7. Online Matrimonial Fraud, 8. Profile Hacking, 9. \nProvocative Speech, 10. Intimidating Email. \n \n \n5.1.1Cyber Bullying/Stalking/Sexting \nUnder this sub-category you can report cyber stalking incidents in which attacker uses the internet \nand other electronic devices to persistently harass the victim. Also, bullying incidents committed \nusing online communication medium like e-mail, social media, SMS, messengers, forums etc., to \nharass, threaten, embarrass, and humiliate the victim can also be reported. The complainant can"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p18_c1",
+    "page": 18,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p18_c2",
+    "page": 18,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 17 of 91 \n \nalso report any incidence related to sending or receiving of offending sexual words, pictures, or \nvideos via technology, typically a mobile phone. \n \n5.1.1.1 To report a complaint under this sub-category, you may keep following information \nready before registering your complaint: \ni. \nIf you have received cyberbullying/stalking related SMS:  \na. Take screenshot/s of some SMS, showing the content for upload as evidence  \nb. Provide the details of date/time when such SMS have been received for filling in the \nincident description field \nii. \nIf you have received cyberbullying/stalking related emails: \na. Save some emails as pdf or .eml files or keep scan of some email prints to be \nuploaded as evidence  \nb. If emails have attachments, then keep attachments ready for upload as evidence \niii. \nIf you are being stalked/bullied on messenger such as WhatsApp, Hike etc.: \na. Take screen shot of some chats showing the senders number as well as content for \nupload as evidence \nb. Export such chat to your email (if you have) and save it as .pdf/.eml or take scan of \nprintout of such chat for upload as evidence \n \niv. \nIf you are being bullied/stalked on social media platform/forums/blogs, such as YouTube, \nFacebook etc. \na. Note down the URL (website address) where such content is seen  \nb. Save the page showing abusive content or screenshot as a file for uploading as \nevidence  \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nmessenger chat, website URL etc. as these could be needed by law enforcement agency as \nevidence for prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B, Section 8.1 and \nAnnexure C, Section 3.1 \n \n5.1.1.2 Complaint reporting \nI. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nII. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Cyber \nBullying/Stalking/Sexting” \nIII. \nSelect approximate “Date and Time” of incident (Mandatory) \nviii. \nGive “Reason for delay in reporting” \nIV. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, twitter, Instagram etc.), messaging platform \n(WhatsApp, Hike etc.), e-mail, website, URL or other. (Mandatory)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p19_c1",
+    "page": 19,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 18 of 91 \n \n \n      Select the “Where did the incident occur?” please give id related to incident \n \nV. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (refer to 5.1.1.1) \n(Mandatory) \nVI. \nProvide any additional information about the incident.(Mandatory) \nVII. \nClick Save and Next to proceed"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p20_c1",
+    "page": 20,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p20_c2",
+    "page": 20,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 19 of 91 \n \n \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.1.2 E-Mail Phishing \nA fraudulent email message designed to be a legitimate person or organization and trick the \nrecipient to share personal information, such as passwords, bank account numbers. Email headers \ncontain a significant amount of information—like digital postmarks—that identify how the message \ngot from the sender to the recipient. \n \n5.1.2.1 To report a complaint under this sub-category, you may keep following information \nready before registering your complaint: \nIf you have received phishing email: \na. \nSave the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. \nNote down/copy the full email headers details of phishing emails (the same is not \nrequired if .email has been saved as .eml) \nc. \nIf the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \nNote1: You must preserve the original evidence i.e. do not delete emails, email header, screenshot \nattachments etc., as these could be needed by law enforcement agency as evidence for \nprosecuting the offender. \nNote2: For further details on above points you may refer to Annexure B, Section 8.1  \n \n5.1.2.2 Complaint Reporting  \ni. \nSelect the Category of complaint(Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Email Phishing” \n \n \nix. \nSelect approximate “Date and Time” of incident (Mandatory) \nx. \nGive “Reason for delay in reporting” \nxi. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, twitter, Instagram etc.), messaging platform \n(WhatsApp, Hike etc.), e-mail, website, URL or other. (Mandatory)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p21_c1",
+    "page": 21,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p21_c2",
+    "page": 21,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 20 of 91 \n \nxii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (refer to 5.1.2.1) \n(Mandatory) \nVIII. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \n \nxiii. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n \n5.1.3 Email Hacking \nYou can report if someone else compromised your Email account and or using it without your \npermission. Sending you unsolicited/spam mails containing attachments that have malwares \nembedded in them. Once such emails are opened and attachments activated the malware gets \ndiscreetly downloaded and installed on your device. The malware could be a key logger that captures \nand sends all the keyboard taps to the fraudsters, which includes your account passwords. The other \npossible malwares could be ones that capture screenshot or read and transmit saved passwords. \nEmail accounts having 2-factor authentication (2FA) can also be got hacked when users share their \none-time password (OTP) with fraudsters after getting tricked by social engineering tools. \n \n \n5.1.3.1 To report a complaint under this sub-category, you may keep following information \nready before registering your complaint: \n \nI. \nIf you have received an email hacking related SMS:  \na. \nTake the screen shot of the SMS (depicting the fraud content) and the same need \nto be updated on the portal as evidence \nb. \nNote the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nII. \nIf you have received a fraudulent Email:  \na. \nSave the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. \nNote down/copy the full email Header details of phishing emails (the same is not \nrequired if .email has been saved as .eml) \nc. \nIf the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nscreenshots etc. as these could be needed by law enforcement agency as evidence for prosecuting \nthe offender. \nNote2: For further details on above points you may refer to Annexure B Help, Section 9 \n \n5.1.3.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Email Hacking”"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p22_c1",
+    "page": 22,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p22_c2",
+    "page": 22,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 21 of 91 \n \n \niii. \nSelect approximate “Date and Time” of incident (Mandatory) \niv. \nGive “Reason for delay in reporting” \nv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other. (Mandatory) \nvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (refer to 5.1.3.1) \n(Mandatory) \nIX. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \n \nvii. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n5.1.4 Fake/Impersonating Profile \nYou can report an incident wherein a person created your fake profile in any platform and spreads \nrumors and objectionable content on social media, instant messaging platforms etc. or tries to \ncheat or defame you or others using fake profile.  \n \n5.1.4.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you received or found fake/impersonating profile on internet messaging platform such as \nWhatsApp, Hike etc.:  \na. \nTake the screenshot of the profile depicting the fake/impersonating account number, \nuser ID, date and time for uploading the same as evidence on the portal \nii. \nIf you received or found fake/impersonating profile on website/blogs or social media \nplatform/forums such as YouTube, Facebook, twitter etc. \na. Note down/ copy (to your device/ desktop) the URL or user ID where you have seen \nsuch content  \nb. Take the screen shot of the page or save the page (as .pdf)showing fake profile on \nyour device/ desktop for uploading the same as an evidence on the portal"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p23_c1",
+    "page": 23,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p23_c2",
+    "page": 23,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 22 of 91 \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete the \nmessenger chats, screenshots, profile ID, URLs etc. as these could be needed by law enforcement \nagency as evidence for prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.2 \n \n5.1.4.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect \nthe \nSub-category \nof \ncomplaint \n(Mandatory) \nfrom \nthe \ndrop-down \n– \n“Fake/Impersonating Profile” \n \n \n \niii. \nSelect approximate “Date and Time” of incident (Mandatory) \niv. \nGive “Reason for delay in reporting” \nv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, twitter, Instagram etc.), messaging platform \n(WhatsApp, Hike etc.), e-mail, website, URL or other . (Mandatory) \nvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.5.1) \n(Mandatory) \nX. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \n \nvii. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.1.5 Impersonating Email \nYou can report any incident or person who falsely claim to be someone which he/she is not through \na fake email profile on any platform and/or spreads rumors and objectionable content online, social \nmedia, instant messaging platforms etc."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p24_c1",
+    "page": 24,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p24_c2",
+    "page": 24,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 23 of 91 \n \n5.1.5.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \nIf you have received an impersonating email:  \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. Note down/ copy the full email Header details of phishing emails (the same is not \nrequired if .email has been saved as .eml) \nc. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \n \nNote1: You must preserve the original evidence i.e. do not delete emails, attachments, screenshot \netc. as these could be needed by law enforcement agency as evidence for prosecuting the \noffender. \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.3 \n \n5.1.5.2 Complaint reporting \nI. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nII. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Impersonating \nEmail” \nIII. \nService Provider (Mandatory) \nIV. \nFull Header of Email (Mandatory) \n \n \nV. \nSelect approximate “Date and Time” of incident (Mandatory) \nVI. \nGive “Reason for delay in reporting” \n \nVII. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other. (Mandatory) \nVIII. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.6.1)  \n(Mandatory)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p25_c1",
+    "page": 25,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p25_c2",
+    "page": 25,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 24 of 91 \n \nXI. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nIX. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n \n \n5.1.6 Online Job Fraud \nYou can report incident involving deceiving you or somebody you know who is seeking employment \nby giving them the false hope of employment or of earning high salaries or of extra income and \ncheat you/them by taking money. \n \n5.1.6.1 To report a complaint related to online job fraud, you may keep following information \nready before registering your complaint: \ni. \nIf you have received job fraud details on SMS:  \na. \nTake the screenshot/s of the SMS (depicting the content details) and the sender \ndetails (name, email, other details) need to be updated on the portal as evidence \nb. \nNote the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you have received job fraud email:  \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \niii. \nIf you received or found job fraud related information on social media platform/forums/blogs \nsuch as Facebook, Twitter, LinkedIn etc.  \na. Note down/ Copy (to your device/ desktop) the URL where you have seen such \ncontent  \nb. Provide the other details like user ID, email, contact number, job details etc.  \nc. Take the screen shot of the page or save the page (as .pdf) showing content on \nyour device/ desktop for uploading the same as an evidence on the portal \niv. \nIf you lost the money then provide the banking transaction details. \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nscreenshots, Website URL etc. as these could be needed by law enforcement agency as evidence \nfor prosecuting the offender. \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.4 \n \n5.1.6.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Online Job \nFraud”"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p26_c1",
+    "page": 26,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p26_c2",
+    "page": 26,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 25 of 91 \n \n \n \niii. \nSelect approximate “Date and Time” of incident (Mandatory) \niv. \nGive “Reason for delay in reporting” \nv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other . (Mandatory) \nX. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.8.1) \n(Mandatory) \nvi. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nvii. \nClick on Save and Next to proceed  \n \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n \n5.1.7 Online Matrimonial Fraud \nYou can report any incident where fraudsters create fake profiles on leading matrimonial websites \nfor cheating.  \n \n5.1.7.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \ni. \nIf you have received matrimonial fraud related details on SMS:  \na. Take the screenshot/s of the SMS (depicting the content details) and the sender \ndetails (name, email, other details) need to be updated on the portal as evidence \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you have received matrimonial fraud related details on E-mail:  \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p27_c1",
+    "page": 27,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p27_c2",
+    "page": 27,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 26 of 91 \n \niii. \nIf you received or found online matrimonial fraud related content on social media \nplatform/forums/blogs such as Facebook, twitter, LinkedIn etc.  \na. Note down/ Copy (to your device/ desktop) the URL where you have seen such \ncontent  \nb. Provide the other details like user ID, email, contact number, matrimonial details \netc.  \nc. Take the screen shot of the page or save the page (as .pdf) showing content on \nyour device/ desktop for uploading the same as an evidence on the portal \niv. \nIf you lost the money then provide the banking transaction details, bank account, \ntransaction details, suspect address, company name, website URL, email id, mobile no, or \nany information of the platform source where incident has happened.  \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nscreenshots, Website URL etc. as these could be needed by law enforcement agency as evidence \nfor prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.5 \n \n5.1.7.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Online \nMatrimonial Fraud” \niii. \nHave you lost money?  (Select Yes or No) If Yes then fill the below details \niv. \nBank Name from which payment was made (Mandatory) \nv. \nAccount No. from which amount was paid (Mandatory) \nvi. \nAmount Paid (Mandatory) \nvii. \nBank in which amount was paid \nviii. \nAccount no. in which amount was paid"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p28_c1",
+    "page": 28,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p28_c2",
+    "page": 28,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 27 of 91 \n \n \n \nix. \nSelect approximate “Date and Time” of incident (Mandatory) \nx. \nGive “Reason for delay in reporting” \nxi. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nxii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.9.1) \n(Mandatory) \nxiii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxiv. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.1.8 Profile Hacking \nYou can report if someone else compromised your social media account and or using it without \nyour permission. \n \n5.1.8.1To report a complaint under this sub-category user should have details like website name, \nURL of the profile, Email id, Mobile no, User ID or any information of the platform source where \nincident has happened. Following are some example of profile URL: \n \nFacebook ID: https://www.facebook.com/profile.php?id=1000000653286827 \nTwitter ID: @username \nInstagram: @Username \nWhatsApp: +91-9560348XXX \n \nNote: For further details on above points you may refer to Annexure B Help"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p29_c1",
+    "page": 29,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p29_c2",
+    "page": 29,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 28 of 91 \n \n \n5.1.8.2 Complaint reporting \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Profile Hacking” \n \niii. \nSelect approximate “Date and Time” of incident (Mandatory) \niv. \nGive “Reason for delay in reporting” \nv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory ) \nvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.10.1) \n(Mandatory) \nvii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nviii. \nClick on Save and Next to proceed  \n \n \n \n \n \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n5.1.9 Provocative Speech \nTo report a complaint under this sub-category user should have details like website name, URL of \nthe profile, Email id, Mobile no, User ID or any information of the platform source where incident \nhas happened."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p30_c1",
+    "page": 30,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p30_c2",
+    "page": 30,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 29 of 91 \n \n5.1.9.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you have received any provocative speech related link details through SMS:  \na. Take the screenshot/s of the SMS (depicting the objectionable content) and \nsender’s details (number or ID) the same need to be updated on the portal as \nevidence \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you received or found provocative speech details on messaging platform such as \nWhatsApp, Hike, Instagram etc.:  \na. \nTake the screenshot/s of the chats depicting the content with sender’s number along \nwith date and time for uploading the same as evidence on the portal \niii. \nIf you received or found provocative speech on social media platform/forums/blogs such as \nYouTube, Facebook, Twitter etc.  \na. Note down/ Copy (to your device/ desktop) the URL or user ID where you have seen \nsuch content  \nb. Take the screen shot of the page or save the page (as .pdf) showing abusive content \non your device/ desktop for uploading the same as an evidence on the portal \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, \nmessenger Chats, website URL, screenshots etc. as these could be needed by law enforcement \nagency as evidence for prosecuting the offender. \n \n5.1.9.2 Complaint reporting \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Provocative \nSpeech” \n \n \n \n \niii. \nSelect approximate “Date and Time” of incident (Mandatory) \niv. \nGive “Reason for delay in reporting”"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p31_c1",
+    "page": 31,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p31_c2",
+    "page": 31,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 30 of 91 \n \nv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.11.1) \n(Mandatory) \nvii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nviii. \nClick on Save and Next to proceed  \n \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.1.10 Intimidating Email \nYou can report if someone threatening you through e-mail. \n \n5.1.10.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \nIf you have received threatening email: \na. \nSave the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. \nNote down/ copy the full email Header details of phishing emails (the same is not \nrequired if .email has been saved as .eml) \nc. \nIf the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \n \nNote1: You must preserve the original evidence i.e. do not delete emails, attachment, SMS, \nscreenshots etc., as these could be needed by law enforcement agency as evidence for \nprosecuting the offender. \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.6 \n \n5.1.10.2 \nComplaint reporting \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online and Social \nMedia Related Crime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Intimidating \nEmail” \niii. \nEnter service provider (Mandatory) \niv. \nEnter full header of Email (Mandatory)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p32_c1",
+    "page": 32,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p32_c2",
+    "page": 32,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 31 of 91 \n \n \n \nv. \nSelect approximate “Date and Time” of incident (Mandatory) \nvi. \nGive “Reason for delay in reporting” \nvii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.12.1) \n(Mandatory) \nviii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nix. \nClick on Save and Next to proceed  \n \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n \n5.2 Report Online Financial Fraud \n \nIf any unknown person had withdrawn money/ made transactions through your internet banking, \ncredit/debit cards, Wallets or UPI you can report such incidents. \nTo report a complaint under online financial fraud category user should have following details \nmandatory: \n \nBank statement from the concerned bank.  \n \nMake a copy of SMSs received related to the alleged transactions. \n \nCopy of your ID proof and address proof as shown in the bank records. \n \nGo to homepage, Click on File a Complaint Read and Accept the Acknowledgement Select \nReport Other Cyber Cime  Login"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p33_c1",
+    "page": 33,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p33_c2",
+    "page": 33,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 32 of 91 \n \n \nProvide the details as required for complaint reporting under “Incident Details” \n1. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Financial \nFraud” \n2. \nSelect the “Sub-category of complaint” (Mandatory) from the drop-down  (5 options are \navailabe in drop-down – 1. Business Frauds/Email Takeover, 2. Debit/Credit Card \nFrauds/SIM Swap Fraud, 3. E-Wallet Related Fraud, 4.Fraud Call/Vishing, 5. Internet \nBanking Related Fraud \n \n \n5.2.1 Business Frauds/Email Takeover \nYou can report Business e-mail compromise or take over using which monetary frauds have been \ncommitted. \n \n \n5.2.1.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you have received business related fraud SMS:  \na. Take the screenshot/s of the SMS (depicting the content details) and the sender \ndetails (name, other details) need to be updated on the portal as evidence \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you have received a business-related fraud email:  \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \niii. \nIf you received or found any business-related fraud contents on social media \nplatform/forums/blogs such as Facebook, twitter, LinkedIn etc.  \na. Note down/ Copy (to your device/ desktop) the URL where you have seen such \ncontent"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p34_c1",
+    "page": 34,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p34_c2",
+    "page": 34,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 33 of 91 \n \nb. Provide the other details like user ID, email, contact number, job details etc.  \nc. Take the screen shot of the page or save the page (as .pdf) showing content on \nyour device/ desktop for uploading the same as an evidence on the portal \niv. \nIf you lost the money then provide the banking transaction details, bank account, \ntransaction details, suspect address, company name, website URL, email id, mobile no, or \nany information of the platform source where incident has happened. \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nscreenshots, Website URL etc. as these could be needed by law enforcement agency as evidence \nfor prosecuting the offender. \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.7 \n \n5.2.1.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Financial \nFraud” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Business \nFrauds/Email Takeover” \niii. \nEmail from which authorization email has been received \niv. \nFull Header of the alleged email \nv. \nHave you lost money? (Select Yes or No)If Yes then fill the below details \nvi. \nTransaction ID/Details (Details about the transaction ID/reference no eg. 877687263) \n(Mandatory) \nvii. \nDate/Time of transaction  dd/mm/yyyy (Mandatory) \nviii. \nBank Name from which payment was made (Mandatory) \nix. \nAccount No. from which amount was paid (Mandatory) \nx. \nAmount Paid(Mandatory) \nxi. \nBank in which amount was paid  \nxii. \nAccount no. in which amount was paid"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p35_c1",
+    "page": 35,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p35_c2",
+    "page": 35,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 34 of 91 \n \n \nxiii. \nSelect approximate “Date and Time” of incident (Mandatory) \nxiv. \nGive “Reason for delay in reporting” \nxv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other  (Mandatory) \nxvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.2.1.1) \n(Mandatory) \nxvii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxviii. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.2.2 Debit/Credit Card Fraud/SIM Swap Fraud \nYou can report any fraudulent online transaction in your bank account through debit or credit card \nwithout your knowledge. \n \n5.2.2.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you have received financial debit/credit card fraud transaction related SMS:  \na. \nTake a screenshot/s or copy of SMSs received related to the alleged transactions and \nupload this as evidence \nb. \nDetails of date/time when such SMS have been received for filling in the incident \ndescription field \nii. \nIf you have received financial debit/credit card fraud transaction related emails:"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p36_c1",
+    "page": 36,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p36_c2",
+    "page": 36,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 35 of 91 \n \na. \nSave some emails as pdf or .eml files or keep scan of some email prints to be \nuploaded as evidence ii) If emails have attachments, then keep attachments ready \nfor uploading as evidence \niii. \nIf you have received SIM swap related call or SMS  \na. \nTake a screenshot/s or copy of Number and SMSs received related to the alleged \ntransactions and upload this as evidence \niv. \nIf you lost the money then provide the screenshot/s or copy details of banking transaction \ndetails, bank account, transaction details, suspect address, company name, website URL, \nemail id, mobile no, or any information of the platform source where incident has happened. \nv. \nProvide the screenshot/s or copy of the last six months bank statement from your \nconcerned bank account. \nvi. \nProvide the screenshot/s or copy of your ID proof and address proof as shown in the bank \nrecords. \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \ncontact number, screenshots etc. as these could be needed by law enforcement agency as \nevidence for prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.8 \n \n5.2.2.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Financial \nFraud” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Debit/Credit \nCard Fraud/SIM Swap Fraud” \niii. \nHave you lost money? (Select Yes or  No)If Yes then fill the below details \niv. \nTransaction ID/Details (Details about the transaction ID/reference no eg. 877687263) \n(Mandatory) \nv. \nDate/Time of transaction dd/mm/yyyy (Mandatory) \nvi. \nBank Name from which payment was made (Mandatory) \nvii. \nAccount No. from which amount was paid  (Mandatory) \nviii. \nAmount Paid (Details about lost amount)(Mandatory) \nix. \nBank in which amount was paid  \nx. \nAccount no. in which amount was paid  \nxi. \nMerchant details on which payment was made  \nxii. \nGateway details (Payment gateway information)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p37_c1",
+    "page": 37,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p37_c2",
+    "page": 37,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 36 of 91 \n \n \nxiii. \nSelect approximate “Date and Time” of incident (Mandatory) \nxiv. \nGive “Reason for delay in reporting” \nxv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other . (Mandatory) \nxvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.2.2.1) \n(Mandatory) \nxvii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxviii. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.2.3 E-Wallet Related Fraud \nYou can report any fraudulent online transaction in E-Wallet which is being charged to you and \noccurred without your knowledge. Wallet summary showing the details of fraudulent transactions. \nOur wallet has option to save transaction history which can be uploaded as evidence to show \nfraudulent transactions.  \n \n5.2.3.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \nI. \nIf you have received e-wallet fraud transaction on your email"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p38_c1",
+    "page": 38,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p38_c2",
+    "page": 38,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 37 of 91 \n \na. You can save details of wallet transactions email of such transactions as .pdf/.eml \nfile and keep it ready for uploading as evidence \nII. \nProvide the screenshot/s or copy of your ID proof and address proof as shown in the bank \nrecords. \n \n \nNote1: You must preserve the original evidence i.e. do not delete transaction history in your mobile \nas well as emails (if received) as these could be needed by law enforcement agency as evidence \nfor investigation and prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.9 \n \n5.2.3.2 Complaint Reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Financial \nFraud” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “E-Wallet Related \nFraud” \niii. \nHave you lost money? (Select Yes or  No)If Yes then fill the below details \niv. \nName of wallet (Mandatory) \nv. \nTransaction ID/Details (Details about the transaction ID/reference no eg. 877687263) \n(Mandatory) \nvi. \nDate/Time of transaction dd/mm/yyyy (Mandatory) \nvii. \nBank Name from which payment was made  \nviii. \nAccount No. from which amount was paid   \nix. \nAmount Paid (Details about lost amount)(Mandatory) \nx. \nBank in which amount was paid  \nxi. \nAccount no. in which amount was paid  \nxii. \nMerchant details on which payment was made  \nxiii. \nGateway details (Payment gateway information)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p39_c1",
+    "page": 39,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p39_c2",
+    "page": 39,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 38 of 91 \n \n \nxiv. \nSelect approximate “Date and Time” of incident (Mandatory) \nxv. \nGive “Reason for delay in reporting” \nxvi. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nxvii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.2.3.1) \n(Mandatory) \nxviii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxix. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.2.4 Fraud Call/Vishing \nSeveral instances have occurred wherein people receive phone calls that appear to be from their \nbank. The caller usually pretends to be a bank representative or someone from the bank’s technical \nteam. In most cases, the caller sounds professional and provides a convincing reason for calling \nthe customer. You may get unexpected prize scams include lottery scams, fake scams and travel \nscams call. \nYou can report any fraudulent call incident which is an attempt where fraudsters try to seek your \npersonal information like Customer ID, Net Banking password, ATM PIN, OTP, Card expiry date, \nCVV etc. through a phone call. \n \n5.2.4.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nProvide the fraud callers number details"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p40_c1",
+    "page": 40,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p40_c2",
+    "page": 40,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 39 of 91 \n \nii. \nIf you received internet based fraud or vishing call, take the screenshot/s of the sender’s \nnumber along with date and time for uploading the same as evidence on the portal  \niii. \nIn case, if you are having the call recording, then uploading the same as evidence on the \nportal. (Audio file format like .amr .3gp .wav or similar) \niv. \nIf you lost the money then provide the screenshot/s or copy details of banking transaction \ndetails, bank account, transaction details, suspect address, company name, website URL, \nemail id, mobile no, or any information of the platform source where incident has happened. \n \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete call details, \nnumbers, call recordings, email etc. as these could be needed by law enforcement agency as \nevidence for prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.10 \n \n5.2.4.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Financial \nFraud” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Fraud \nCall/Vishing” \niii. \nHave you lost money? (Select Yes or  No)If Yes then fill the below details \niv. \nTransaction ID/Details (Details about the transaction ID/reference no eg. 877687263) \n(Mandatory) \nv. \nDate/Time of transaction dd/mm/yyyy (Mandatory) \nvi. \nBank Name from which payment was made (Mandatory) \nvii. \nAccount No. from which amount was paid  (Mandatory) \nviii. \nAmount Paid (Details about lost amount)(Mandatory) \nix. \nBank in which amount was paid  \nx. \nAccount no. in which amount was paid  \nxi. \nMerchant details on which payment was made  \nxii. \nGateway details (Payment gateway information)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p41_c1",
+    "page": 41,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p41_c2",
+    "page": 41,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 40 of 91 \n \n \nxiii. \nSelect approximate “Date and Time” of incident (Mandatory) \nxiv. \nGive “Reason for delay in reporting” \nxv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nxvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.2.4.1) \n(Mandatory) \nxvii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxviii. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.2.5 Internet banking Related Fraud \nIt is a fraud or theft committed using online technology to illegally remove money from a bank \naccount and/or transfer money to an account in a different bank. You can report any fraudulent \nonline transaction in your bank account through internet banking/Mobile App without your \nknowledge.  \n \n5.2.5.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you have received fraudulent transaction SMS:  \na. Take the screenshot/s of the SMS (depicting the content details) and the sender \ndetails (name, other details) need to be updated on the portal as evidence"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p42_c1",
+    "page": 42,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p42_c2",
+    "page": 42,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 41 of 91 \n \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you have received an internet banking related fraud email:  \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \niii. \nIf you were duped of your money through a link or content available on social media \nplatform/forums/blogs such as Facebook, twitter, LinkedIn etc.  \na. Note down/ Copy (to your device/ desktop) the URL where you have seen such \ncontent  \nb. Provide the other details like user ID, email, contact number, job details etc.  \nc. Take the screen shot of the page or save the page (as .pdf) showing content on \nyour device/ desktop for uploading the same as an evidence on the portal \niv. \nIf you lost the money then provide the screenshot/s or copy details of banking transaction \ndetails, bank account, transaction details, suspect address, company name, website URL, \nemail id, mobile no, or any information of the platform source where incident has happened. \n \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nattachments transactions details, screenshots, Website URL etc. as these could be needed by law \nenforcement agency as evidence for prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.11 \n \n5.2.5.2 Complaint reporting \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Financial \nFraud” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Internet banking \nRelated Fraud” \niii. \nHave you lost money? (Select Yes or  No)If Yes then fill the below details \niv. \nTransaction ID/Details (Details about the transaction ID/reference no eg. 877687263) \n(Mandatory) \nv. \nDate/Time of transaction dd/mm/yyyy (Mandatory) \nvi. \nBank Name from which payment was made (Mandatory) \nvii. \nAccount No. from which amount was paid  (Mandatory) \nviii. \nAmount Paid (Details about lost amount)(Mandatory) \nix. \nBank in which amount was paid  \nx. \nAccount no. in which amount was paid  \nxi. \nMerchant details on which payment was made  \nxii. \nGateway details (Payment gateway information)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p43_c1",
+    "page": 43,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p43_c2",
+    "page": 43,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 42 of 91 \n \n \nxiii. \nSelect approximate “Date and Time” of incident (Mandatory) \nxiv. \nGive “Reason for delay in reporting” \nxv. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, twitter, Instagram etc.), messaging platform \n(WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nxvi. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.2.5.1) \n(Mandatory) \nxvii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxviii. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.3 Report Ransomware \n \nIt is a type of computer malware that locks your data on communication devices such as desktops, \nLaptops, Mobile phones etc., holding data/information as a hostage. You will be asked to pay the \ndemanded ransom in some cryptocurrency (Bitcoin, ripple etc.) to get your device unlocked. Bitcoin \nis a cryptocurrency, a form of electronic cash or virtual money. There is no guarantee that your \ndata will be unlocked after paying the ransom. \n5.3.1 Ransomware \nTo report a complaint, you may keep following information ready before registering your \ncomplaint: \ni. \nProvide the screenshot/s copy or the details like Bitcoin details, Email id /phone number or \nany other means of communication through which ransom has been demanded, ransom \namount, or any information of the platform source where incident has happened."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p44_c1",
+    "page": 44,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p44_c2",
+    "page": 44,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 43 of 91 \n \nii. \nIf you have received ransom email: \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. Note down/ copy the full email Header details of phishing emails (the same is not \nrequired if .email has been saved as .eml) \nc. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete emails, \nattachments etc. as these could be needed by law enforcement agency as evidence for prosecuting \nthe offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.12 \n \n5.3.1.1 Complaint reporting \nGo to homepage, Click on File a Complaint Read and Accept the Acknowledgement Select \nReport Other Cyber Crime  Login \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Ransomware \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Ransomware” \niii. \nBitcoin Address/Details (Provide the alleged payment address details) (Mandatory) \niv. \nDarknet ID/ Details (Ex. website, emailID) (Mandatory) \n \nv. \nSelect approximate “Date and Time” of incident (Mandatory) \nvi. \nGive “Reason for delay in reporting” \nvii. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nviii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.3.1) \n(Mandatory) \nix. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nx. \nClick on Save and Next to proceed"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p45_c1",
+    "page": 45,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p45_c2",
+    "page": 45,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 44 of 91 \n \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.4 Report Hacking \n \nIt is an attempt to exploit weaknesses for gaining unauthorized access in a computer system or \nnetwork. \nGo to homepage, Click on File a Complaint Read and Accept the Acknowledgement Select \nReport Other Cyber Cime  Login \n \nProvide the details as required for complaint reporting under “Incident Details” \n1. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Hacking” \n2. \nSelect the “Sub-category of complaint” (Mandatory) from the drop-down  (2 options are \navailabe in drop-down – 1. Unauthorised Access/Data Breach, 2. Website \nRelated/Defacement \n \n5.4.1 Unauthorized Access/Data Breach \nYou can report any incidents of any person accessing your computer, mobile website, server etc., \nwithout your permission. \n \n5.4.1.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you have received hacking related SMS:  \na. Take the screenshot/s of the SMS (depicting the illegal details) and the sender \ndetails (name, other details) need to be updated on the portal as evidence \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you have received an email related to hacking, data theft:  \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \niii. \nIf you received or found any details related to hacking, data breached on a website:"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p46_c1",
+    "page": 46,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p46_c2",
+    "page": 46,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 45 of 91 \n \na. Note down/ Copy (to your device/ desktop) the URL where you have seen such \ncontent  \nb. Take the screen shot of the page or save the page (as .pdf) showing content on \nyour device/ desktop for uploading the same as an evidence on the portal \niv. \nProvide the screenshots or copy of the details like what was hacked e.g. website URL, \nAccount, Server, email or any information of the platform source where incident has \nhappened. \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nattachment, mobile no, website URL, messenger chat, screenshot etc. as these could be needed \nby law enforcement agency as evidence for prosecuting the offender. \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.13 \n \n5.4.1.2 Complaint reporting \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Hacking” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Unauthorised \nAccess/Data Breach” \niii. \nSelect “Mode of communication” and provide details (e.g. Email, Account, Server, Other) \n \n \n \n \niv. \nSelect approximate “Date and Time” of incident (Mandatory) \nv. \nGive “Reason for delay in reporting” \nvi. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nvii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.4.1.1) \n(Mandatory) \nviii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation).  (Mandatory) \nix. \nClick on Save and Next to proceed"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p47_c1",
+    "page": 47,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p47_c2",
+    "page": 47,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 46 of 91 \n \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.4.2 Website Related/Defacement \nYou can report a complaint related to website defacement. Website defacement is an attack on a \nwebsite that changes the visual appearance of the site or a webpage. These are typically the work \nof hackers, who break into a web server and replace the hosted website with one of their own.  \n \n5.4.2.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nProvide the details URL of defaced or hacked website  \nii. \nIf you received or found website defacement/hacked information on media \nplatform/forums/blogs such as Facebook, Twitter, LinkedIn etc.  \na. Note down/ Copy (to your device/ desktop) the URL where you have seen such \ncontent  \nb. Provide the details like user ID, email or other  \nc. Take the screen shot of the page or save the page (as .pdf) showing content on \nyour device/ desktop for uploading the same as an evidence on the portal \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete website URL, \nhacked mirror URL, messenger Chat etc. as these could be needed by law enforcement agency \nas evidence for prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.14 \n \n5.4.2.2 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Hacking” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Website \nRelated/Defacement” \niii. \nWebsite Domain name ( Enter the website or URL) (Mandatory) \niv. \nOther Additional Details (Mandatory) \n \nv. \nSelect approximate “Date and Time” of incident (Mandatory)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p48_c1",
+    "page": 48,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p48_c2",
+    "page": 48,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 47 of 91 \n \nvi. \nGive “Reason for delay in reporting” \nvii. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nviii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.4.2.1) \n(Mandatory) \nix. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nx. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.5 Report Cryptocurrency Crime \n \nCrypto currency is created by solving a complex mathematical problem. RBI has not given any \nlicense/authorization to any entity/company to deal with any virtual currency. In the absence of a \nlegal framework, it is not advisable for citizens to deal with virtual currencies such as Bitcoin, \nRipple, and Lite coin etc. The legal framework regarding crypto-currencies is yet to be laid down.  \n \nThese currencies are normally used by criminals operating on the dark web or the hidden web. \nLegal, bonafide businesses do not normally use Bitcoin. Therefore, any request for business \ntransaction in Bitcoin should raise suspicious and should be avoided \n5.5.1 Cryptocurrency Related Fraud \nYou can report any crypto currency related frauds here. Provide the complete facts in brief about \nthe incident. \n \n5.5.1.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \ni. \nIf you have received cryptocurrency fraudulent SMS:  \na. Take the screenshot/s of the SMS (depicting the content details) and the sender \ndetails (name, other details) need to be updated on the portal as evidence \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you have received an E-mail:  \na. Save the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. If the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \niii. \nProvide the screenshots or copy of the details like what was hacked e.g. website URL, \nBitcoin address, wallet details, amount of Bitcoin involved or any information of the platform \nsource where incident has happened. \niv. \nProvide the address from/to whom purchase/sale of Bitcoin is done"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p49_c1",
+    "page": 49,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p49_c2",
+    "page": 49,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 48 of 91 \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nwebsite details, wallet details etc. as these could be needed by law enforcement agency as \nevidence for prosecuting the offender. \n \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.15 \n \n5.5.1.2 Complaint reporting \nGo to homepage, Click on File a Complaint Read and Accept the Acknowledgement Select \nReport Other Cyber Cime  Login \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Cryptocurrency \nCrime” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Cryptocurrency \nFraud” \niii. \nBitcoin Address/Details (Provide the alleged payment address details) (Mandatory) \niv. \nDarknet ID/ Details (Ex. website, emailID) (Mandatory) \n \nv. \nSelect approximate “Date and Time” of incident (Mandatory) \nvi. \nGive “Reason for delay in reporting” \nvii. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nviii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.4.2.1) \n(Mandatory) \nix. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nx. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p50_c1",
+    "page": 50,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p50_c2",
+    "page": 50,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 49 of 91 \n \n5.6 Report Online Trafficking \n \nConnecting over social media to make business connections, or buy legal goods or services may \nbe perfectly legitimate. However, connecting over social media to buy drugs, or other regulated, \ncontrolled or banned products is probably illegal. You can report any forms of trafficking committed \nusing the cyberspace e.g. victim’s recruitment, advertising trafficking such as women, children’s, \nlaborer’s, child pornography, selling of organs, drugs etc.  \n5.6.1 Online Trafficking \nYou can report incidents involving trafficking of women, children, men, drugs, weapons etc. wherein \nonline/internet is being used. To report a complaint under this sub-category user should have \ndetails like what is being trafficked, website URL, contact details, email or any information of the \nplatform source where incident has happened. \n \n5.6.1.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you received or found online illegal trafficking on messaging platform such as WhatsApp, \nHike etc.:  \na. \nTake the screenshot/s of the chats depicting the content with sender’s number along \nwith date and time for upload the same as evidence on the portal \nii. \nIf you received or found online illegal activity on social media platform/forums/blogs such \nas YouTube, Facebook, Instagram, Twitter etc.  \na. Note down/ Copy (to your device/ desktop) the URL or user ID where you have seen \nsuch content  \nb. Take the screen shot of the page or save the page (as .pdf) showing abusive content \non your device/ desktop for upload the same as an evidence on the portal \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not, messenger Chats, \nscreenshots, website URL etc. as these could be needed by law enforcement agency as evidence \nfor prosecuting the offender. \nNote2: For further details on above points you may refer to Annexure B and Annexure C Section \n3.16 \n \n5.6.1.2 Complaint reporting \nGo to homepage, Click on File a Complaint Read and Accept the Acknowledgement Select \nReport Other Cyber Cime  Login \n \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Trafficking” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Online \nTrafficking” \niii. \nWhat is being trafficked (women, children, men, drugs, weapons etc.) \niv. \nSocial Media Used (Mandatory) \nv. \nDarknet ID/ Details (Ex. website, emailID)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p51_c1",
+    "page": 51,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p51_c2",
+    "page": 51,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 50 of 91 \n \n \nvi. \nSelect approximate “Date and Time” of incident (Mandatory) \nvii. \nGive “Reason for delay in reporting” \nviii. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nix. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.6.1.1) \n(Mandatory) \nx. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxi. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n5.7 Report Online Gambling \n \n5.7.1 Online Gambling \nTo report a complaint under this category user should have details like illegal online gambling \ndetails, website URL and if complainant has lost the money then he/she may provide the banking \ntransaction details. \n \n5.7.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you have received illegal online gambling link through SMS:  \na. Take the screenshot/s of the SMS (depicting the objectionable content) and \nsender’s details (number or ID) the same need to be updated on the portal as \nevidence \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal \nii. \nIf you have received or found illegal online gambling content on messaging platform such \nas WhatsApp, Hike etc.:  \na. Take the screen shot of the chats depicting the gambling content details with \nsender’s details (number or ID) along with date and time for uploading the same as \nevidence on the portal"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p52_c1",
+    "page": 52,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p52_c2",
+    "page": 52,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 51 of 91 \n \niii. \nIf you have received or found content related illegal online gambling on social media \nplatform/forums/blogs such as YouTube, Facebook, twitter etc.  \na. Note down/ Copy (to your device/ desktop) the URL or user ID where you have seen \nsuch content  \nb. Take the screen shot of the page or save the page (as .pdf) showing content on \nyour device/ desktop for uploading the same as an evidence on the portal \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, \nmessenger Chats, screenshots etc. as these could be needed by law enforcement agency as \nevidence for prosecuting the offender. \n \nNote2: For further help on above points, refer to Annexure B Help \n \n5.7.1.1 Complaint reporting \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Online Gambling” \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Online \nGambling” \niii. \nGambling is related with (Ex. Poker, Betting, casino etc.) (Mandatory) \niv. \nHave you lost money? (Select Yes or No) If Yes then fill the below details \nv. \nTransaction ID/Details(Details about the transaction ID/reference no eg. 877687263) \n(Mandatory) \nvi. \nDate/Time of transaction dd/mm/yyyy (Mandatory) \nvii. \nBank Name from which payment was made (Mandatory) \nviii. \nAccount No. from which amount was paid (Mandatory) \nix. \nAmount Paid (Mandatory) \nx. \nBank in which amount was paid \nxi. \nAccount no. in which amount was paid  \nxii. \nMerchant details on which payment was made  \nxiii. \nGateway details"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p53_c1",
+    "page": 53,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p53_c2",
+    "page": 53,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 52 of 91 \n \n \n \nxiv. \nSelect approximate “Date and Time” of incident (Mandatory) \nxv. \nGive “Reason for delay in reporting” \nxvi. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nxvii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.1.7.1) \n(Mandatory) \nxviii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nxix. \nClick on Save and Next to proceed  \nTo proceed with next stage of complaint reporting refer to Step 5 under How to Report A \nComplaint \n \n \n \n5.8 Report Any Other Cyber Crime \n \nIf you find that your complaint does not fall under any of the listed categories/sub-categories, \nreport your complaint under this category and sub-category.  \n \n5.8.1 To report a complaint, you may keep following information ready before registering \nyour complaint: \n \ni. \nIf you have received cybercrime related information on SMS:  \na. Take the screenshot/s of the SMS (depicting the objectionable content) and sender \ndetails (name, ID) same need to be updated on the portal as evidence \nb. Note the date and time when you have received the SMS and same need to be \nupdated in the Incident description field while you report your complaint on the portal"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p54_c1",
+    "page": 54,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p54_c2",
+    "page": 54,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 53 of 91 \n \nii. \nIf you have received an email related to cybercrime: \na. \nSave the received e-mails in pdf or .eml format or take the screenshot/s of the \nreceived e-mail and the same needs to be uploaded on the portal as evidence  \nb. \nIf the received e-mails had an attachment/s, then keep the attachment/s ready on \nyour desktop/ device for updating the same as an evidence on the portal \niii. \nIf you received or found cybercrime related content on messaging platform such as \nWhatsApp, Hike, Skype etc.:  \na. \nTake the screenshot/s of the chats depicting the objectionable content with sender’s \nnumber along with date and time for uploading the same as evidence on the portal \niv. \nIf you received or found cybercrime related contents on social media platform/forums/blogs \nsuch as YouTube, Facebook, etc.  \na. Note down/ Copy (to your device/ desktop) the URL where you have seen such content  \nb. Take the screen shot of the page or save the page (as .pdf) showing abusive content \non your device/ desktop for uploading the same as an evidence on the portal \n \nNote1: In all above cases, you must preserve the original evidence i.e. do not delete SMSs, emails, \nattachment, messenger Chats, website URLS, screenshots etc. as these could be needed by law \nenforcement agency as evidence for prosecuting the offender. \nNote2: For further details on above points you may refer to Annexure B and Annexure C \nSections \n \n5.8.2 Complaint reporting \nGo to homepage, Click on File a Complaint Read and Accept the Acknowledgement Select \nReport Other Cyber Cime  Login \ni. \nSelect the “Category of complaint” (Mandatory) from the drop-down “Any Other Cyber \nCrime \nii. \nSelect the Sub-category of complaint (Mandatory) from the drop-down – “Other” \niii. \nProvide Other Crime Details (Mandatory) \niv. \nSelect approximate “Date and Time” of incident (Mandatory) \nv. \nGive “Reason for delay in reporting” \nvi. \nSelect the “Where did the incident occur?”- Select from the dropdown the source of \nevidence like social media platform (Facebook, Twitter, Instagram etc.), messaging \nplatform (WhatsApp, Hike etc.), e-mail, website, URL or other (Mandatory) \nvii. \nUpload evidence (Maximum allowable limit is 5 MB) as applicable. (Refer to 5.7.1) \n(Mandatory \nviii. \nProvide any additional information about the incident (which you think can be included in \nthe complaint and could help in investigation). (Mandatory) \nix. \nClick on Save and Next to proceed"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p55_c1",
+    "page": 55,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 54 of 91 \n \n \n \n \n \n6. TRACK COMPLAINT STATUS \n \nIn case you want to Track the status of your complaint. Go to homepage, Click on File a \nComplaint Read and Accept the Acknowledgement Select Report Other Cyber Cime \nLogin with registered user name & number  \n \na. \nYou need to fill the following details (Mandatory) to login into the system \ni. \nProvide User Name – which is given during reporting the complaint (Mandatory) \nii. \nEnter your Mobile Number (that you have entered while registering the complaint) \n(Mandatory) \niii. \nEnter OTP (received on mobile number) (Mandatory) \niv. \nType security answer for authentication \nv. \nClick Submit button"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p56_c1",
+    "page": 56,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 55 of 91 \n \nb. \nClick on “Check Status” option and select date to search for your registered complaint. Also, \nprogress of the reported complaint would be notified to the registered mobile number and email \n \n \n \n \n \n \n \n7. ADDITONAL FEATURES \n \n7.1 Recover Your Username \n \nIf You are forget your username, follow the following steps \ni. \nGo to login page and click on “Forget User name” \nii. Enter Registered Mobile Number (Mandatory) \niii. Type security answer for authentication  \niv. Click Submit button \n \nOnce you click on Submit button, you shall receive your ‘User Name’ on your registered mobile \nnumber. \n \n \n7.2 Update Mobile Number \n \nIn case, you want to update your registered mobile number, click on “Update Mobile Number” \nafter logging  \nI. \nEnter your new mobile number in “New Mobile Number” field (Mandatory) \nII. \nEnter the OTP received in updated mobile number. \nIII. \nType security answer for authentication"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p57_c1",
+    "page": 57,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 56 of 91 \n \nIV. \nClick Submit button \n \nAll the cases registered on the old mobile number will be mapped to new mobile number. \n \n \n \n7.3 Case Withdrawal \n \nIn case, you want to withdrawal your registered case, click on “Case Withdrawal” after logging  \nI. \nSelect the complaint ID and provide remarks for your complaint withdrawal (Mandatory) \nII. \nOnce you click on “submit” your case shall be withdrawn successfully. \nNote: You shall not be able to withdraw a complaint, if FIR has been lodged. \n \n \n \n \nAnnexure A: Types of various cybercrimes which can be reported by the citizens \n \nS.NO. \nCATEGORY \nSUB-CATEGORY \n1 \nCHILD PORNOGRAPHY (CP)/CHILD SEXUAL \nABUSE MATERIAL (CSAM) \nNot Applicable \n2 \nRAPE/GANG RAPE(RGR)-SEXUALLY \nABUSIVE CONTENT \nNot Applicable \n3 \nSEXUALLY EXPLICIT CONTENT \nNot Applicable"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p58_c1",
+    "page": 58,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 57 of 91 \n \nS.NO. \nCATEGORY \nSUB-CATEGORY \n4 \nSOCIAL MEDIA RELATED CRIMES \nCYBER BULLYING / STALKING /SEXTING \nFAKE/IMPERSONATING PROFILE \nPROFILE HACKING \nIMPERSONATING EMAIL \nEMAIL HACKING \nTHREATENING EMAIL \nONLINE JOB FRAUD \nONLINE MATRIMONIAL FRAUD \nPROVOCATIVE SPEECH \nE-MAIL PHISHING \n5 \nONLINE FINANCIAL FRAUD \nDEBIT/CREDIT CARD FRAUD \nINTERNET BANKING RELATED FRAUD \nBUSINESS FRAUDS/EMAIL TAKEOVER \nFRAUD CALL/VISHING \nE-WALLET RELATED FRAUD \nSIM SWAP FRAUD \n6 \nRANSOMWARE \nRANSOMWARE \n7 \nHACKING \nUNAUTHORISED ACCESS/DATA BREACH \nWEBSITE RELATED/ DEFACEMENT \n8 \nCRYPTOCURRENCY RELATED CRIME \nCRYPTOCURRENCY RELATED FRAUD \n9 \nONLINE TRAFFICKING \nONLINE TRAFFICKING \n10 \nONLINE GAMBLING \nONLINE GAMBLING \n11 \nANY OTHER CYBER CRIME \nOTHER \nAnnexure B: Help \n \n1. How to take a screenshot on Smartphone device \n \n1.1 \nAndroid screenshot \nFollowing are the steps to take screenshot from your android smartphone: \nI. \nNavigate to the screen you want to take a picture of. \nII. \nHold the Power button down for a few seconds. \nIII. \nPress “Screenshot” on your phone screen."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p59_c1",
+    "page": 59,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 58 of 91 \n \nIV. \nIf that doesn’t work, hold the Power and Volume buttons at the same time for a few seconds. \nV. \nIf you see an animation of your screen shrinking, your phone has taken a picture of your \nscreen and saved it in your photos app. \nVI. \nYou can find the image in the Screenshots folder under Gallery app. \nVII. \nAttach the screenshot as evidence on attachment.  \n \n \nScreenshot: Android phone \n1.2 \niPhone screenshot \n \nFollowing are the steps to take screenshot from your iPhone: \nI. \nOpen the app or screen you want to capture. \nII. \nSet up everything exactly the way you want it for the shot. \nIII. \nPress and hold the Side button on the right side of iPhone X, iPhone XS, iPhone XS Max, \nor iPhone XZR. \nIV. \nClick the Volume Up button at the exact same time. (This replaces the Home button step \nfrom previous iPhones.) \nV. \nThe screen will flash white and you will hear the camera shutter sound (if your sound is \nenabled)."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p60_c1",
+    "page": 60,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 59 of 91 \n \n \nScreenshot: iPhone  \n \n2. \nHow to view and copy Facebook URL/Link: \n \n2.1 \nFrom desktop or laptop View \nI. \nClick on the image/video/post whose URL you want to view. \nII. \nThe full URL will be seen on the address bar \nIII. \nCopy the Facebook Profile URL/Page/Post in the address bar of your browser into a file or \ndocument. (Ex: Facebook Profile URL facebook.com/profile.php?id=123456) \n \n \nScreenshot: Facebook Profile URL \n2.2 \nFrom mobile view \nI. \nOpen Facebook on your mobile device, navigate to the profile page, and click more."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p61_c1",
+    "page": 61,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 60 of 91 \n \nII. \nSelect “Copy Link to Profile” \n \n \nScreenshot: How to Copy Facebook User Profile from mobile \n \nIII. \nClick on “Copy the link”. \n \nScreenshot: Facebook Copy Link \n \nIV. \nTo see the URL, you have to paste it on notepad or any text editor"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p62_c1",
+    "page": 62,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 61 of 91 \n \n3. How to view and copy YouTube URL/Link: \n \n3.1 \nFrom desktop or laptop view \nI. \nClick on the video whose URL you want to view. \nII. \nThe full URL will be seen on the address bar \nIII. \nCopy the YouTube URL in the address bar of your browser into a file or document \n \nEx: YouTube URL (youtube.com/watch?v=-qACQjC5J0w) \n \nScreenshot: How to copy YouTube URL \n3.2 \nFrom mobile view \nI. \nOpen the YouTube app on mobile \nII. \nLook or search for the video you want to copy \nIII. \nFind the tripe vertical dots on the top right corner of the video thumbnail or details \nIV. \nTap on it and select “Share” \n \n \n \nV. \nYou will see a new Share window, select “Copy link” \nVI. \nSimply paste the link it on notepad or any text editor"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p63_c1",
+    "page": 63,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 62 of 91 \n \n4. How to copy Twitter Post URL \n \nI. Navigate to the Tweet you’d like the URL of. \nII. Tap the drop-down arrow  \nIII. Select Copy link to Tweet. The URL should now be copied to your clipboard. \n \n \nScreenshot: Copy twitter tweet link \n \nIV. \nTo take a screenshot of twitter message, navigate to the inbox chat message and take \nscreenshot. It will also capture the twitter user ID (@Twitter ID). \n \n \n \n \nTwitter Message Snapshot"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p64_c1",
+    "page": 64,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 63 of 91 \n \n \n5. How to copy Instagram User profile URL \n \nIn the Instagram app, find the photo or video you want to copy the URL. When you have found it, \ntap on the” …” icon above it. This will bring up several options. Select Copy Profile URL Link \n \n \nScreenshot: Instagram Profile URL \n \nAs well, navigate to the Instagram message inbox and take a screenshot of the chat  \n \n \nScreenshot: Instagram Chat/User Profile"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p65_c1",
+    "page": 65,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 64 of 91 \n \n6. How to export WhatsApp chat \nFollowing are the steps for WhatsApp Application chat  \n \n6.1 \nWhatsApp chat screenshot \nI. \nNavigate to the chat screen for the individual or group you want to take a picture of. (Provide \nthe name and number of the sender/group) \nII. \nYou can find the image in the Screenshots folder under Gallery app. \n \nWhatsApp IM Chat screenshot \n \n6.2 \nExport Chat from Android \n \nTo export a copy of the history of an individual chat or group, use the Export chat feature: \nI. \nNavigate to the chat screen for the individual or group you want to take a picture of. \nII. \nTap More options \n. \nIII. \nTap More. \nIV. \nTap Export chat. \n \n \nScreenshot: Export WhatsApp Chat"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p66_c1",
+    "page": 66,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p66_c2",
+    "page": 66,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 65 of 91 \n \nChoose whether to Include Media or not. \n \n \nScreenshot: Export WhatsApp chat on Mail \nAn email will be composed with your chat history attached as a .txt document. \n \nNote: \n \nIf you choose to attach media, the most recent media sent will be added as attachments. \n \nWhen sending with media, you can send up to 10,000 latest messages. Without media, you \ncan send 40,000 messages. These constraints are due to maximum email sizes. \n \n6.3 \nExport chat from iPhone \nYou can email yourself a chat history if you'd like to save a chat: \n \nI. \nOpen the WhatsApp chat you want to email. \nII. \nTap the contact's name or group subject. \nIII. \nTap Export Chat. \nIV. \nSelect if you want to Attach Media or email the chat Without Media. \nV. \nTap the Mail app. You can also tap More for additional options. \nVI. \nEnter your email address and tap Send. \n \n7. How to copy TikTok video URL \nTikTok app is a social media platform for creating, sharing and discovering short music videos, \nthink Karaoke for the digital age. Following are the steps to copy TikTok profile or social media \npost using a smartphone \n \nI. \nOpen TikTok on your phone; Open the video and take a screenshot as well copy of the \nsuspect TikTok userID. Ex.@suspectuser \n \nScreenshot: TikTok User ID"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p67_c1",
+    "page": 67,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 66 of 91 \n \nII. \nYou can copy the video link by clicking on share link option, after that it will open new \nwindows via any email, messaging, or social media app in the list. This opens a new \nmessage or post in the selected app. \n \nScreenshot: Copy Link of Tiktok Video \n \nIII. \nClick on the Copy link and paste it on any file or document.  \n \nScreenshot: Example of TikTok Video URL \n \n8. How to export and copy E-mail Header  \nFollowing are the steps for how to copy and save email headers: \n \n8.1 \nGmail email header \nI. \nTo get an email header from Gmail, open the email within your web browser."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p68_c1",
+    "page": 68,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 67 of 91 \n \n \n \nClick on drop-down arrow and see the senders & reply-to email  \n \n \n \nClick the drop-down arrow (more) next to the reply button and choose \"Show Original\". \n \n \n \nOnce the new page opens then click on “Copy to Clipboard” then paste the copied content in \nnotepad or any text editor."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p69_c1",
+    "page": 69,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 68 of 91 \n \nOtherwise you can download the email by clicking on “Download Original”, all email content \nincluding header will get download as .eml format. Attach this (.eml) downloaded file as evidence. \n \n \nDownload Email in (.eml) format \n \n \n8.2 \nNIC mail Header \n \nFollowing are the steps to copy email header of NIC mails \nI. \nOpen the NIC email within your web browser.  \nII. \nRight click on mail and navigate to OtherDisplay Full Headers"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p70_c1",
+    "page": 70,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 69 of 91 \n \n \n \nIII. \nAfter clicking on Display Full Headers, a pop-up window will appear. Then scroll down and \ncopy all email headers; paste on notepad or any document. \n \n \n \n8.3 \nProtonMail email Header \n \nFollowing are the steps to export ProtonMail email headers in (.eml) format \nI. \nOpen the email within your web browser.  \nII. \nClick on drop-down arrow and see the senders & reply-to email  \nIII. \nClick the drop-down arrow (more) next to the reply button and choose \"Export\"."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p71_c1",
+    "page": 71,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p71_c2",
+    "page": 71,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 70 of 91 \n \n \n \nAfter click on “Export”, email header data will download as .eml format then send as attachment. \n \n \nFor Yahoo Mail Header following are the steps:  \nI. \nLog in to Yahoo! Mail. \nII. \nOpen the message for which you wish to view the headers. \nIII. \nClick the More (gear) icon above the message pane. \nIV. \nIn the menu, select View Raw Message. A new tab opens containing your message’s \nheaders, which you can now copy and paste. \n \nFor Outlook Mail Header following are the steps:  \nI. \nLogin into your account \nII. \nSelect Inbox from the left-side menu \nIII. \nOpen the message you want to see the header and click file tab \nIV. \nThe full headers will appear in a new window. \n \nFor other mail refer to https://mxtoolbox.com/public/content/emailheaders/ \n \n8.4 \nHow to save email in PDF \n \n8.4.1 To save Gmail email in pdf \nI. \nTo save a Gmail email in PDF format, open the email within your web browser.  \nII. \nClick the drop-down arrow (more) next to the reply button and choose \"Print\". Or Click the \nprinter icon. It’s near the top-right corner of the message.  \nIII. \nClick “Print”. The Gmail Print screen will appear."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p72_c1",
+    "page": 72,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 71 of 91 \n \n \n \n \nIV. \nClick Change. It’s beneath the printer in the left column of the print screen. Click Save as \n“PDF” \n \nScreenshot: Save as PDF \n \nV. \nClick Save. The email message will now download to your computer as a PDF file. \n \nScreenshot: Click on save"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p73_c1",
+    "page": 73,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 72 of 91 \n \n \nScreenshot: Save Email as PDF  \n \n8.4.2 Using the Mail App on a Mac \n \nI. \nOpen the Mail app. It’s the icon of a stamp with an eagle inside. You’ll usually find it on the \nDock and on the Launchpad. \n \n \nScreenshot: Open Mail App \n \nII. \nClick the message you want to download as a PDF. \nIII. \nClick the File menu. It’s in the menu bar near the top-left corner of the screen. \n \n \nScreenshot: Export mail as PDF"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p74_c1",
+    "page": 74,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 73 of 91 \n \nIV. \nClick Export as PDF. Select a saving location. \nV. \nClick Save. The PDF is now saved to the selected folder. \n \n \nScreenshot: Save Mail in PDF \n \n9. How to upload any evidence on the portal \n \nNavigate to Supporting option under Incident Details, click on “Choose File”. \n \nScreenshot: Upload evidence \n \nNote: Select the evidence for the attachment. This upload feature accepts .txt .png .jpeg. jiff .rtf \n.jpg .dib .gif .doc .ppt .docx .pptx .pdf. epub .bmp .avi .wmv .3gp .mp4 .mkv .mov .flv .mpg. webm \nfile types and the maximum file size of 5 mb."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p75_c1",
+    "page": 75,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 74 of 91 \n \n \nAfter selecting the evidence then click on Add button."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p76_c1",
+    "page": 76,
+    "text": ""
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p76_c2",
+    "page": 76,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 75 of 91 \n \nAnnexure C: Sample of Evidences \n \nTo report a complaint user shall have following evidence/information details may include, but not \nlimited to: \n \nCopy or screenshot/s of alleged contents/profile \n \nScreenshot copy of URL of alleged contents \n \nAlleged and user Email ID, Contact details \n \nBank statement from the concerned bank \n \nTake a copy or screenshot/s of SMSs received related to the alleged transactions \n \nCopy of your ID proof and address proof as shown in the bank records \n \nContents should be in both hard & soft forms \n \nEmail should be taken from the original receiver. Copy of the forwarded email should be \navoided \n \nFull Header of the alleged Email (prefer .eml format) \n \nCopy of email and header should be in both hard & soft forms \n \nFollowing are some evidence samples which may be provided on the other online cybercrime \ncategories: \n \n3.1 \nSample Evidence for Cyber Cullying/Stalking/Sexting \nFollowing \nare \nsome \nevidence \nsamples \nwhich \nmay \nbe \nprovided \non \nthe \nCyber \nCullying/Stalking/Sexting categories \n \n \nScreenshot: Twitter & Instagram Chat/User Profile \n \n3.2 \nSample Evidence for Fake Impersonating Profile \nFollowing are some evidence samples which may be provided on the Fake impersonating profile \ncategories \n(For example, attached fake Twitter ID: @wc***********n_)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p77_c1",
+    "page": 77,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 76 of 91 \n \n \n3.3 \nSample Evidence for Impersonating Email  \nFollowing are some evidence samples which may be provided on the impersonating email \ncategory: \nSuspect Email ID: ref-dpt01@incometaxindia.in \n \n \nScreenshot: Impersonating mail \n \n3.4 \nSample Evidence for Online Job Fraud \nFollowing are some evidence samples which may be provided on the online job fraud category: \nFor example, need to provide details on portal: \nPerson Name : Mr. Shashank \nCompany \n: Airways LTD \nAddress \n: Jet Limited, 319, Udyog Nagar Vihar, Phase IV, Gurgaon -122016 \nEmail  \n: career@job.com, number: +91-99999-88888"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p78_c1",
+    "page": 78,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 77 of 91 \n \n \nScreenshot: Fake Job OfferLetter"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p79_c1",
+    "page": 79,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 78 of 91 \n \n \nScreenshot: Fake Email of HR hrmanager@ashokleylandrecruitment.in  \n \nFor example: Account details alleged in case: 6412596544 \n \nScreenshot: Account Details  \n \n3.5 \nSample Evidence for Online Matrimonial Fraud \nFollowing are some evidence samples which may be provided on the online matrimonial fraud \ncategory:"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p80_c1",
+    "page": 80,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 79 of 91 \n \n \nScreenshot: Matrimonial company payment receipt \n \n \nScreenshot: WhatsApp and Bank transaction details \n \n3.6 \nSample Evidence for Threatening Email \nFollowing are some evidence samples which may be provided on the threatening email category:"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p81_c1",
+    "page": 81,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 80 of 91 \n \n \nScreenshot: Threatening Email \n \n3.7 \nSample Evidence for Business Frauds/Email Takeover \nFollowing are some evidence samples which may be provided on the business frauds/email \ncategory: \n \n \nScreenshot: Email Body"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p82_c1",
+    "page": 82,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 81 of 91 \n \n \nScreenshot: Senders Email \n \n3.8 \nSample Evidence for Debit/Credit Card SIM Swap Fraud \nFollowing are some evidence samples which may be provided on the debit/credit card, SIM swap \nfraud category: \n \n \nScreenshot: Transaction detail, bank account slip"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p83_c1",
+    "page": 83,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 82 of 91 \n \n \n \n \nScreenshot: Mini statement  \n \n \nScreenshot: Notification bank SMS"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p84_c1",
+    "page": 84,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 83 of 91 \n \n \nScreenshot: Debit/Credit SIM swap fraud \n \n3.9 \nSample Evidence for E-wallet Fraud \nFollowing are some evidence samples which may be provided on the e-wallet category: \n \n \n \nScreenshot: E-wallet transaction frauds SMS"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p85_c1",
+    "page": 85,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 84 of 91 \n \n3.10 \nSample Evidence for Fraud Call/ Vishing \nFollowing are some evidence samples which may be provided on the fraud call/Vishing category: \n \n \nScreenshot: Obscene Caller Number \n \n3.11 \nSample Evidence for Internet Banking Related Fraud \nFollowing are some evidence samples which may be provided on the internet banking related \ncategory: \nTo report Copy of your ID proof and address proof as shown in the bank records."
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p86_c1",
+    "page": 86,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 85 of 91 \n \n \n \nScreenshot: Bank Statement \n \n3.12 \nSample Evidence for Ransomware \n \nFollowing are some evidence samples which may be provided on the Ransomware category:"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p87_c1",
+    "page": 87,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 86 of 91 \n \n \nPayment details and Email \nFor example: BTC amount 3 BTC \nBTC account address: 18XXV3h9zzz1R4v6DGmfgcooG1Vk9B1m \nEmail decrypt2017@india.com \n \nScreenshot: Ransomware Details \n \n3.13 \nSample Evidence for Unauthorized Access Data/Breach \nFollowing are some evidence samples which may be provided on the unauthorized access data \nbreach category: \nExample: Website URL: https://pastebin.com/0a4xKSn2"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p88_c1",
+    "page": 88,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 87 of 91 \n \n \nScreenshot: Website URL and content \n \n3.14 \nSample Evidence for Website Related/Defacement \nFollowing are some evidence samples which may be provided on the website related/defacement \ncategory: \nFor example (Website URL: www.website.gov.in) \n \nScreenshot: Website defacement upsc.gov.in \n \nOther info: Mirror page of hacked website"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p89_c1",
+    "page": 89,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 88 of 91 \n \n \nScreenshot: Mirror image of defaced website (website.gov.in) on zone-h \n \n3.15 \nSample Evidence for Cryptocurrency Fraud \nFollowing are some evidence samples which may be provided on the cryptocurrency fraud \ncategory: \nFor example (Transaction details BTC address: 1FjqYtC3wwfzpAQDcRRTJRZguksfQRWeDq)"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p90_c1",
+    "page": 90,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 89 of 91 \n \n \nSellers Btc Address : 1FjqYtC3wwfzpAQDcRRTJRZguksfQRWeDw \nSeller business page https://www.facebook.com/wedvs"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p91_c1",
+    "page": 91,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 90 of 91 \n \n \nSnapshot: SMS Bitcoin details \n \n3.16 \nSample Evidence for Online Trafficking \nFollowing are some evidence samples which may be provided on the online trafficking category: \nFor example: UserID: seller userid, m***********g \nMessaging app: Instagram"
+  },
+  {
+    "filename": "MHA-CitizenManualReportOtherCyberCrime-v10.pdf",
+    "chunk_id": "MHA-CitizenManualReportOtherCyberCrime-v10_p92_c1",
+    "page": 92,
+    "text": "USER MANUAL FOR NATIONAL CYBERCRIME REPORTING PORTAL \n \nPage 91 of 91 \n \n \nScreenshot: User ID and Contact details  \n \n \nScreenshot: User ID"
+  }
+]

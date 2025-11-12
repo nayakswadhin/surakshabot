@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #000080;
+        }
+        .logo-section {
+            background: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+        .emblem {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+        .gov-title {
+            color: #000080;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        .alert-banner {
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .urgent-banner {
+            background: #ff0000;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            animation: blink 1.5s linear infinite;
+        }
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .location-box {
+            background: #fff3cd;
+            border: 3px solid #ff0000;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .location-badge {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .section {
+            margin: 25px 0;
+        }
+        .section-title {
+            color: #dc3545;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .icon {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        .critical-box {
+            background: #ffe6e6;
+            border-left: 5px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .precautions {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .precaution-item {
+            margin: 12px 0;
+            padding-left: 25px;
+            position: relative;
+            font-weight: 500;
+        }
+        .precaution-item:before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+            font-size: 16px;
+        }
+        .fraud-types {
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .fraud-item {
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-left: 3px solid #dc3545;
+            padding-left: 15px;
+        }
+        .contact-box {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .helpline-number {
+            color: #dc3545;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stats-box {
+            background: #fff;
+            border: 2px solid #dc3545;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="emblem">🇮🇳</div>
+                <div class="gov-title">भारत सरकार<br>Government of India</div>
+                <div class="subtitle">Ministry of Home Affairs</div>
+                <div class="subtitle"><strong>Cyber Crime Prevention System</strong></div>
+            </div>
+        </div>
+        
+        <!-- Urgent Banner -->
+        <div class="urgent-banner">
+            ⚠️ URGENT LOCATION-SPECIFIC ALERT ⚠️
+        </div>
+        
+        <!-- Alert Banner -->
+        <div class="alert-banner">
+            🚨 HIGH CYBER FRAUD ACTIVITY IN YOUR AREA 🚨
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="greeting">
+                <strong>Dear Resident,</strong>
+            </div>
+            
+            <p><strong style="color: #dc3545;">CRITICAL ALERT:</strong> This is an official notification from the National Cyber Crime Reporting Portal regarding increased fraudulent activities in your area.</p>
+            
+            <!-- Location Details -->
+            <div class="location-box">
+                <div style="font-size: 20px; font-weight: bold; color: #dc3545;">📍 YOUR LOCATION</div>
+                <div class="location-badge">T Nagar, Chennai</div>
+                <div class="stats-box" style="margin-top: 15px;">
+                    <div style="font-size: 14px; color: #666;">RECENT FRAUD CASES REPORTED</div>
+                    <div class="stat-number">29</div>
+                    <div style="font-size: 12px; color: #666;">in Chennai district</div>
+                </div>
+            </div>
+            
+            <!-- Critical Information -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">🔴</span> IMMEDIATE PRECAUTIONS REQUIRED
+                </div>
+                <div class="precautions">
+                    <div class="precaution-item">Be EXTREMELY cautious with all unknown calls and messages</div>
+                    <div class="precaution-item">Verify ALL financial transaction requests through official channels</div>
+                    <div class="precaution-item">Do NOT click on suspicious links from unknown sources</div>
+                    <div class="precaution-item">Enable two-factor authentication on all your accounts immediately</div>
+                    <div class="precaution-item">Never share OTP, passwords, or banking details with anyone</div>
+                </div>
+            </div>
+            
+            <!-- Common Frauds in Area -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">⚠️</span> COMMON FRAUD TYPES IN YOUR AREA
+                </div>
+                <div class="fraud-types">
+                    <div class="fraud-item"><strong>1. WhatsApp/Social Media Impersonation</strong> - Fraudsters posing as government officials or relatives</div>
+                    <div class="fraud-item"><strong>2. Digital Arrest Scams</strong> - Fake police/CBI officers threatening arrest</div>
+                    <div class="fraud-item"><strong>3. Financial Fraud</strong> - Fake loan offers, investment schemes, lottery wins</div>
+                    <div class="fraud-item"><strong>4. OTP/Banking Frauds</strong> - Requests for OTP, CVV, or account details</div>
+                </div>
+            </div>
+            
+            <!-- Warning Box -->
+            <div class="critical-box">
+                <strong>🚨 REMEMBER:</strong> No government agency, bank, or legitimate organization will EVER ask for your:
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>OTP (One-Time Password)</li>
+                    <li>ATM PIN or CVV</li>
+                    <li>Complete card details</li>
+                    <li>Bank account passwords</li>
+                    <li>Money transfer or payments</li>
+                </ul>
+            </div>
+            
+            <!-- Emergency Contact -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">📞</span> REPORT IMMEDIATELY
+                </div>
+                <div class="contact-box">
+                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">If you suspect any fraud:</div>
+                    <div class="helpline-number">1930</div>
+                    <div style="margin: 15px 0;">
+                        <div>📧 complaints@cybercrime.gov.in</div>
+                        <div>🌐 <a href="https://cybercrime.gov.in">cybercrime.gov.in</a></div>
+                        <div>💬 WhatsApp Support Available</div>
+                    </div>
+                    <div style="background: #fff; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <strong>⏰ Available 24x7</strong> | Toll-Free | Immediate Action
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 25px; padding: 20px; background: #dc3545; color: white; border-radius: 5px; text-align: center;">
+                <strong style="font-size: 18px;">YOUR AREA IS AT HIGH RISK!</strong><br>
+                <span style="font-size: 14px;">Please share this alert with family, friends, and neighbors</span>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div><strong>National Cyber Crime Reporting Portal</strong></div>
+            <div>Ministry of Home Affairs, Government of India</div>
+            <div style="margin-top: 10px;">
+                Alert Generated: 07 November 2025 at 22:14:11 IST
+            </div>
+            <div style="margin-top: 10px; font-style: italic;">
+                This is an official automated alert. Do not reply to this email.<br>
+                For assistance, contact 1930 or visit cybercrime.gov.in
+            </div>
+        </div>
+    </div>
+</body>
+</html>

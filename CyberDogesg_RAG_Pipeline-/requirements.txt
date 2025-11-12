@@ -1,0 +1,27 @@
+# Core API Framework
+fastapi>=0.104.1
+uvicorn>=0.24.0
+pydantic>=2.5.0
+
+# Environment & Configuration
+python-dotenv>=1.0.0
+
+# Vector Database
+pinecone>=5.0.0
+
+# Google Gemini AI for LLM
+google-generativeai>=0.3.0
+
+# Machine Learning (for TF-IDF embeddings)
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Utilities
+requests>=2.31.0
+tqdm>=4.66.0
+
+# Sentence Transformers (for better embeddings and confidence scores)
+sentence-transformers>=2.2.2
+torch>=2.1.0
+transformers>=4.35.2
+huggingface-hub>=0.19.4
