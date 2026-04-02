@@ -3,11 +3,16 @@ require("dotenv").config();
 
 class EmailService {
   constructor() {
+    this.transporter = null;
+    // Store OTPs temporarily with expiration
+    this.otpStore = new Map();
+
     // Validate email configuration
     if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
       console.error(
-        "⚠️  Email configuration missing! Please set SMTP_EMAIL and SMTP_PASSWORD in .env file"
+        "⚠️  Email configuration missing! Please set SMTP_EMAIL and SMTP_PASSWORD in .env file",
       );
+      return;
     }
 
     // Create transporter for sending emails
@@ -32,13 +37,13 @@ class EmailService {
       console.error("✗ Failed to initialize email service:", error.message);
     }
 
-    // Store OTPs temporarily with expiration
-    this.otpStore = new Map();
-
     // Clean up expired OTPs every 10 minutes
-    setInterval(() => {
-      this.cleanupExpiredOtps();
-    }, 10 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanupExpiredOtps();
+      },
+      10 * 60 * 1000,
+    );
   }
 
   /**
@@ -60,7 +65,7 @@ class EmailService {
       // Verify email configuration first
       if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
         console.error(
-          "Email service not configured properly. Please set SMTP_EMAIL and SMTP_PASSWORD in .env"
+          "Email service not configured properly. Please set SMTP_EMAIL and SMTP_PASSWORD in .env",
         );
         return {
           success: false,
@@ -245,7 +250,7 @@ This is an automated message from 1930 Cyber Helpline, Government of India.
       const info = await this.transporter.sendMail(mailOptions);
 
       console.log(
-        `✓ OTP sent successfully to ${email} for phone ${phoneNumber}`
+        `✓ OTP sent successfully to ${email} for phone ${phoneNumber}`,
       );
       console.log(`Message ID: ${info.messageId}`);
 
